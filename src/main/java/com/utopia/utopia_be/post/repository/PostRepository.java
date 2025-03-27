@@ -8,5 +8,5 @@ import com.utopia.utopia_be.post.domain.Post;
 
 public interface PostRepository extends JpaRepository<Post, Long> {
 
-	Optional<Post> findById(Long id);
+  Optional<Post> findById(Long id);
 }

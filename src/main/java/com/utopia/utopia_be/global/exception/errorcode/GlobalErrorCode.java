@@ -9,13 +9,12 @@ import lombok.RequiredArgsConstructor;
 @Getter
 @RequiredArgsConstructor
 public enum GlobalErrorCode implements ErrorCode {
+  INVALID_PARAMETER(HttpStatus.BAD_REQUEST, "Invalid parameter included"),
+  RESOURCE_NOT_FOUND(HttpStatus.NOT_FOUND, "Resource not exists"),
+  INTERNAL_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "Internal server error"),
+  FILE_CONVERT_FAIL(HttpStatus.INTERNAL_SERVER_ERROR, "file convert failed"),
+  ;
 
-	INVALID_PARAMETER(HttpStatus.BAD_REQUEST, "Invalid parameter included"),
-	RESOURCE_NOT_FOUND(HttpStatus.NOT_FOUND, "Resource not exists"),
-	INTERNAL_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "Internal server error"),
-	FILE_CONVERT_FAIL(HttpStatus.INTERNAL_SERVER_ERROR, "file convert failed"),
-	;
-
-	private final HttpStatus httpStatus;
-	private final String message;
+  private final HttpStatus httpStatus;
+  private final String message;
 }
