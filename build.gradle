@@ -63,3 +63,15 @@ spotless {
 		indentWithSpaces(4)          // 공백 4칸 들여쓰기
 	}
 }
+
+// Git Hook 자동 복사 Task
+tasks.register('updateGitHooks', Copy){
+	from new File(rootProject.rootDir, 'scripts/pre-commit')
+	into new File(rootProject.rootDir, '.git/hooks')
+	fileMode = 0775  // Gradle8 부터 fileMode는 deprecated (추후 문제가 생기면 리팩토링 진행 예정)
+}
+
+tasks.named('compileJava'){
+	dependsOn 'spotlessApply'
+	dependsOn 'updateGitHooks'
+}
