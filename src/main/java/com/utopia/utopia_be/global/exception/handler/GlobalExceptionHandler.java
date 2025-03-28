@@ -14,12 +14,14 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExcep
 
 import io.micrometer.common.lang.NonNull;
 
+import com.utopia.utopia_be.auth.exception.AuthException;
 import com.utopia.utopia_be.global.exception.errorcode.ErrorCode;
 import com.utopia.utopia_be.global.exception.errorcode.GlobalErrorCode;
 import com.utopia.utopia_be.global.exception.response.ErrorResponse;
 import com.utopia.utopia_be.global.exception.response.ErrorResponse.ValidationError;
 import com.utopia.utopia_be.global.exception.response.ErrorResponse.ValidationErrors;
 import com.utopia.utopia_be.post.exception.PostException;
+import com.utopia.utopia_be.user.exception.UserException;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
@@ -31,6 +33,16 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
    */
   @ExceptionHandler(PostException.class)
   public ResponseEntity<Object> handlePostException(final PostException e) {
+    return handleExceptionInternal(e.getErrorCode());
+  }
+
+  @ExceptionHandler(AuthException.class)
+  public ResponseEntity<Object> handleAuthException(final AuthException e) {
+    return handleExceptionInternal(e.getErrorCode());
+  }
+
+  @ExceptionHandler(UserException.class)
+  public ResponseEntity<Object> handleUserException(final UserException e) {
     return handleExceptionInternal(e.getErrorCode());
   }
 
