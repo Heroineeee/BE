@@ -2,6 +2,8 @@ package com.utopia.utopia_be.user.domain;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -31,13 +33,18 @@ public class User extends BaseEntity {
   @Column(name = "nickname", unique = true)
   private String nickname;
 
+  @Column(name = "password")
+  private String password;
+
   @Column(name = "login_type", nullable = false)
+  @Enumerated(EnumType.STRING)
   private LoginType loginType;
 
   @Column(name = "sincerity_score", nullable = false)
   private Long sincerityScore = 50L;
 
   @Column(name = "role", nullable = false)
+  @Enumerated(EnumType.STRING)
   private Role role = Role.ROLE_USER;
 
   @Builder
