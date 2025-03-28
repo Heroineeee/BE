@@ -25,12 +25,13 @@ public class AuthController {
 
   private final AuthService authService;
 
-  @Operation(summary = "소셜 로그인", description = "소셜 로그인을 진행합니다. (카카오) 인가코드를 넣어주세요.")
+  @Operation(summary = "소셜 로그인 / 회원가입", description = "소셜 로그인을 진행합니다. (카카오) 인가코드를 넣어주세요.")
   @GetMapping("/login/{loginType}")
   public ResponseEntity<ApiResponse<Object>> Login(
       @PathVariable LoginType loginType, @RequestParam String code) {
 
-    return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.EMPTY_RESPONSE);
+    return ResponseEntity.status(HttpStatus.OK)
+        .body(ApiResponse.from(authService.socialLogin(loginType, code)));
   }
 
   @Operation(summary = "기본 회원가입", description = "이메일과 비밀번호로 회원가입합니다.")
