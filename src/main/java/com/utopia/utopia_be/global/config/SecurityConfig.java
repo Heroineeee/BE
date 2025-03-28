@@ -9,13 +9,22 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
+import lombok.RequiredArgsConstructor;
+
+import com.utopia.utopia_be.auth.filter.JwtAuthFilter;
+import com.utopia.utopia_be.auth.util.JwtTokenProvider;
+
 @Configuration
 @EnableWebSecurity
+@RequiredArgsConstructor
 public class SecurityConfig {
+
+  private final JwtTokenProvider jwtTokenProvider;
 
   @Bean
   public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
@@ -37,7 +46,10 @@ public class SecurityConfig {
                     .permitAll()
                     .anyRequest()
                     .authenticated() // 그 외의 경로는 인증된 사용자만 접근 가능
-            );
+            )
+        .addFilterBefore(
+            new JwtAuthFilter(jwtTokenProvider),
+            UsernamePasswordAuthenticationFilter.class); // JWT 필터 추가
 
     return http.build();
   }
