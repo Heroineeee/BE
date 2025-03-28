@@ -5,14 +5,17 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
+import com.utopia.utopia_be.auth.dto.request.BasicLoginRequest;
 import com.utopia.utopia_be.auth.dto.response.LoginResponse;
 import com.utopia.utopia_be.auth.service.AuthService;
 import com.utopia.utopia_be.global.response.ApiResponse;
@@ -38,13 +41,15 @@ public class AuthController {
 
   @Operation(summary = "기본 회원가입", description = "이메일과 비밀번호로 회원가입합니다.")
   @PostMapping("/signup")
-  public ResponseEntity<ApiResponse<Object>> signUp() {
+  public ResponseEntity<ApiResponse<Object>> signUp(
+      @Valid @RequestBody BasicLoginRequest basicLoginRequest) {
     return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.EMPTY_RESPONSE);
   }
 
   @Operation(summary = "기본 로그인", description = "이메일과 비밀번호로 로그인합니다.")
   @PostMapping("/login")
-  public ResponseEntity<ApiResponse<?>> login() {
+  public ResponseEntity<ApiResponse<?>> login(
+      @Valid @RequestBody BasicLoginRequest basicLoginRequest) {
     return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.EMPTY_RESPONSE);
   }
 }
