@@ -1,0 +1,37 @@
+package com.utopia.utopia_be.user.domain;
+
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+
+import com.utopia.utopia_be.global.entity.BaseEntity;
+import com.utopia.utopia_be.user.domain.type.LoginType;
+
+@Table(name = "users")
+@Entity
+@Getter
+@NoArgsConstructor
+public class User extends BaseEntity {
+
+  @Id
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  @Column(name = "id")
+  private Long id;
+
+  @Column(name = "email", nullable = false)
+  private String email;
+
+  @Column(name = "nickname", nullable = false, unique = true)
+  private String nickname;
+
+  @Column(name = "login_type", nullable = false)
+  private LoginType loginType;
+
+  @Column(name = "sincerity_score", nullable = false)
+  private Long sincerityScore;
+}
