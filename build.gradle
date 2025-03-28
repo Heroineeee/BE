@@ -75,3 +75,7 @@ tasks.named('compileJava'){
 	dependsOn 'spotlessApply'
 	dependsOn 'updateGitHooks'
 }
+
+bootJar {
+	archiveFileName = "utopia.jar"
+}
