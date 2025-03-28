@@ -73,17 +73,15 @@ public class AuthService {
   }
 
   public User findOrCreateUser(String email, LoginType loginType) {
-    User user =
-        userRepository
-            .findByEmail(email)
-            .orElseGet(
-                () ->
-                    userRepository.save(
-                        User.socialLoginBuilder()
-                            .email(email)
-                            .loginType(loginType)
-                            .buildSocialLogin()));
-    return user;
+    return userRepository
+        .findByEmailAndLoginType(email, loginType)
+        .orElseGet(
+            () ->
+                userRepository.save(
+                    User.socialLoginBuilder()
+                        .email(email)
+                        .loginType(loginType)
+                        .buildSocialLogin()));
   }
 
   public void signup(BasicLoginRequest request) {
