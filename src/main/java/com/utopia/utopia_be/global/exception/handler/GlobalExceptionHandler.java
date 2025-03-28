@@ -13,6 +13,9 @@ import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
 import io.micrometer.common.lang.NonNull;
+import jakarta.servlet.http.HttpServletRequest;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.utopia.utopia_be.auth.exception.AuthException;
 import com.utopia.utopia_be.global.exception.errorcode.ErrorCode;
@@ -26,23 +29,33 @@ import com.utopia.utopia_be.user.exception.UserException;
 @RestControllerAdvice
 public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 
+  private static final Logger log = LoggerFactory.getLogger("ErrorLogger");
+  private static final String LOG_FORMAT_INFO = "\n[🔵INFO] - ({} {})\n{}\n {}: {}";
+  private static final String LOG_FORMAT_ERROR = "\n[🔴ERROR] - ({} {})";
+
   /**
    * 커스텀 예외 코드 예시 @ExceptionHandler(UserNotFoundException.class) public ResponseEntity<Object>
    * handleMemberNotFound(final UserNotFoundException e) { return
    * handleExceptionInternal(e.getErrorCode()); }
    */
   @ExceptionHandler(PostException.class)
-  public ResponseEntity<Object> handlePostException(final PostException e) {
+  public ResponseEntity<Object> handlePostException(
+      final PostException e, HttpServletRequest request) {
+    logInfo(e.getErrorCode(), e, request);
     return handleExceptionInternal(e.getErrorCode());
   }
 
   @ExceptionHandler(AuthException.class)
-  public ResponseEntity<Object> handleAuthException(final AuthException e) {
+  public ResponseEntity<Object> handleAuthException(
+      final AuthException e, HttpServletRequest request) {
+    logInfo(e.getErrorCode(), e, request);
     return handleExceptionInternal(e.getErrorCode());
   }
 
   @ExceptionHandler(UserException.class)
-  public ResponseEntity<Object> handleUserException(final UserException e) {
+  public ResponseEntity<Object> handleUserException(
+      final UserException e, HttpServletRequest request) {
+    logInfo(e.getErrorCode(), e, request);
     return handleExceptionInternal(e.getErrorCode());
   }
 
@@ -59,13 +72,16 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
   }
 
   @ExceptionHandler(IllegalArgumentException.class)
-  public ResponseEntity<Object> handleIllegalArgument(IllegalArgumentException e) {
+  public ResponseEntity<Object> handleIllegalArgument(
+      IllegalArgumentException e, HttpServletRequest request) {
+    logInfo(GlobalErrorCode.INVALID_PARAMETER, e, request);
     return handleExceptionInternal(GlobalErrorCode.INVALID_PARAMETER);
   }
 
   /** 모든 예외를 처리하는 기본 예외 처리기 */
   @ExceptionHandler(Exception.class)
-  public ResponseEntity<Object> handleAllException(Exception e, WebRequest request) {
+  public ResponseEntity<Object> handleAllException(Exception e, HttpServletRequest request) {
+    logError(e, request);
     return handleExceptionInternal(GlobalErrorCode.INTERNAL_SERVER_ERROR);
   }
 
@@ -103,5 +119,19 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         .message(GlobalErrorCode.INVALID_PARAMETER.getMessage())
         .results(new ValidationErrors(validationErrorList))
         .build();
+  }
+
+  private void logInfo(ErrorCode ec, Exception e, HttpServletRequest request) {
+    log.info(
+        LOG_FORMAT_INFO,
+        request.getMethod(),
+        request.getRequestURI(),
+        ec.getHttpStatus(),
+        e.getClass().getName(),
+        e.getMessage());
+  }
+
+  private void logError(Exception e, HttpServletRequest request) {
+    log.error(LOG_FORMAT_ERROR, request.getMethod(), request.getRequestURI(), e);
   }
 }

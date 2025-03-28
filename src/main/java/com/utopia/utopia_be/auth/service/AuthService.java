@@ -23,7 +23,7 @@ import com.utopia.utopia_be.user.repository.UserRepository;
 @Service
 @Slf4j
 @RequiredArgsConstructor
-@Transactional(readOnly = true)
+@Transactional
 public class AuthService {
 
   private final UserRepository userRepository;
@@ -63,7 +63,7 @@ public class AuthService {
 
   private User isSignedUp(String accessToken) {
     KakaoUserInfoResponse userInfo = kakaoApiClient.getUserInfo(accessToken);
-    return findOrCreateUser(userInfo.kakaoAccount().email(), LoginType.KAKAO);
+    return findOrCreateUser(userInfo.kakao_account().email(), LoginType.KAKAO);
   }
 
   @Transactional
