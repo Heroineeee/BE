@@ -11,6 +11,7 @@ import lombok.NoArgsConstructor;
 
 import com.utopia.utopia_be.global.entity.BaseEntity;
 import com.utopia.utopia_be.user.domain.type.LoginType;
+import com.utopia.utopia_be.user.domain.type.Role;
 
 @Table(name = "users")
 @Entity
@@ -34,4 +35,7 @@ public class User extends BaseEntity {
 
   @Column(name = "sincerity_score", nullable = false)
   private Long sincerityScore;
+
+  @Column(name = "role", nullable = false)
+  private Role role = Role.ROLE_USER;
 }
