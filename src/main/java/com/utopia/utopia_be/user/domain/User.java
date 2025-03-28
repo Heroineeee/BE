@@ -27,14 +27,14 @@ public class User extends BaseEntity {
   @Column(name = "email", nullable = false)
   private String email;
 
-  @Column(name = "nickname", nullable = false, unique = true)
+  @Column(name = "nickname", unique = true)
   private String nickname;
 
   @Column(name = "login_type", nullable = false)
   private LoginType loginType;
 
   @Column(name = "sincerity_score", nullable = false)
-  private Long sincerityScore;
+  private Long sincerityScore = 50L;
 
   @Column(name = "role", nullable = false)
   private Role role = Role.ROLE_USER;
