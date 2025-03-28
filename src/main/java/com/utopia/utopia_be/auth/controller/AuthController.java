@@ -13,6 +13,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 
+import com.utopia.utopia_be.auth.dto.response.LoginResponse;
 import com.utopia.utopia_be.auth.service.AuthService;
 import com.utopia.utopia_be.global.response.ApiResponse;
 import com.utopia.utopia_be.user.domain.type.LoginType;
@@ -30,8 +31,9 @@ public class AuthController {
   public ResponseEntity<ApiResponse<Object>> Login(
       @PathVariable LoginType loginType, @RequestParam String code) {
 
-    return ResponseEntity.status(HttpStatus.OK)
-        .body(ApiResponse.from(authService.socialLogin(loginType, code)));
+    LoginResponse loginResponse = authService.socialLogin(loginType, code);
+
+    return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.from(loginResponse));
   }
 
   @Operation(summary = "기본 회원가입", description = "이메일과 비밀번호로 회원가입합니다.")

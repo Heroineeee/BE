@@ -5,4 +5,9 @@ import lombok.Builder;
 import com.utopia.utopia_be.user.domain.type.Role;
 
 @Builder
-public record LoginResponse(String nickname, Role role, String accessToken) {}
+public record LoginResponse(String nickname, Role role, String accessToken) {
+
+  public static LoginResponse from(String nickname, Role role, String accessToken) {
+    return LoginResponse.builder().nickname(nickname).role(role).accessToken(accessToken).build();
+  }
+}

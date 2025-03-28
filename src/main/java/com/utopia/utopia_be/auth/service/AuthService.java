@@ -12,7 +12,9 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 import com.utopia.utopia_be.auth.dto.response.KakaoUserInfoResponse;
+import com.utopia.utopia_be.auth.dto.response.LoginResponse;
 import com.utopia.utopia_be.auth.exception.AuthException;
+import com.utopia.utopia_be.auth.util.JwtTokenProvider;
 import com.utopia.utopia_be.auth.util.kakao.KakaoApiClient;
 import com.utopia.utopia_be.user.domain.User;
 import com.utopia.utopia_be.user.domain.type.LoginType;
@@ -25,36 +27,38 @@ import com.utopia.utopia_be.user.repository.UserRepository;
 public class AuthService {
 
   private final UserRepository userRepository;
+  private final JwtTokenProvider jwtTokenProvider;
 
-  private final Map<LoginType, Function<String, String>> loginStrategyMap =
+  private final Map<LoginType, Function<String, LoginResponse>> loginStrategyMap =
       Map.of(
           LoginType.KAKAO, this::kakaoLogin,
           LoginType.NAVER, this::naverLogin,
           LoginType.GOOGLE, this::googleLogin);
   private final KakaoApiClient kakaoApiClient;
 
-  public String socialLogin(LoginType loginType, String code) {
-    Function<String, String> strategy = loginStrategyMap.get(loginType);
+  public LoginResponse socialLogin(LoginType loginType, String code) {
+    Function<String, LoginResponse> strategy = loginStrategyMap.get(loginType);
     if (strategy == null) {
       throw new AuthException(LOGIN_TYPE_NOT_SUPPORTED);
     }
     return strategy.apply(code);
   }
 
-  public String kakaoLogin(String code) {
+  private LoginResponse kakaoLogin(String code) {
     String accessToken =
         kakaoApiClient.getAccessToken(code); // 1. Authorization Code를 Access Token으로 교환
     User user = isSignedUp(accessToken); // 2. Access Token을 이용해 사용자 정보를 가져오고 없으면 회원가입
+    String token = jwtTokenProvider.createToken(user.getId().toString()); // 3. JWT 토큰 생성
 
-    return "kakaoLogin";
+    return LoginResponse.from(user.getNickname(), user.getRole(), token);
   }
 
-  public String naverLogin(String code) {
-    return "naverLogin";
+  private LoginResponse naverLogin(String code) {
+    return null;
   }
 
-  public String googleLogin(String code) {
-    return "googleLogin";
+  private LoginResponse googleLogin(String code) {
+    return null;
   }
 
   private User isSignedUp(String accessToken) {
@@ -63,7 +67,7 @@ public class AuthService {
   }
 
   @Transactional
-  protected User findOrCreateUser(String email, LoginType loginType) {
+  public User findOrCreateUser(String email, LoginType loginType) {
     User user =
         userRepository
             .findByEmail(email)
