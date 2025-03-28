@@ -28,13 +28,13 @@ public class AuthService {
 
   private final UserRepository userRepository;
   private final JwtTokenProvider jwtTokenProvider;
+  private final KakaoApiClient kakaoApiClient;
 
   private final Map<LoginType, Function<String, LoginResponse>> loginStrategyMap =
       Map.of(
           LoginType.KAKAO, this::kakaoLogin,
           LoginType.NAVER, this::naverLogin,
           LoginType.GOOGLE, this::googleLogin);
-  private final KakaoApiClient kakaoApiClient;
 
   public LoginResponse socialLogin(LoginType loginType, String code) {
     Function<String, LoginResponse> strategy = loginStrategyMap.get(loginType);
@@ -45,10 +45,15 @@ public class AuthService {
   }
 
   private LoginResponse kakaoLogin(String code) {
-    String accessToken =
-        kakaoApiClient.getAccessToken(code); // 1. Authorization Code를 Access Token으로 교환
-    User user = isSignedUp(accessToken); // 2. Access Token을 이용해 사용자 정보를 가져오고 없으면 회원가입
-    String token = jwtTokenProvider.createToken(user.getId().toString()); // 3. JWT 토큰 생성
+    // Authorization Code를 Access Token으로 교환
+    String accessToken = kakaoApiClient.getAccessToken(code);
+
+    // Access Token을 이용해 사용자 정보를 가져오고 없으면 회원가입
+    KakaoUserInfoResponse userInfo = kakaoApiClient.getUserInfo(accessToken);
+    User user = findOrCreateUser(userInfo.kakao_account().email(), LoginType.KAKAO);
+
+    // JWT 토큰 생성
+    String token = jwtTokenProvider.createToken(user.getId().toString());
 
     return LoginResponse.from(user.getNickname(), user.getRole(), token);
   }
@@ -61,12 +66,6 @@ public class AuthService {
     return null;
   }
 
-  private User isSignedUp(String accessToken) {
-    KakaoUserInfoResponse userInfo = kakaoApiClient.getUserInfo(accessToken);
-    return findOrCreateUser(userInfo.kakao_account().email(), LoginType.KAKAO);
-  }
-
-  @Transactional
   public User findOrCreateUser(String email, LoginType loginType) {
     User user =
         userRepository
