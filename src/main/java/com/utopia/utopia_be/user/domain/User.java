@@ -6,6 +6,7 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -38,4 +39,13 @@ public class User extends BaseEntity {
 
   @Column(name = "role", nullable = false)
   private Role role = Role.ROLE_USER;
+
+  @Builder
+  public User(String email, LoginType loginType) {
+    this.email = email;
+    this.loginType = loginType;
+    if (loginType == LoginType.BASIC) {
+      this.role = Role.ROLE_ADMIN;
+    }
+  }
 }
