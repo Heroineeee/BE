@@ -39,17 +39,21 @@ public class AuthController {
     return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.from(loginResponse));
   }
 
-  @Operation(summary = "기본 회원가입", description = "이메일과 비밀번호로 회원가입합니다.")
+  @Operation(summary = "기본 회원가입", description = "이메일과 비밀번호로 회원가입합니다. '@'를 포함한 이메일과 비밀번호를 입력해주세요.")
   @PostMapping("/signup")
   public ResponseEntity<ApiResponse<Object>> signUp(
       @Valid @RequestBody BasicLoginRequest basicLoginRequest) {
+
+    authService.signup(basicLoginRequest);
     return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.EMPTY_RESPONSE);
   }
 
-  @Operation(summary = "기본 로그인", description = "이메일과 비밀번호로 로그인합니다.")
+  @Operation(summary = "기본 로그인", description = "이메일과 비밀번호로 로그인합니다. '@'를 포함한 이메일과 비밀번호를 입력해주세요.")
   @PostMapping("/login")
-  public ResponseEntity<ApiResponse<?>> login(
+  public ResponseEntity<ApiResponse<Object>> login(
       @Valid @RequestBody BasicLoginRequest basicLoginRequest) {
-    return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.EMPTY_RESPONSE);
+
+    LoginResponse loginResponse = authService.login(basicLoginRequest);
+    return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.from(loginResponse));
   }
 }

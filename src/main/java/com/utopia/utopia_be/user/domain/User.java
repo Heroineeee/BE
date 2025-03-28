@@ -45,14 +45,20 @@ public class User extends BaseEntity {
 
   @Column(name = "role", nullable = false)
   @Enumerated(EnumType.STRING)
-  private Role role = Role.ROLE_USER;
+  private Role role;
 
-  @Builder
+  @Builder(builderMethodName = "socialLoginBuilder", buildMethodName = "buildSocialLogin")
   public User(String email, LoginType loginType) {
     this.email = email;
     this.loginType = loginType;
-    if (loginType == LoginType.BASIC) {
-      this.role = Role.ROLE_ADMIN;
-    }
+    this.role = Role.ROLE_USER;
+  }
+
+  @Builder(builderMethodName = "basicLoginBuilder", buildMethodName = "buildBasicLogin")
+  public User(String email, String password) {
+    this.email = email;
+    this.password = password;
+    this.loginType = LoginType.BASIC;
+    this.role = Role.ROLE_ADMIN;
   }
 }
