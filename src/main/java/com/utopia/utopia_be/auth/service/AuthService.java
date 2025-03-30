@@ -48,14 +48,9 @@ public class AuthService {
   public void signup(BasicLoginRequest request) {
     String email = request.email();
 
-    userRepository
-        .existsByEmail(email)
-        .ifPresent(
-            (exists) -> {
-              if (exists) {
-                throw new UserException(USER_ALREADY_EXISTS);
-              }
-            });
+    if (userRepository.existsByEmail(email)) {
+      throw new UserException(USER_ALREADY_EXISTS);
+    }
 
     userRepository.save(
         User.basicLoginBuilder()
