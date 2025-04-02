@@ -30,6 +30,7 @@ dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-security'
 	implementation 'org.springframework.boot:spring-boot-starter-validation'
 	implementation 'org.springframework.boot:spring-boot-starter-web'
+	implementation 'org.springframework.security:spring-security-crypto:5.7.1'
 
 	// lombok
 	compileOnly 'org.projectlombok:lombok'
@@ -45,7 +46,22 @@ dependencies {
 	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 
 	// swagger
-	implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.5.0'
+	implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.7.0'
+
+	// oauth2
+	implementation 'org.springframework.security:spring-security-oauth2-client'
+	implementation platform('org.springframework.boot:spring-boot-dependencies:3.3.5')
+	implementation 'org.springframework.boot:spring-boot-starter-webflux'
+
+	// jwt
+	implementation 'io.jsonwebtoken:jjwt-api:0.11.5'
+	implementation 'io.jsonwebtoken:jjwt-impl:0.11.5'
+	implementation 'io.jsonwebtoken:jjwt-jackson:0.11.5'
+
+	//Spring WebFlux
+	implementation 'org.springframework.boot:spring-boot-starter-webflux'
+
+	implementation 'io.netty:netty-resolver-dns-native-macos:4.1.86.Final:osx-aarch_64' // Apple Silicon (M1/M2)
 }
 
 tasks.named('test') {
@@ -57,7 +73,7 @@ spotless {
 	java {
 		googleJavaFormat()           // 구글 자바 포맷 스타일 적용
 		removeUnusedImports()        // 사용하지 않는 import 제거
-		importOrder('java', 'javax', 'org.springframework', '', 'com.utopia')  // import 순서
+		importOrder('java', 'javax', 'org.springframework', '', 'com.kkinimong')  // import 순서
 		trimTrailingWhitespace()     // 줄 끝 공백 제거
 		endWithNewline()             // 파일 끝에 빈 줄 추가
 		indentWithSpaces(4)          // 공백 4칸 들여쓰기
@@ -74,4 +90,8 @@ tasks.register('updateGitHooks', Copy){
 tasks.named('compileJava'){
 	dependsOn 'spotlessApply'
 	dependsOn 'updateGitHooks'
+}
+
+bootJar {
+	archiveFileName = "kkinimong.jar"
 }
