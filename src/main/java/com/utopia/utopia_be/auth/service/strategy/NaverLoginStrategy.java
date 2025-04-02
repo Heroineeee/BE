@@ -7,7 +7,7 @@ import org.springframework.stereotype.Service;
 import com.utopia.utopia_be.auth.dto.response.LoginResponse;
 import com.utopia.utopia_be.auth.exception.AuthException;
 
-@Service
+@Service("NAVER")
 public class NaverLoginStrategy implements SocialLoginStrategy {
 
   @Override

@@ -12,7 +12,7 @@ import com.utopia.utopia_be.user.domain.User;
 import com.utopia.utopia_be.user.domain.type.LoginType;
 import com.utopia.utopia_be.user.service.UserService;
 
-@Service
+@Service("KAKAO")
 @RequiredArgsConstructor
 public class KakaoLoginStrategy implements SocialLoginStrategy {
 

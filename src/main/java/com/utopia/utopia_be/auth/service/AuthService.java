@@ -35,8 +35,7 @@ public class AuthService {
   private final Map<String, SocialLoginStrategy> loginStrategyMap;
 
   public LoginResponse socialLogin(LoginType loginType, String code) {
-    SocialLoginStrategy loginStrategy =
-        loginStrategyMap.get(loginType.name().toLowerCase() + "LoginStrategy");
+    SocialLoginStrategy loginStrategy = loginStrategyMap.get(loginType.name());
 
     if (loginStrategy == null) {
       throw new AuthException(LOGIN_TYPE_NOT_SUPPORTED);
