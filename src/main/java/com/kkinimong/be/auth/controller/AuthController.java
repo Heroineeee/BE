@@ -31,7 +31,7 @@ public class AuthController {
 
   @Operation(summary = "소셜 로그인 / 회원가입", description = "소셜 로그인을 진행합니다. (카카오) 인가코드를 넣어주세요.")
   @GetMapping("/login/{loginType}")
-  public ResponseEntity<ApiResponse<Object>> Login(
+  public ResponseEntity<ApiResponse<Object>> login(
       @PathVariable LoginType loginType, @RequestParam String code) {
 
     LoginResponse loginResponse = authService.socialLogin(loginType, code);

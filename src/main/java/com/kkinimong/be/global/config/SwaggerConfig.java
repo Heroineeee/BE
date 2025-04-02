@@ -31,7 +31,7 @@ public class SwaggerConfig {
         .components(new Components())
         .info(
             new Info()
-                .title("UTopia REST API")
+                .title("끼니몽 REST API")
                 .description("Heroine Backend Team")
                 .contact(
                     new Contact().name("Heroine BE Github").url("https://github.com/Heroineeee/BE"))
