@@ -58,4 +58,8 @@ public class User extends BaseEntity {
     this.loginType = LoginType.BASIC;
     this.role = Role.ROLE_ADMIN;
   }
+
+  public void updateNickname(String nickname) {
+    this.nickname = nickname;
+  }
 }
