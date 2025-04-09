@@ -1,4 +1,4 @@
-package com.kkinikong.be.user.dto.request;
+package com.kkinikong.be.auth.dto.request;
 
 import jakarta.validation.constraints.NotNull;
 

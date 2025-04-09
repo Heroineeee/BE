@@ -2,6 +2,7 @@ package com.kkinikong.be.auth.controller;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -16,17 +17,20 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
 import com.kkinikong.be.auth.dto.request.BasicLoginRequest;
+import com.kkinikong.be.auth.dto.request.NicknameRequest;
 import com.kkinikong.be.auth.dto.response.LoginResponse;
 import com.kkinikong.be.auth.service.AuthService;
 import com.kkinikong.be.global.response.ApiResponse;
 import com.kkinikong.be.user.domain.type.LoginType;
+import com.kkinikong.be.user.service.UserService;
+import com.kkinikong.be.user.utils.CustomUserDetails;
 
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/auth")
 @Tag(name = "Auth", description = "인증 및 회원 관련 API")
 @RestController
 public class AuthController {
-
+  private final UserService userService;
   private final AuthService authService;
 
   @Operation(summary = "소셜 로그인 / 회원가입", description = "소셜 로그인을 진행합니다. (카카오) 인가코드를 넣어주세요.")
@@ -35,7 +39,6 @@ public class AuthController {
       @PathVariable LoginType loginType, @RequestParam String code) {
 
     LoginResponse loginResponse = authService.socialLogin(loginType, code);
-
     return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.from(loginResponse));
   }
 
@@ -59,5 +62,15 @@ public class AuthController {
 
     LoginResponse loginResponse = authService.login(basicLoginRequest);
     return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.from(loginResponse));
+  }
+
+  @Operation(summary = "닉네임 등록", description = "로그인 후 유저의 닉네임을 등록합니다.")
+  @PostMapping("/nickname")
+  public ResponseEntity<ApiResponse<Object>> nickname(
+      @Valid @RequestBody NicknameRequest request,
+      @AuthenticationPrincipal CustomUserDetails userDetails) {
+
+    userService.updateNickname(request, userDetails.getId());
+    return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.EMPTY_RESPONSE);
   }
 }
