@@ -1,4 +1,4 @@
 FROM openjdk:17
 WORKDIR /app
-COPY build/libs/kkinimong.jar app.jar
+COPY build/libs/kkikimong.jar app.jar
 ENTRYPOINT ["java", "-jar", "app.jar"]

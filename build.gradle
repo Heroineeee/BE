@@ -73,7 +73,7 @@ spotless {
 	java {
 		googleJavaFormat()           // 구글 자바 포맷 스타일 적용
 		removeUnusedImports()        // 사용하지 않는 import 제거
-		importOrder('java', 'javax', 'org.springframework', '', 'com.kkinimong')  // import 순서
+		importOrder('java', 'javax', 'org.springframework', '', 'com.kkinikong')  // import 순서
 		trimTrailingWhitespace()     // 줄 끝 공백 제거
 		endWithNewline()             // 파일 끝에 빈 줄 추가
 		indentWithSpaces(4)          // 공백 4칸 들여쓰기
@@ -93,5 +93,5 @@ tasks.named('compileJava'){
 }
 
 bootJar {
-	archiveFileName = "kkinimong.jar"
+	archiveFileName = "kkinikong.jar"
 }
