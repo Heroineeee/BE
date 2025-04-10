@@ -73,4 +73,12 @@ public class AuthController {
     userService.updateNickname(request, userDetails.getId());
     return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.EMPTY_RESPONSE);
   }
+
+  @Operation(summary = "닉네임 중복 확인", description = "닉네임이 중복되면 true를, 중복되지 않으면 false를 반환합니다.")
+  @GetMapping("/check-nickname")
+  public ResponseEntity<ApiResponse<Object>> checkNickname(@RequestParam String nickname) {
+
+    boolean isDuplicated = userService.checkNickname(nickname);
+    return ResponseEntity.ok(ApiResponse.from(isDuplicated));
+  }
 }
