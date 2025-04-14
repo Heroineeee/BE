@@ -1,6 +1,6 @@
 spring:
   application:
-    name : kkinimong
+    name : kkinikong
   config:
     import: optional:file:.env[.properties]
 
