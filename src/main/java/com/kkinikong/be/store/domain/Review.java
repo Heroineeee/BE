@@ -1,10 +1,14 @@
 package com.kkinikong.be.store.domain;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import com.kkinikong.be.global.entity.BaseEntity;
+import com.kkinikong.be.store.domain.mapping.ReviewTagMap;
 import com.kkinikong.be.user.domain.User;
 
 @Table(name = "reviews")
@@ -37,4 +41,7 @@ public class Review extends BaseEntity {
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "user_id")
   private User user;
+
+  @OneToMany(mappedBy = "review", cascade = CascadeType.ALL, orphanRemoval = true)
+  private List<ReviewTagMap> reviewTagMaps = new ArrayList<>();
 }
