@@ -23,7 +23,6 @@ import com.kkinikong.be.global.exception.errorcode.GlobalErrorCode;
 import com.kkinikong.be.global.exception.response.ErrorResponse;
 import com.kkinikong.be.global.exception.response.ErrorResponse.ValidationError;
 import com.kkinikong.be.global.exception.response.ErrorResponse.ValidationErrors;
-import com.kkinikong.be.post.exception.PostException;
 import com.kkinikong.be.user.exception.UserException;
 
 @RestControllerAdvice
@@ -38,13 +37,6 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
    * handleMemberNotFound(final UserNotFoundException e) { return
    * handleExceptionInternal(e.getErrorCode()); }
    */
-  @ExceptionHandler(PostException.class)
-  public ResponseEntity<Object> handlePostException(
-      final PostException e, HttpServletRequest request) {
-    logInfo(e.getErrorCode(), e, request);
-    return handleExceptionInternal(e.getErrorCode());
-  }
-
   @ExceptionHandler(AuthException.class)
   public ResponseEntity<Object> handleAuthException(
       final AuthException e, HttpServletRequest request) {
