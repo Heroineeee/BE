@@ -1,5 +1,9 @@
 package com.kkinikong.be.store.domain;
 
+import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
+
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -35,11 +39,17 @@ public class Store extends BaseEntity {
   private double longitude;
 
   @Column(name = "rating_avg", nullable = false)
-  private float ratingAvg;
+  private double ratingAvg;
 
-  @Column(name = "like_count", nullable = false)
-  private Long likeCount;
+  @Column(name = "scrap_count", nullable = false)
+  private long scarpCount = 0L;
 
   @Column(name = "review_count", nullable = false)
-  private Long reviewCount;
+  private long reviewCount = 0L;
+
+  @Column(name = "updated_date", nullable = false)
+  private LocalDate updatedDate;
+
+  @OneToMany(mappedBy = "store", cascade = CascadeType.ALL, orphanRemoval = true)
+  private List<Review> reviewList = new ArrayList<>();
 }

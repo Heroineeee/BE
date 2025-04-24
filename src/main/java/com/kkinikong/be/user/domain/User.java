@@ -1,18 +1,15 @@
 package com.kkinikong.be.user.domain;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import java.util.ArrayList;
+import java.util.List;
+
+import jakarta.persistence.*;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import com.kkinikong.be.global.entity.BaseEntity;
+import com.kkinikong.be.store.domain.Review;
 import com.kkinikong.be.user.domain.type.LoginType;
 import com.kkinikong.be.user.domain.type.Role;
 
@@ -62,4 +59,7 @@ public class User extends BaseEntity {
   public void updateNickname(String nickname) {
     this.nickname = nickname;
   }
+
+  @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+  private List<Review> reviewList = new ArrayList<>();
 }
