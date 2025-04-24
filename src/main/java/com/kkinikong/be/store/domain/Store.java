@@ -54,5 +54,5 @@ public class Store extends BaseEntity {
   private List<Review> reviewList = new ArrayList<>();
 
   @OneToMany(mappedBy = "store", cascade = CascadeType.ALL, orphanRemoval = true)
-  private List<Scrap> scrapList = new ArrayList<>();
+  private List<StoreScrap> storeScrapList = new ArrayList<>();
 }

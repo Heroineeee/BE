@@ -10,7 +10,7 @@ import lombok.NoArgsConstructor;
 
 import com.kkinikong.be.global.entity.BaseEntity;
 import com.kkinikong.be.store.domain.Review;
-import com.kkinikong.be.store.domain.Scrap;
+import com.kkinikong.be.store.domain.StoreScrap;
 import com.kkinikong.be.user.domain.type.LoginType;
 import com.kkinikong.be.user.domain.type.Role;
 
@@ -65,5 +65,5 @@ public class User extends BaseEntity {
   private List<Review> reviewList = new ArrayList<>();
 
   @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
-  private List<Scrap> scrapList = new ArrayList<>();
+  private List<StoreScrap> storeScrapList = new ArrayList<>();
 }

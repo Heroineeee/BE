@@ -11,7 +11,7 @@ import com.kkinikong.be.user.domain.User;
 @Entity
 @Getter
 @NoArgsConstructor
-public class Scrap extends BaseEntity {
+public class StoreScrap extends BaseEntity {
 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
