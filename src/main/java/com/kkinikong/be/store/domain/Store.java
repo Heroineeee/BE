@@ -25,6 +25,9 @@ public class Store extends BaseEntity {
   @Column(name = "name", nullable = false)
   private String name;
 
+  @Column(name = "region", nullable = false)
+  private String region;
+
   @Column(name = "category", nullable = false)
   @Enumerated(EnumType.STRING)
   private Category category;
