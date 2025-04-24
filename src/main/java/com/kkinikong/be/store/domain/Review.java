@@ -43,5 +43,8 @@ public class Review extends BaseEntity {
   private User user;
 
   @OneToMany(mappedBy = "review", cascade = CascadeType.ALL, orphanRemoval = true)
-  private List<ReviewTagMap> reviewTagMaps = new ArrayList<>();
+  private List<ReviewTagMap> reviewTagMapList = new ArrayList<>();
+
+  @OneToMany(mappedBy = "review", cascade = CascadeType.ALL, orphanRemoval = true)
+  private List<ReviewImage> reviewImageList = new ArrayList<>();
 }
