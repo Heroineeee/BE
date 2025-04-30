@@ -14,8 +14,4 @@ public enum TagCategory {
   TagCategory(String label) {
     this.label = label;
   }
-
-  public String getLabel() {
-    return label;
-  }
 }
