@@ -1,5 +1,8 @@
 package com.kkinikong.be.report.domain.type;
 
+import lombok.Getter;
+
+@Getter
 public enum CommonReportReason {
   ABUSIVE_LANGUAGE("욕설/비방"),
   FAKE_INFO("허위 정보"),
@@ -11,9 +14,5 @@ public enum CommonReportReason {
 
   CommonReportReason(String label) {
     this.label = label;
-  }
-
-  public String getLabel() {
-    return label;
   }
 }

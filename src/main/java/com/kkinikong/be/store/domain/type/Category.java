@@ -1,5 +1,8 @@
 package com.kkinikong.be.store.domain.type;
 
+import lombok.Getter;
+
+@Getter
 public enum Category {
   KOREAN("한식"),
   WESTERN("양식"),
@@ -17,9 +20,5 @@ public enum Category {
 
   Category(String label) {
     this.label = label;
-  }
-
-  public String getLabel() {
-    return label;
   }
 }

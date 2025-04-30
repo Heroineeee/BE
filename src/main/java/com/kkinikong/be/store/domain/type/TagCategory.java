@@ -1,5 +1,8 @@
 package com.kkinikong.be.store.domain.type;
 
+import lombok.Getter;
+
+@Getter
 public enum TagCategory {
   MENU("메뉴"),
   SPACE("공간"),
