@@ -6,6 +6,7 @@ build/
 !**/src/test/**/build/
 .env
 .git/hooks/
+*.csv
 
 ### STS ###
 .apt_generated
