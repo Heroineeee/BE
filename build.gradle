@@ -30,7 +30,7 @@ dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-security'
 	implementation 'org.springframework.boot:spring-boot-starter-validation'
 	implementation 'org.springframework.boot:spring-boot-starter-web'
-	implementation 'org.springframework.security:spring-security-crypto:5.7.1'
+	// implementation 'org.springframework.security:spring-security-crypto:5.7.1'
 
 	// lombok
 	compileOnly 'org.projectlombok:lombok'
@@ -50,7 +50,7 @@ dependencies {
 
 	// oauth2
 	implementation 'org.springframework.security:spring-security-oauth2-client'
-	implementation platform('org.springframework.boot:spring-boot-dependencies:3.3.5')
+	// implementation platform('org.springframework.boot:spring-boot-dependencies:3.3.5')
 	implementation 'org.springframework.boot:spring-boot-starter-webflux'
 
 	// jwt
@@ -61,7 +61,10 @@ dependencies {
 	// Spring Batch
 	implementation 'org.springframework.boot:spring-boot-starter-batch'
 
-	//Spring WebFlux
+	// jdbc
+	implementation 'org.springframework.boot:spring-boot-starter-jdbc'
+
+	// Spring WebFlux
 	implementation 'org.springframework.boot:spring-boot-starter-webflux'
 
 	implementation 'io.netty:netty-resolver-dns-native-macos:4.1.86.Final:osx-aarch_64' // Apple Silicon (M1/M2)
