@@ -5,6 +5,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -14,6 +16,8 @@ import com.kkinikong.be.store.domain.type.Category;
 @Table(name = "stores")
 @Entity
 @Getter
+@Builder
+@AllArgsConstructor
 @NoArgsConstructor
 public class Store extends BaseEntity {
 
@@ -42,12 +46,15 @@ public class Store extends BaseEntity {
   private double longitude;
 
   @Column(name = "rating_avg", nullable = false)
+  @Builder.Default
   private double ratingAvg = 0.0;
 
   @Column(name = "scrap_count", nullable = false)
+  @Builder.Default
   private long scarpCount = 0L;
 
   @Column(name = "review_count", nullable = false)
+  @Builder.Default
   private long reviewCount = 0L;
 
   @Column(name = "updated_date", nullable = false)
