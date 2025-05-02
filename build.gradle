@@ -61,9 +61,6 @@ dependencies {
 	// Spring Batch
 	implementation 'org.springframework.boot:spring-boot-starter-batch'
 
-	// jdbc
-	implementation 'org.springframework.boot:spring-boot-starter-jdbc'
-
 	// Spring WebFlux
 	implementation 'org.springframework.boot:spring-boot-starter-webflux'
 
