@@ -42,7 +42,7 @@ public class Store extends BaseEntity {
   private double longitude;
 
   @Column(name = "rating_avg", nullable = false)
-  private double ratingAvg;
+  private double ratingAvg = 0.0;
 
   @Column(name = "scrap_count", nullable = false)
   private long scarpCount = 0L;

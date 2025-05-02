@@ -14,4 +14,28 @@ public class StoreCsv {
   private String longitude;
   private String updatedDate;
   private String category;
+
+  @Override
+  public String toString() {
+    return "StoreCsv{"
+        + "name='"
+        + name
+        + '\''
+        + ", address='"
+        + address
+        + '\''
+        + ", latitude='"
+        + latitude
+        + '\''
+        + ", longitude='"
+        + longitude
+        + '\''
+        + ", updatedDate='"
+        + updatedDate
+        + '\''
+        + ", category='"
+        + category
+        + '\''
+        + '}';
+  }
 }
