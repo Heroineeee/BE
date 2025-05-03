@@ -7,7 +7,9 @@ import lombok.NoArgsConstructor;
 import com.kkinikong.be.store.domain.Review;
 import com.kkinikong.be.store.domain.ReviewTag;
 
-@Table(name = "review_tag_map")
+@Table(
+    name = "review_tag_map",
+    uniqueConstraints = @UniqueConstraint(columnNames = {"review_id", "tag_id"}))
 @Entity
 @Getter
 @NoArgsConstructor

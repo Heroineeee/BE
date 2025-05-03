@@ -7,7 +7,9 @@ import lombok.NoArgsConstructor;
 import com.kkinikong.be.global.entity.BaseEntity;
 import com.kkinikong.be.user.domain.User;
 
-@Table(name = "scraps")
+@Table(
+    name = "scraps",
+    uniqueConstraints = @UniqueConstraint(columnNames = {"user_id", "store_id"}))
 @Entity
 @Getter
 @NoArgsConstructor
