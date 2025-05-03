@@ -47,7 +47,7 @@ public class Store extends BaseEntity {
 
   @Column(name = "rating_avg", nullable = false)
   @Builder.Default
-  private double ratingAvg = 0.0;
+  private long ratingAvg = 0L;
 
   @Column(name = "scrap_count", nullable = false)
   @Builder.Default
