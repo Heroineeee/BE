@@ -61,7 +61,7 @@ public class Store extends BaseEntity {
   private List<StoreScrap> storeScrapList = new ArrayList<>();
 
   // CSV 매핑 전용 빌더
-  @Builder(builderMethodName = "csvBuilder", buildMethodName = "csvBuild")
+  @Builder
   private Store(
       String name,
       String region,

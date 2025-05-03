@@ -17,7 +17,7 @@ public class StoreCsvProcessor implements ItemProcessor<StoreCsv, Store> {
 
   @Override
   public Store process(StoreCsv item) throws Exception {
-    return Store.csvBuilder()
+    return Store.builder()
         .name(item.getName())
         .region(extractRegion(item.getAddress()))
         .category(Category.fromLabel(CategoryMapper.mapToUpperCategory(item.getCategory())))
@@ -25,7 +25,7 @@ public class StoreCsvProcessor implements ItemProcessor<StoreCsv, Store> {
         .latitude(Double.parseDouble(item.getLatitude()))
         .longitude(Double.parseDouble(item.getLongitude()))
         .updatedDate(LocalDate.parse(item.getUpdatedDate(), DATE_FORMATTER))
-        .csvBuild();
+        .build();
   }
 
   private String extractRegion(String address) {
