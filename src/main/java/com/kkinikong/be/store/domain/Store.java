@@ -5,7 +5,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -16,8 +15,6 @@ import com.kkinikong.be.store.domain.type.Category;
 @Table(name = "stores")
 @Entity
 @Getter
-@Builder
-@AllArgsConstructor
 @NoArgsConstructor
 public class Store extends BaseEntity {
 
@@ -46,15 +43,12 @@ public class Store extends BaseEntity {
   private double longitude;
 
   @Column(name = "rating_avg", nullable = false)
-  @Builder.Default
-  private long ratingAvg = 0L;
+  private double ratingAvg = 0.0;
 
   @Column(name = "scrap_count", nullable = false)
-  @Builder.Default
-  private long scarpCount = 0L;
+  private long scrapCount = 0L;
 
   @Column(name = "review_count", nullable = false)
-  @Builder.Default
   private long reviewCount = 0L;
 
   @Column(name = "updated_date", nullable = false)
@@ -65,4 +59,26 @@ public class Store extends BaseEntity {
 
   @OneToMany(mappedBy = "store", cascade = CascadeType.ALL, orphanRemoval = true)
   private List<StoreScrap> storeScrapList = new ArrayList<>();
+
+  // CSV 매핑 전용 빌더
+  @Builder(builderMethodName = "csvBuilder", buildMethodName = "csvBuild")
+  private Store(
+      String name,
+      String region,
+      Category category,
+      String address,
+      double latitude,
+      double longitude,
+      LocalDate updatedDate) {
+    this.name = name;
+    this.region = region;
+    this.category = category;
+    this.address = address;
+    this.latitude = latitude;
+    this.longitude = longitude;
+    this.updatedDate = updatedDate;
+    this.ratingAvg = 0.0;
+    this.scrapCount = 0L;
+    this.reviewCount = 0L;
+  }
 }
