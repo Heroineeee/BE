@@ -18,7 +18,7 @@ spring:
 
   sql:
     init:
-      mode: always
+      mode: never # 기본값은 never 최초, 한 번만 always 로 바꾸어서 실행 후 다시 never 로 돌리기
       schema-locations: classpath:/org/springframework/batch/core/schema-mysql.sql
 
   batch:

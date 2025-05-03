@@ -20,7 +20,7 @@ public class StoreCsvProcessor implements ItemProcessor<StoreCsv, Store> {
     return Store.builder()
         .name(item.getName())
         .region(extractRegion(item.getAddress()))
-        .category(Category.fromLabel(item.getCategory()))
+        .category(Category.fromLabel(CategoryMapper.mapToUpperCategory(item.getCategory())))
         .address(item.getAddress())
         .latitude(Double.parseDouble(item.getLatitude()))
         .longitude(Double.parseDouble(item.getLongitude()))
