@@ -37,7 +37,10 @@ public class StoreCsvJobRunner {
           String fileHash = FileUtil.getFileHash(csvFilePath);
 
           JobParameters jobParameters =
-              new JobParametersBuilder().addString("fileHash", fileHash).toJobParameters();
+              new JobParametersBuilder()
+                  .addString("fileHash", fileHash)
+                  .addString("csvFile", csvFilePath)
+                  .toJobParameters();
 
           // 동일한 해시값으로 실행된 적이 있는지 확인
           if (jobRepository.getLastJobExecution(storeCsvJob.getName(), jobParameters) == null) {
