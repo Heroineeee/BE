@@ -1,4 +1,4 @@
-name: CD - Blue-Green Deploy to EC2
+name: 🚀 Kkini-kong CD 🚀
 
 on:
   push:
@@ -13,7 +13,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: 🚀 Deploy to EC2 (Blue-Green with docker-compose)
+      - name: 🚀 EC2 서버에 SSH 접속 후 Blue-Green 배포
         uses: appleboy/ssh-action@master
         with:
           host: ${{ secrets.EC2_HOST }}
