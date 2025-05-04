@@ -1,8 +1,5 @@
 name: ✨ Kkini-kong CI ✨
 
-env:
-  DOCKER_HUB_REPOSITORY: chaeeunkim/kkini-kong-be
-
 on:
   pull_request:
     branches:
