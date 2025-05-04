@@ -13,7 +13,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: 🚀 Deploy to EC2 (Blue-Green)
+      - name: 🚀 Deploy to EC2 (Blue-Green with docker-compose)
         uses: appleboy/ssh-action@master
         with:
           host: ${{ secrets.EC2_HOST }}
@@ -23,31 +23,34 @@ jobs:
             echo "🔎 현재 실행 중인 컨테이너 확인"
             RUNNING=$(docker ps --format '{{.Names}}' | grep spring-blue || true)
 
+            echo "🐳 최신 develop 이미지 pull"
+            docker pull chaeeunkim/kkini-kong-be:develop
+
             if [ "$RUNNING" = "spring-blue" ]; then
               echo "✅ 현재 blue가 운영 중 -> green 배포 시작"
-              docker rm -f spring-green || true
-              docker pull chaeeunkim/kkini-kong-be:develop
-              docker run -d --name spring-green -p 8081:8080 chaeeunkim/kkini-kong-be:develop
+              docker-compose stop spring-green || true
+              docker-compose rm -f spring-green || true
+              docker-compose up -d spring-green
 
-              echo "🔧 nginx 설정을 green으로 변경"
+              echo "🔧 nginx 설정을 green(8081)으로 변경"
               sudo sed -i 's/8080/8081/g' /etc/nginx/conf.d/default.conf
               sudo nginx -s reload
 
-              echo "🧹 기존 blue 컨테이너 종료"
-              docker rm -f spring-blue || true
+              echo "🧹 기존 blue 컨테이너 중지"
+              docker-compose stop spring-blue || true
 
             else
               echo "✅ 현재 green이 운영 중 -> blue 배포 시작"
-              docker rm -f spring-blue || true
-              docker pull chaeeunkim/kkini-kong-be:develop
-              docker run -d --name spring-blue -p 8080:8080 chaeeunkim/kkini-kong-be:develop
+              docker-compose stop spring-blue || true
+              docker-compose rm -f spring-blue || true
+              docker-compose up -d spring-blue
 
-              echo "🔧 nginx 설정을 blue으로 변경"
+              echo "🔧 nginx 설정을 blue(8080)으로 변경"
               sudo sed -i 's/8081/8080/g' /etc/nginx/conf.d/default.conf
               sudo nginx -s reload
 
-              echo "🧹 기존 green 컨테이너 종료"
-              docker rm -f spring-green || true
+              echo "🧹 기존 green 컨테이너 중지"
+              docker-compose stop spring-green || true
             fi
 
             echo "✅ 배포 완료!"
