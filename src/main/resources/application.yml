@@ -24,3 +24,6 @@ spring:
   batch:
     job:
       enabled: false
+
+csv:
+  upload-dir: ${CSV_UPLOAD_DIR}

@@ -16,6 +16,6 @@ public class CategoryMapper {
           );
 
   public static String mapToUpperCategory(String label) {
-    return categoryMap.getOrDefault(label, label); // 없으면 자기 자신 리턴
+    return categoryMap.getOrDefault(label, label);
   }
 }
