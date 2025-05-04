@@ -20,6 +20,7 @@ jobs:
           username: ubuntu
           key: ${{ secrets.EC2_KEY }}
           script: |
+            cd /home/ubuntu 
             echo "🔎 현재 실행 중인 컨테이너 확인"
             RUNNING=$(docker ps --format '{{.Names}}' | grep spring-blue || true)
 
