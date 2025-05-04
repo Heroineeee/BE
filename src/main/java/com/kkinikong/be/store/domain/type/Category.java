@@ -14,7 +14,7 @@ public enum Category {
   CHICKEN("치킨"),
   BUNSIK("분식"),
   SHABU("샤브샤브"),
-  ASIAN("아시아음식"),
+  ASIAN("아시안"),
   LUNCHBOX("도시락"),
   DESSERT("간식"),
   ETC("기타");
