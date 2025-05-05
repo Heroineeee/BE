@@ -1,7 +1,5 @@
 package com.kkinikong.be.batch.controller;
 
-import org.springframework.batch.core.*;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -26,15 +24,7 @@ public class BatchController {
   @Operation(summary = "csv파일 db에 넣기")
   public ResponseEntity<ApiResponse<Object>> uploadAndRunJob(
       @RequestPart("file") MultipartFile file) {
-
-    try {
-      String result = batchService.saveAndRunCsvJob(file);
-      return ResponseEntity.ok(ApiResponse.from(result));
-    } catch (IllegalArgumentException e) {
-      return ResponseEntity.badRequest().body(ApiResponse.from(e.getMessage()));
-    } catch (Exception e) {
-      return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-          .body(ApiResponse.from("처리 중 오류 발생: " + e.getMessage()));
-    }
+    String result = batchService.saveAndRunCsvJob(file);
+    return ResponseEntity.ok(ApiResponse.from(result));
   }
 }

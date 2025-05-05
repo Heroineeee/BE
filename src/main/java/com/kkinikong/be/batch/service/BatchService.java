@@ -15,6 +15,8 @@ import org.springframework.web.multipart.MultipartFile;
 
 import lombok.RequiredArgsConstructor;
 
+import com.kkinikong.be.batch.exception.BatchException;
+import com.kkinikong.be.batch.exception.errorcode.BatchErrorCode;
 import com.kkinikong.be.batch.util.FileUtil;
 
 @Service
@@ -28,7 +30,8 @@ public class BatchService {
   @Value("${csv.upload-dir}")
   private String uploadDir;
 
-  public String saveAndRunCsvJob(MultipartFile file) throws Exception {
+  /// CSV 파일을 저장하고 배치 Job 실행
+  public String saveAndRunCsvJob(MultipartFile file) {
     File savedFile = saveUploadedFile(file);
     String fileHash = generateFileHash(savedFile);
     JobParameters jobParameters = createJobParameters(fileHash, savedFile);
@@ -41,23 +44,34 @@ public class BatchService {
     return "CSV 파일 DB 저장 성공";
   }
 
-  private File saveUploadedFile(MultipartFile file) throws IOException {
+  ///  업로드 된 파일을 서버의 지정 디렉토리에 저장
+  private File saveUploadedFile(MultipartFile file) {
     if (file.isEmpty()) {
-      throw new IllegalArgumentException("파일이 비어있습니다.");
+      throw new BatchException(BatchErrorCode.EMPTY_FILE);
     }
 
-    String originalFilename = StringUtils.cleanPath(file.getOriginalFilename());
-    Path destinationPath = Paths.get(uploadDir).resolve(originalFilename).normalize();
-    File destFile = destinationPath.toFile();
-    destFile.getParentFile().mkdirs();
-    file.transferTo(destFile);
-    return destFile;
+    try {
+      String originalFilename = StringUtils.cleanPath(file.getOriginalFilename());
+      Path destinationPath = Paths.get(uploadDir).resolve(originalFilename).normalize();
+      File destFile = destinationPath.toFile();
+      destFile.getParentFile().mkdirs();
+      file.transferTo(destFile);
+      return destFile;
+    } catch (IOException e) {
+      throw new BatchException(BatchErrorCode.FILE_SAVE_FAILED);
+    }
   }
 
+  ///  지정된 파일의 SHA-256 해시값 생성
   private String generateFileHash(File file) {
-    return FileUtil.getFileHash(file.getAbsolutePath());
+    String hash = FileUtil.getFileHash(file.getAbsolutePath());
+    if (hash == null) {
+      throw new BatchException(BatchErrorCode.FILE_HASH_FAILED);
+    }
+    return hash;
   }
 
+  ///  배치 Job 실행에 필요한 JobParameters 생성
   private JobParameters createJobParameters(String fileHash, File file) {
     return new JobParametersBuilder()
         .addString("fileHash", fileHash)
@@ -65,15 +79,21 @@ public class BatchService {
         .toJobParameters();
   }
 
+  ///  동일한 JobParameters로 이미 실행된 Job이 있는지 확인
   private boolean isDuplicateExecution(JobParameters params) {
     JobExecution lastExecution = jobRepository.getLastJobExecution(storeCsvJob.getName(), params);
     return lastExecution != null && lastExecution.getStatus() == BatchStatus.COMPLETED;
   }
 
-  private void runBatchJob(JobParameters params) throws Exception {
-    JobExecution execution = jobLauncher.run(storeCsvJob, params);
-    if (execution.getStatus() != BatchStatus.COMPLETED) {
-      throw new IllegalStateException("CSV 처리 중 오류 발생: " + execution.getStatus());
+  ///  JobLauncher 를 통해 실제 배치 Job 실행
+  private void runBatchJob(JobParameters params) {
+    try {
+      JobExecution execution = jobLauncher.run(storeCsvJob, params);
+      if (execution.getStatus() != BatchStatus.COMPLETED) {
+        throw new BatchException(BatchErrorCode.JOB_EXECUTION_FAILED);
+      }
+    } catch (Exception e) {
+      throw new BatchException(BatchErrorCode.JOB_EXECUTION_FAILED);
     }
   }
 }

@@ -2,8 +2,8 @@ package com.kkinikong.be.store.domain.type;
 
 import lombok.Getter;
 
-import com.kkinikong.be.store.exception.StoreException;
-import com.kkinikong.be.store.exception.errorcode.StoreErrorCode;
+import com.kkinikong.be.batch.exception.BatchException;
+import com.kkinikong.be.batch.exception.errorcode.BatchErrorCode;
 
 @Getter
 public enum Category {
@@ -32,6 +32,6 @@ public enum Category {
         return category;
       }
     }
-    throw new StoreException(StoreErrorCode.INVALID_CATEGORY_LABEL);
+    throw new BatchException(BatchErrorCode.INVALID_CATEGORY_LABEL);
   }
 }
