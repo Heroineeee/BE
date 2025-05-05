@@ -24,7 +24,7 @@ spring:
 
   sql:
     init:
-      mode: always # 배치 메타데이터 테이블 자동 생성
+      mode: never
       schema-locations: classpath:/org/springframework/batch/core/schema-mysql.sql
 
   batch:
