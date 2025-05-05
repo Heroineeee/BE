@@ -27,7 +27,7 @@ public class StoreController {
   }
 
   @Operation(summary = "가맹점 메뉴 보러가기 및 길찾기", description = "가맹점 메뉴 보러가기 및 길찾기 링크를 제공합니다.")
-  @GetMapping("/{storeId}")
+  @GetMapping("/{storeId}/external-links")
   public ResponseEntity<ApiResponse<Object>> getStoreExternalLink(
       @PathVariable("storeId") Long storeId) {
     return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.EMPTY_RESPONSE);
