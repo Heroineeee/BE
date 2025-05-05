@@ -9,7 +9,7 @@ public class CategoryMapper {
           Map.entry("카페", "간식"),
           Map.entry("샐러드", "기타"),
           Map.entry("퓨전요리", "기타"),
-          Map.entry("뷔페", "기타"),
+          Map.entry("뷔페", "한식"),
           Map.entry("패스트푸드", "양식"),
           Map.entry("패밀리레스토랑", "양식")
           // 나머지는 그대로 사용
