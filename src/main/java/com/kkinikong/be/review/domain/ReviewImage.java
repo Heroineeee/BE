@@ -1,4 +1,4 @@
-package com.kkinikong.be.store.domain;
+package com.kkinikong.be.review.domain;
 
 import jakarta.persistence.*;
 import lombok.Getter;
@@ -18,9 +18,6 @@ public class ReviewImage extends BaseEntity {
 
   @Column(name = "image_url", nullable = false)
   private String imageUrl;
-
-  @Column(name = "image_order", nullable = false)
-  private Integer imageOrder; // 이미지 순서
 
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "review_id", nullable = false)

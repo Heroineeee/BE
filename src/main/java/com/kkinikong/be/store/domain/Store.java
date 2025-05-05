@@ -10,6 +10,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import com.kkinikong.be.global.entity.BaseEntity;
+import com.kkinikong.be.review.domain.Review;
 import com.kkinikong.be.store.domain.type.Category;
 
 @Table(name = "stores")

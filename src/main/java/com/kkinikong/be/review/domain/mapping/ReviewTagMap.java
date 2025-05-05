@@ -1,11 +1,11 @@
-package com.kkinikong.be.store.domain.mapping;
+package com.kkinikong.be.review.domain.mapping;
 
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-import com.kkinikong.be.store.domain.Review;
-import com.kkinikong.be.store.domain.ReviewTag;
+import com.kkinikong.be.review.domain.Review;
+import com.kkinikong.be.review.domain.ReviewTag;
 
 @Table(
     name = "review_tag_map",

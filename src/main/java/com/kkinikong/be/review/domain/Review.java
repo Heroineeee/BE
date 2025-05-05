@@ -1,4 +1,4 @@
-package com.kkinikong.be.store.domain;
+package com.kkinikong.be.review.domain;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -8,7 +8,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import com.kkinikong.be.global.entity.BaseEntity;
-import com.kkinikong.be.store.domain.mapping.ReviewTagMap;
+import com.kkinikong.be.review.domain.mapping.ReviewTagMap;
+import com.kkinikong.be.store.domain.Store;
 import com.kkinikong.be.user.domain.User;
 
 @Table(name = "reviews")

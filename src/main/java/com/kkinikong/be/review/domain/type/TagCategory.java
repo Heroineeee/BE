@@ -1,4 +1,4 @@
-package com.kkinikong.be.store.domain.type;
+package com.kkinikong.be.review.domain.type;
 
 import lombok.Getter;
 

@@ -1,4 +1,4 @@
-package com.kkinikong.be.store.domain;
+package com.kkinikong.be.review.domain;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -7,8 +7,8 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-import com.kkinikong.be.store.domain.mapping.ReviewTagMap;
-import com.kkinikong.be.store.domain.type.TagCategory;
+import com.kkinikong.be.review.domain.mapping.ReviewTagMap;
+import com.kkinikong.be.review.domain.type.TagCategory;
 
 @Table(name = "review_tags")
 @Entity

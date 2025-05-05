@@ -10,7 +10,7 @@ import lombok.NoArgsConstructor;
 
 import com.kkinikong.be.global.entity.BaseEntity;
 import com.kkinikong.be.report.domain.Report;
-import com.kkinikong.be.store.domain.Review;
+import com.kkinikong.be.review.domain.Review;
 import com.kkinikong.be.store.domain.StoreScrap;
 import com.kkinikong.be.user.domain.type.LoginType;
 import com.kkinikong.be.user.domain.type.Role;
