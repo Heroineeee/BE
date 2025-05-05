@@ -18,12 +18,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.kkinikong.be.auth.exception.AuthException;
+import com.kkinikong.be.batch.exception.BatchException;
 import com.kkinikong.be.global.exception.errorcode.ErrorCode;
 import com.kkinikong.be.global.exception.errorcode.GlobalErrorCode;
 import com.kkinikong.be.global.exception.response.ErrorResponse;
 import com.kkinikong.be.global.exception.response.ErrorResponse.ValidationError;
 import com.kkinikong.be.global.exception.response.ErrorResponse.ValidationErrors;
-import com.kkinikong.be.post.exception.PostException;
 import com.kkinikong.be.user.exception.UserException;
 
 @RestControllerAdvice
@@ -38,13 +38,6 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
    * handleMemberNotFound(final UserNotFoundException e) { return
    * handleExceptionInternal(e.getErrorCode()); }
    */
-  @ExceptionHandler(PostException.class)
-  public ResponseEntity<Object> handlePostException(
-      final PostException e, HttpServletRequest request) {
-    logInfo(e.getErrorCode(), e, request);
-    return handleExceptionInternal(e.getErrorCode());
-  }
-
   @ExceptionHandler(AuthException.class)
   public ResponseEntity<Object> handleAuthException(
       final AuthException e, HttpServletRequest request) {
@@ -55,6 +48,12 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
   @ExceptionHandler(UserException.class)
   public ResponseEntity<Object> handleUserException(
       final UserException e, HttpServletRequest request) {
+    logInfo(e.getErrorCode(), e, request);
+    return handleExceptionInternal(e.getErrorCode());
+  }
+
+  @ExceptionHandler(BatchException.class)
+  public ResponseEntity<Object> handleBatchException(BatchException e, HttpServletRequest request) {
     logInfo(e.getErrorCode(), e, request);
     return handleExceptionInternal(e.getErrorCode());
   }

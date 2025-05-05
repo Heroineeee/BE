@@ -1,4 +1,4 @@
-package com.kkinikong.be.post.exception.errorcode;
+package com.kkinikong.be.report.exception.errorcode;
 
 import org.springframework.http.HttpStatus;
 
@@ -9,10 +9,8 @@ import com.kkinikong.be.global.exception.errorcode.ErrorCode;
 
 @Getter
 @RequiredArgsConstructor
-public enum PostErrorCode implements ErrorCode {
-  POST_NOT_FOUND(HttpStatus.NOT_FOUND, "Post not found"),
+public enum ReportErrorCode implements ErrorCode {
   ;
-
   private final HttpStatus httpStatus;
   private final String message;
 }
