@@ -4,5 +4,5 @@ public enum StoreSort {
   DISTANCE,
   RATING,
   REVIEW_COUNT,
-  VIEW_COUNT,
+  VIEW_COUNT
 }

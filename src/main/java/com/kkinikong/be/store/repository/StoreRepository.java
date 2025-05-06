@@ -4,4 +4,4 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 import com.kkinikong.be.store.domain.Store;
 
-public interface StoreRepository extends JpaRepository<Store, Long> {}
+public interface StoreRepository extends JpaRepository<Store, Long>, StoreRepositoryCustom {}
