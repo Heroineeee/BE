@@ -52,6 +52,9 @@ public class Store extends BaseEntity {
   @Column(name = "review_count", nullable = false)
   private long reviewCount = 0L;
 
+  @Column(name = "view_count", nullable = false)
+  private long viewCount = 0L;
+
   @Column(name = "updated_date", nullable = false)
   private LocalDate updatedDate;
 
