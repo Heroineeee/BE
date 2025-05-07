@@ -14,8 +14,6 @@ import com.kkinikong.be.store.exception.StoreException;
 import com.kkinikong.be.store.exception.errorcode.StoreErrorCode;
 import com.kkinikong.be.store.repository.StoreRepository;
 import com.kkinikong.be.store.util.kakao.StoreKakaoApiClient;
-import com.kkinikong.be.user.exception.UserException;
-import com.kkinikong.be.user.exception.errorcode.UserErrorCode;
 import com.kkinikong.be.user.repository.UserRepository;
 
 @Service
@@ -54,19 +52,13 @@ public class StoreService {
             .getStoreKakaoId(storeId)
             .orElseGet(() -> fetchAndCacheKakaoPlaceId(storeId, store));
 
-    // 캐시에 저장된 카카오 ID가 NO_INFO인 경우 링크를 제공하지 않음
+    // 캐시에 저장된 카카오 ID가 NO_INFO인 경우 네이버 검색 링크로 대체
     boolean hasInfo = !NO_INFO.equals(kakaoPlaceId);
 
     return StoreExternalLinkResponse.builder()
-        .menuUrl(hasInfo ? buildMenuUrl(kakaoPlaceId) : NO_INFO)
-        .directionUrl(hasInfo ? buildDirectionUrl(kakaoPlaceId) : NO_INFO)
+        .menuUrl(hasInfo ? buildMenuUrl(kakaoPlaceId) : buildNaverUrl(store.getName()))
+        .directionUrl(hasInfo ? buildDirectionUrl(kakaoPlaceId) : buildNaverUrl(store.getName()))
         .build();
-  }
-
-  private void findUserOrThrow(Long userId) {
-    userRepository
-        .findUserById(userId)
-        .orElseThrow(() -> new UserException(UserErrorCode.USER_NOT_FOUND));
   }
 
   private String fetchAndCacheKakaoPlaceId(Long storeId, Store store) {
@@ -88,6 +80,10 @@ public class StoreService {
 
   private String buildMenuUrl(String placeId) {
     return "https://place.map.kakao.com/" + placeId + "#menuInfo";
+  }
+
+  private String buildNaverUrl(String placeName) {
+    return "https://map.naver.com/v5/search/" + placeName;
   }
 
   private Store findStoreOrThrow(Long storeId) {
