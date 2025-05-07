@@ -8,9 +8,7 @@ public record StorePreviewResponse(
     String address,
     String category,
     double ratingAvg,
-    long reviewCount,
     long scrapCount,
-    long viewCount,
     String representativeTag,
     Boolean isScrapped) {
 
@@ -21,9 +19,7 @@ public record StorePreviewResponse(
         storeDTO.address(),
         storeDTO.category().getLabel(),
         storeDTO.ratingAvg(),
-        storeDTO.reviewCount(),
         storeDTO.scrapCount(),
-        storeDTO.viewCount(),
         storeDTO.representativeTag(),
         storeDTO.isScrapped());
   }
