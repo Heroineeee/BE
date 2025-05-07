@@ -6,7 +6,6 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -47,15 +46,8 @@ public class StoreController {
     return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.from(storeExternalLink));
   }
 
-  @Operation(summary = "가맹점 정보 수정 요청", description = "가맹점 정보 수정 요청을 합니다.")
-  @PostMapping("/{storeId}/report")
-  public ResponseEntity<ApiResponse<Object>> postStoreReport(
-      @PathVariable("storeId") Long storeId) {
-    return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.EMPTY_RESPONSE);
-  }
-
   @Operation(
-      summary = "카카오 캐시 초기화",
+      summary = "카카오 캐시 초기화 (관리자 전용, 프론트 연동 X)",
       description = "모든 가맹점의 카카오 ID 캐시를 삭제합니다. 유저의 권한이 USER인 경우에는 삭제할 수 없습니다.")
   @DeleteMapping("/cache/kakao-id")
   public ResponseEntity<ApiResponse<Object>> clearKakaoCache(
