@@ -41,14 +41,18 @@ public class StoreKakaoApiClient {
             .bodyToMono(String.class)
             .block();
 
+    return parsingKakaoId(response);
+  }
+
+  private static String parsingKakaoId(String response) {
     try {
       ObjectMapper objectMapper = new ObjectMapper();
       JsonNode root = objectMapper.readTree(response);
       JsonNode results = root.path("documents");
       if (!results.isEmpty()) {
-        return results.get(0).path("id").asText(); // 첫번째 결과의 id
+        return results.get(0).path("id").asText();
       } else {
-        return null; // 결과 없을 때
+        return null;
       }
     } catch (Exception e) {
       throw new StoreException(StoreErrorCode.KAKAO_API_PARSE_ERROR);
