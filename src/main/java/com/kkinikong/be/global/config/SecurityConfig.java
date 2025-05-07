@@ -4,6 +4,7 @@ import java.util.Arrays;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
@@ -40,13 +41,20 @@ public class SecurityConfig {
                         "/v3/api-docs/**",
                         "/swagger-resources/**",
                         "/swagger-ui.html",
-                        "/v3/api-docs/swagger-config")
+                        "/v3/api-docs/swagger-config",
+                        "api/v1/**")
                     .permitAll() // Swagger 경로는 누구나 접근 가능
-                    .requestMatchers("/api/v1/auth/**", "/api/v1/batch/**")
-                    .permitAll()
-                    .anyRequest()
-                    .authenticated() // 그 외의 경로는 인증된 사용자만 접근 가능
-            )
+                    .requestMatchers(
+                        "/api/v1/user/**",
+                        "/api/v1/store/scrap/**",
+                        "/api/v1/store/*/report",
+                        "/api/v1/review/*/report",
+                        "/api/v1/batch/**")
+                    .authenticated()
+                    .requestMatchers(HttpMethod.POST, "api/v1/*/review")
+                    .authenticated()
+                    .requestMatchers(HttpMethod.POST, "api/v1/*/review/*/photo")
+                    .authenticated())
         .addFilterBefore(
             new JwtAuthFilter(jwtTokenProvider),
             UsernamePasswordAuthenticationFilter.class); // JWT 필터 추가
