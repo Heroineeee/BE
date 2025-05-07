@@ -1,4 +1,4 @@
-package com.kkinikong.be.store.repository;
+package com.kkinikong.be.store.repository.store;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -9,5 +9,10 @@ import com.kkinikong.be.store.domain.type.StoreSort;
 
 public interface StoreRepositoryCustom {
   Page<Store> findStoresByCategoryAndSort(
-      double latitude, double longitude, Category category, StoreSort sort, Pageable pageable);
+      double latitude,
+      double longitude,
+      Category category,
+      StoreSort sort,
+      Pageable pageable,
+      Long userId);
 }

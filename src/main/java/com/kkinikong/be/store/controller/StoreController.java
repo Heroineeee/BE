@@ -2,6 +2,7 @@ package com.kkinikong.be.store.controller;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import io.swagger.v3.oas.annotations.Operation;
@@ -14,6 +15,7 @@ import com.kkinikong.be.store.domain.type.Category;
 import com.kkinikong.be.store.domain.type.StoreSort;
 import com.kkinikong.be.store.dto.response.StoreListResponse;
 import com.kkinikong.be.store.service.StoreService;
+import com.kkinikong.be.user.utils.CustomUserDetails;
 
 @RestController
 @RequiredArgsConstructor
@@ -27,12 +29,12 @@ public class StoreController {
       summary = "가맹점 찾기 리스트 조회",
       description =
           """
-        현재 위치 기반으로 가맹점 목록을 조회합니다.
-        - 카테고리, 정렬 조건, 페이징을 적용 가능
-        - 위도(latitude), 경도(longitude)는 필수 입력
-        - category를 입력하지 않으면 전체 가맹점 조회
-        - 정렬 조건은 가까운 순(DISTANCE), 별점 높은 순(RATING), 리뷰 많은 순(REVIEW_COUNT), 조회수 순(VIEW_COUNT) 중 선택 가능
+        현재 위치 기반으로 가맹점 목록을 조회합니다. 페이지 번호는 0부터 시작하며, 페이지 당 10개의 가맹점을 반환한다.
+        - category를 선택하지 않으면 전체 가맹점 조회
+        - 정렬 조건은 가까운 순(DISTANCE), 별점 높은 순(RATING), 리뷰 많은 순(REVIEW_COUNT), 조회수 순(VIEW_COUNT) 중 선택
         - 필터링 결과가 동일할 경우, 이름 가나다순으로 정렬
+        - 로그인한 유저는 isScrapped 가 true/false 로 반환
+        - 로그인하지 않은 경우, isScrapped는 null로 응답
         """)
   @GetMapping
   public ResponseEntity<ApiResponse<Object>> getStoresList(
@@ -42,11 +44,14 @@ public class StoreController {
           double longitude,
       @RequestParam(required = false) Category category,
       @RequestParam(defaultValue = "VIEW_COUNT") StoreSort sort,
-      @Parameter(description = "페이지 번호 (0부터 시작)") @RequestParam(defaultValue = "0") int page,
-      @Parameter(description = "한 페이지에 가져올 가맹점 개수") @RequestParam(defaultValue = "10") int size) {
+      @RequestParam(defaultValue = "0") int page,
+      @RequestParam(defaultValue = "10") int size,
+      @AuthenticationPrincipal CustomUserDetails userDetails) {
+
+    Long userId = (userDetails != null) ? userDetails.getId() : null;
 
     StoreListResponse response =
-        storeService.getStores(latitude, longitude, category, sort, page, size);
+        storeService.getStores(latitude, longitude, category, sort, page, size, userId);
     return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.from(response));
   }
 }

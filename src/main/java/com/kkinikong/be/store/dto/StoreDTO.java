@@ -15,7 +15,7 @@ public record StoreDTO(
     long scrapCount,
     long viewCount,
     Boolean isScrapped) {
-  public static StoreDTO from(Store store, Boolean isScrapped) {
+  public static StoreDTO from(Store store) {
     return new StoreDTO(
         store.getId(),
         store.getName(),
@@ -27,6 +27,6 @@ public record StoreDTO(
         store.getReviewCount(),
         store.getScrapCount(),
         store.getViewCount(),
-        isScrapped);
+        store.getIsScrapped());
   }
 }

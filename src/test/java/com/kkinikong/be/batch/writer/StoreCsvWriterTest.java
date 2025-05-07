@@ -17,7 +17,7 @@ import org.junit.jupiter.api.Test;
 
 import com.kkinikong.be.store.domain.Store;
 import com.kkinikong.be.store.domain.type.Category;
-import com.kkinikong.be.store.repository.StoreRepository;
+import com.kkinikong.be.store.repository.store.StoreRepository;
 
 @SpringBootTest
 @Import({StoreCsvWriter.class})

@@ -1,4 +1,4 @@
-package com.kkinikong.be.store.repository;
+package com.kkinikong.be.store.repository.store;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 
