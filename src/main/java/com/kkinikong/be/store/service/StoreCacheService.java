@@ -43,8 +43,8 @@ public class StoreCacheService {
             .findUserById(userId)
             .orElseThrow(() -> new UserException(UserErrorCode.USER_NOT_FOUND));
 
-    // 관리자 권한을 가진 사용자는 캐시를 삭제할 수 없음
-    if (user.getRole() == Role.ROLE_ADMIN) {
+    // 유저 권한을 가진 사용자는 캐시를 삭제할 수 없음
+    if (user.getRole() == Role.ROLE_USER) {
       throw new UserException(UserErrorCode.USER_NOT_AUTHORIZED);
     }
 
