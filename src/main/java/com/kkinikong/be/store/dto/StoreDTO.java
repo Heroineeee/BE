@@ -14,8 +14,9 @@ public record StoreDTO(
     long reviewCount,
     long scrapCount,
     long viewCount,
+    String representativeTag,
     Boolean isScrapped) {
-  public static StoreDTO from(Store store) {
+  public static StoreDTO from(Store store, String representativeTag) {
     return new StoreDTO(
         store.getId(),
         store.getName(),
@@ -27,6 +28,7 @@ public record StoreDTO(
         store.getReviewCount(),
         store.getScrapCount(),
         store.getViewCount(),
+        representativeTag,
         store.getIsScrapped());
   }
 }

@@ -1,4 +1,4 @@
-package com.kkinikong.be.review.repository;
+package com.kkinikong.be.review.repository.review;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 

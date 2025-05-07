@@ -11,6 +11,7 @@ public record StorePreviewResponse(
     long reviewCount,
     long scrapCount,
     long viewCount,
+    String representativeTag,
     Boolean isScrapped) {
 
   public static StorePreviewResponse from(StoreDTO storeDTO) {
@@ -23,6 +24,7 @@ public record StorePreviewResponse(
         storeDTO.reviewCount(),
         storeDTO.scrapCount(),
         storeDTO.viewCount(),
+        storeDTO.representativeTag(),
         storeDTO.isScrapped());
   }
 }
