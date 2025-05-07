@@ -11,6 +11,8 @@ import com.kkinikong.be.global.exception.errorcode.ErrorCode;
 @RequiredArgsConstructor
 public enum StoreErrorCode implements ErrorCode {
   STORE_NOT_FOUND(HttpStatus.BAD_REQUEST, "가맹점을 찾을 수 없습니다."),
+  KAKAO_API_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "카카오 API 호출에 실패했습니다."),
+  KAKAO_API_PARSE_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "카카오 API 호출 결과를 파싱하는데 실패했습니다."),
   ;
   private final HttpStatus httpStatus;
   private final String message;
