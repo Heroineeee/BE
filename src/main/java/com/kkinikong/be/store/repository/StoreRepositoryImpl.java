@@ -23,7 +23,7 @@ public class StoreRepositoryImpl implements StoreRepositoryCustom {
   private final QStore store = QStore.store;
 
   @Override
-  public Page<Store> findStoresByFilterAndSort(
+  public Page<Store> findStoresByCategoryAndSort(
       double latitude, double longitude, Category category, StoreSort sort, Pageable pageable) {
     List<Store> stores =
         queryFactory
@@ -44,30 +44,32 @@ public class StoreRepositoryImpl implements StoreRepositoryCustom {
     return new PageImpl<>(stores, pageable, total);
   }
 
-  private OrderSpecifier<?> getSortOrder(StoreSort sort, double latitude, double longitude) {
+  private OrderSpecifier<?>[] getSortOrder(StoreSort sort, double latitude, double longitude) {
     switch (sort) {
       case DISTANCE -> {
-        // 위도/경도 기반 거리 계산
-        return Expressions.numberTemplate(
-                Double.class,
-                "ST_Distance_Sphere(POINT({0}, {1}), POINT({2}, {3}))",
-                store.longitude,
-                store.latitude,
-                longitude,
-                latitude)
-            .asc();
+        return new OrderSpecifier[] {
+          Expressions.numberTemplate(
+                  Double.class,
+                  "ST_Distance_Sphere(POINT({0}, {1}), POINT({2}, {3}))",
+                  store.longitude,
+                  store.latitude,
+                  longitude,
+                  latitude)
+              .asc(),
+          store.name.asc()
+        };
       }
       case RATING -> {
-        return store.ratingAvg.desc();
+        return new OrderSpecifier[] {store.ratingAvg.desc().nullsLast(), store.name.asc()};
       }
       case REVIEW_COUNT -> {
-        return store.reviewCount.desc();
+        return new OrderSpecifier[] {store.reviewCount.desc().nullsLast(), store.name.asc()};
       }
       case VIEW_COUNT -> {
-        return store.viewCount.desc();
+        return new OrderSpecifier[] {store.viewCount.desc().nullsLast(), store.name.asc()};
       }
       default -> {
-        return store.name.asc(); // 가나다 순 정렬 (필터 결과 동일할 경우)
+        return new OrderSpecifier[] {store.name.asc()};
       }
     }
   }

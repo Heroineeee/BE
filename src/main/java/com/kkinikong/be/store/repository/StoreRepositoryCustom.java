@@ -8,6 +8,6 @@ import com.kkinikong.be.store.domain.type.Category;
 import com.kkinikong.be.store.domain.type.StoreSort;
 
 public interface StoreRepositoryCustom {
-  Page<Store> findStoresByFilterAndSort(
+  Page<Store> findStoresByCategoryAndSort(
       double latitude, double longitude, Category category, StoreSort sort, Pageable pageable);
 }

@@ -26,7 +26,7 @@ public class StoreService {
       double latitude, double longitude, Category category, StoreSort sort, int page, int size) {
     Pageable pageable = PageRequest.of(page, size);
     Page<Store> stores =
-        storeRepository.findStoresByFilterAndSort(latitude, longitude, category, sort, pageable);
+        storeRepository.findStoresByCategoryAndSort(latitude, longitude, category, sort, pageable);
 
     List<StorePreviewResponse> previewList =
         stores.getContent().stream().map(StorePreviewResponse::from).toList();
