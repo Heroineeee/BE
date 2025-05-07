@@ -13,6 +13,8 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 
 import com.kkinikong.be.global.response.ApiResponse;
+import com.kkinikong.be.store.dto.response.StoreInfoResponse;
+import com.kkinikong.be.store.service.StoreService;
 
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/store")
@@ -20,10 +22,13 @@ import com.kkinikong.be.global.response.ApiResponse;
 @RestController
 public class StoreController {
 
+  private final StoreService storeService;
+
   @Operation(summary = "가맹점 상세 정보 조회", description = "가맹점 상세 정보를 조회합니다.")
   @GetMapping("/{storeId}")
   public ResponseEntity<ApiResponse<Object>> getStoreInfo(@PathVariable("storeId") Long storeId) {
-    return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.EMPTY_RESPONSE);
+    StoreInfoResponse storeInfo = storeService.getStoreInfo(storeId);
+    return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.from(storeInfo));
   }
 
   @Operation(summary = "가맹점 메뉴 보러가기 및 길찾기", description = "가맹점 메뉴 보러가기 및 길찾기 링크를 제공합니다.")
