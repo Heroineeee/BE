@@ -16,9 +16,11 @@ public class StoreCacheService {
 
   private static final String KEY_PREFIX = "store-id:";
 
-  public void saveStoreNaverId(Long storeId, String naverId, Duration ttl) {
+  public static final Duration EXTERNAL_LINK_CACHE_TTL = Duration.ofDays(30); // 30일 동안 캐싱
+
+  public void saveStoreNaverId(Long storeId, String naverId) {
     String key = KEY_PREFIX + storeId;
-    redisTemplate.opsForValue().set(key, naverId, ttl);
+    redisTemplate.opsForValue().set(key, naverId, EXTERNAL_LINK_CACHE_TTL);
   }
 
   public Optional<String> getStoreNaverId(Long storeId) {
