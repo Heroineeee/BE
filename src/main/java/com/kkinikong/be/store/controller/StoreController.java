@@ -16,7 +16,6 @@ import lombok.RequiredArgsConstructor;
 import com.kkinikong.be.global.response.ApiResponse;
 import com.kkinikong.be.store.dto.response.StoreExternalLinkResponse;
 import com.kkinikong.be.store.dto.response.StoreInfoResponse;
-import com.kkinikong.be.store.service.StoreCacheService;
 import com.kkinikong.be.store.service.StoreService;
 import com.kkinikong.be.user.utils.CustomUserDetails;
 
@@ -27,7 +26,6 @@ import com.kkinikong.be.user.utils.CustomUserDetails;
 public class StoreController {
 
   private final StoreService storeService;
-  private final StoreCacheService storeCacheService;
 
   @Operation(summary = "가맹점 상세 정보 조회", description = "가맹점 상세 정보를 조회합니다.")
   @GetMapping("/{storeId}")
@@ -50,9 +48,8 @@ public class StoreController {
       summary = "카카오 캐시 초기화 (관리자 전용, 프론트 연동 X)",
       description = "모든 가맹점의 카카오 ID 캐시를 삭제합니다. 유저의 권한이 USER인 경우에는 삭제할 수 없습니다.")
   @DeleteMapping("/cache/kakao-id")
-  public ResponseEntity<ApiResponse<Object>> clearKakaoCache(
+  public ResponseEntity<ApiResponse<Object>> clearStoredKakaoCache(
       @AuthenticationPrincipal CustomUserDetails userDetails) {
-    return ResponseEntity.ok(
-        ApiResponse.from(storeCacheService.clearAllStoredKakaoId(userDetails.getId())));
+    return ResponseEntity.ok(ApiResponse.from(storeService.clearStoredKakaoCache()));
   }
 }
