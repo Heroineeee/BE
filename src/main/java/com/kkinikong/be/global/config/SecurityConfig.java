@@ -41,9 +41,8 @@ public class SecurityConfig {
                         "/v3/api-docs/**",
                         "/swagger-resources/**",
                         "/swagger-ui.html",
-                        "/v3/api-docs/swagger-config",
-                        "api/v1/**")
-                    .permitAll() // Swagger 경로는 누구나 접근 가능
+                        "/v3/api-docs/swagger-config")
+                    .permitAll()
                     .requestMatchers(
                         "/api/v1/user/**",
                         "/api/v1/store/scrap/**",
@@ -51,10 +50,12 @@ public class SecurityConfig {
                         "/api/v1/review/*/report",
                         "/api/v1/batch/**")
                     .authenticated()
-                    .requestMatchers(HttpMethod.POST, "api/v1/*/review")
+                    .requestMatchers(HttpMethod.POST, "/api/v1/*/review")
                     .authenticated()
-                    .requestMatchers(HttpMethod.POST, "api/v1/*/review/*/photo")
-                    .authenticated())
+                    .requestMatchers(HttpMethod.POST, "/api/v1/*/review/*/photo")
+                    .authenticated()
+                    .anyRequest() // 그 외 모든 요청 허용
+                    .permitAll())
         .addFilterBefore(
             new JwtAuthFilter(jwtTokenProvider),
             UsernamePasswordAuthenticationFilter.class); // JWT 필터 추가
