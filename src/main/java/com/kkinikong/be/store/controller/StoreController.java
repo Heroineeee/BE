@@ -1,10 +1,8 @@
 package com.kkinikong.be.store.controller;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -26,7 +24,7 @@ public class StoreController {
   private final StoreService storeService;
 
   @Operation(
-      summary = "가맹점 리스트 조회",
+      summary = "가맹점 찾기 리스트 조회",
       description =
           """
         현재 위치 기반으로 가맹점 목록을 조회합니다.
@@ -37,18 +35,18 @@ public class StoreController {
         - 필터링 결과가 동일할 경우, 이름 가나다순으로 정렬
         """)
   @GetMapping
-  public ResponseEntity<ApiResponse<Object>> getStores(
+  public ResponseEntity<ApiResponse<Object>> getStoresList(
       @Parameter(description = "인천 서구의 임의의 위도 값", example = "37.545472") @RequestParam
           double latitude,
       @Parameter(description = "인천 서구의 임의의 경도 값", example = "126.676902") @RequestParam
           double longitude,
       @RequestParam(required = false) Category category,
-      @RequestParam(defaultValue = "DISTANCE") StoreSort sort,
+      @RequestParam(defaultValue = "VIEW_COUNT") StoreSort sort,
       @Parameter(description = "페이지 번호 (0부터 시작)") @RequestParam(defaultValue = "0") int page,
       @Parameter(description = "한 페이지에 가져올 가맹점 개수") @RequestParam(defaultValue = "10") int size) {
 
     StoreListResponse response =
         storeService.getStores(latitude, longitude, category, sort, page, size);
-    return ResponseEntity.ok(ApiResponse.from(response));
+    return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.from(response));
   }
 }
