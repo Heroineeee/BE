@@ -16,13 +16,13 @@ import com.kkinikong.be.store.exception.errorcode.StoreErrorCode;
 @Slf4j
 @RequiredArgsConstructor
 @Component
-public class KakaoApiClient {
-  private final WebClient webClient = WebClient.builder().baseUrl("https://dapi.kakao/com").build();
+public class StoreKakaoApiClient {
+  private final WebClient webClient = WebClient.builder().baseUrl("https://dapi.kakao.com").build();
 
   @Value("${KAKAO_REST_API_KEY}")
   private String kakaoApiKey;
 
-  public String getKakaoLocalSearch(Store store, String x, String y) {
+  public String getKakaoLocalSearch(Store store) {
     String response =
         webClient
             .get()

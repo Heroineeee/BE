@@ -2,6 +2,8 @@ package com.kkinikong.be.store.controller;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -13,8 +15,11 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 
 import com.kkinikong.be.global.response.ApiResponse;
+import com.kkinikong.be.store.dto.response.StoreExternalLinkResponse;
 import com.kkinikong.be.store.dto.response.StoreInfoResponse;
+import com.kkinikong.be.store.service.StoreCacheService;
 import com.kkinikong.be.store.service.StoreService;
+import com.kkinikong.be.user.utils.CustomUserDetails;
 
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/store")
@@ -23,6 +28,7 @@ import com.kkinikong.be.store.service.StoreService;
 public class StoreController {
 
   private final StoreService storeService;
+  private final StoreCacheService storeCacheService;
 
   @Operation(summary = "가맹점 상세 정보 조회", description = "가맹점 상세 정보를 조회합니다.")
   @GetMapping("/{storeId}")
@@ -35,7 +41,8 @@ public class StoreController {
   @GetMapping("/{storeId}/external-links")
   public ResponseEntity<ApiResponse<Object>> getStoreExternalLink(
       @PathVariable("storeId") Long storeId) {
-    return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.EMPTY_RESPONSE);
+    StoreExternalLinkResponse storeExternalLink = storeService.getStoreExternalLink(storeId);
+    return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.from(storeExternalLink));
   }
 
   @Operation(summary = "가맹점 정보 수정 요청", description = "가맹점 정보 수정 요청을 합니다.")
@@ -43,5 +50,13 @@ public class StoreController {
   public ResponseEntity<ApiResponse<Object>> postStoreReport(
       @PathVariable("storeId") Long storeId) {
     return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.EMPTY_RESPONSE);
+  }
+
+  @Operation(summary = "카카오 캐시 초기화", description = "모든 가맹점의 카카오 ID 캐시를 삭제합니다.")
+  @DeleteMapping("/cache/kakao-id")
+  public ResponseEntity<ApiResponse<Object>> clearKakaoCache(
+      @AuthenticationPrincipal CustomUserDetails userDetails) {
+    return ResponseEntity.ok(
+        ApiResponse.from(storeCacheService.clearAllStoredKakaoId(userDetails.getId())));
   }
 }
