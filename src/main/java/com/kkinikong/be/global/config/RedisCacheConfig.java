@@ -26,8 +26,8 @@ public class RedisCacheConfig {
                     new StringRedisSerializer()))
             .serializeValuesWith(
                 RedisSerializationContext.SerializationPair.fromSerializer(
-                    new GenericJackson2JsonRedisSerializer())) // Value Serializer 변경
-            .entryTtl(Duration.ofMinutes(3L)); // 캐시 수명 30분
+                    new GenericJackson2JsonRedisSerializer()))
+            .entryTtl(Duration.ofDays(30)); // 캐시 수명 30일
 
     return RedisCacheManager.RedisCacheManagerBuilder.fromConnectionFactory(cf)
         .cacheDefaults(redisCacheConfiguration)

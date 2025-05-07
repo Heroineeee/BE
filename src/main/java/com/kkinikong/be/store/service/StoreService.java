@@ -42,7 +42,7 @@ public class StoreService {
         .build();
   }
 
-  @Cacheable(value = "store-id", key = "#storeId")
+  @Cacheable(value = "store-id", key = "storeId", unless = "#result == null")
   public StoreExternalLinkResponse getStoreExternalLink(Long storeId) {
     Store store = findStoreOrThrow(storeId);
 
