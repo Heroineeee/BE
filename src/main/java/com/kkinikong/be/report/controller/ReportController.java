@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.annotation.Nullable;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
@@ -38,7 +39,7 @@ public class ReportController {
   public ResponseEntity<ApiResponse<Object>> reportStore(
       @PathVariable("storeId") Long storeId,
       @RequestParam StoreReportReason reason,
-      @RequestBody @Valid ReportStoreRequest reportStoreRequest,
+      @RequestBody @Nullable @Valid ReportStoreRequest reportStoreRequest,
       @AuthenticationPrincipal CustomUserDetails userDetails) {
 
     reportService.reportStore(storeId, reason, reportStoreRequest, userDetails.getId());
