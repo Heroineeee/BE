@@ -17,6 +17,8 @@ import com.kkinikong.be.store.domain.QStoreScrap;
 import com.kkinikong.be.store.domain.Store;
 import com.kkinikong.be.store.domain.type.Category;
 import com.kkinikong.be.store.domain.type.StoreSort;
+import com.kkinikong.be.store.exception.StoreException;
+import com.kkinikong.be.store.exception.errorcode.StoreErrorCode;
 
 @RequiredArgsConstructor
 public class StoreRepositoryCustomImpl implements StoreRepositoryCustom {
@@ -27,8 +29,8 @@ public class StoreRepositoryCustomImpl implements StoreRepositoryCustom {
 
   @Override
   public Page<Store> findStoresByCategoryAndSort(
-      double latitude,
-      double longitude,
+      Double latitude,
+      Double longitude,
       Category category,
       StoreSort sort,
       Pageable pageable,
@@ -71,20 +73,24 @@ public class StoreRepositoryCustomImpl implements StoreRepositoryCustom {
     return new PageImpl<>(storeList, pageable, total);
   }
 
-  private OrderSpecifier<?>[] getSortOrder(StoreSort sort, double latitude, double longitude) {
+  private OrderSpecifier<?>[] getSortOrder(StoreSort sort, Double latitude, Double longitude) {
     return switch (sort) {
-      case DISTANCE ->
-          new OrderSpecifier[] {
-            Expressions.numberTemplate(
-                    Double.class,
-                    "ST_Distance_Sphere(POINT({0}, {1}), POINT({2}, {3}))",
-                    store.longitude,
-                    store.latitude,
-                    longitude,
-                    latitude)
-                .asc(),
-            store.name.asc()
-          };
+      case DISTANCE -> {
+        if (latitude == null || longitude == null) {
+          throw new StoreException(StoreErrorCode.MISSING_GPS_FOR_DISTANCE);
+        }
+        yield new OrderSpecifier[] {
+          Expressions.numberTemplate(
+                  Double.class,
+                  "ST_Distance_Sphere(POINT({0}, {1}), POINT({2}, {3}))",
+                  store.longitude,
+                  store.latitude,
+                  longitude.doubleValue(),
+                  latitude.doubleValue())
+              .asc(),
+          store.name.asc()
+        };
+      }
       case RATING -> new OrderSpecifier[] {store.ratingAvg.desc().nullsLast(), store.name.asc()};
       case REVIEW_COUNT ->
           new OrderSpecifier[] {store.reviewCount.desc().nullsLast(), store.name.asc()};

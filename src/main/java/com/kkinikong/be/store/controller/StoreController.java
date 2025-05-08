@@ -16,6 +16,8 @@ import com.kkinikong.be.store.domain.type.StoreSort;
 import com.kkinikong.be.store.dto.response.PagedResponse;
 import com.kkinikong.be.store.dto.response.StoreMapPreviewResponse;
 import com.kkinikong.be.store.dto.response.StorePreviewResponse;
+import com.kkinikong.be.store.exception.StoreException;
+import com.kkinikong.be.store.exception.errorcode.StoreErrorCode;
 import com.kkinikong.be.store.service.StoreService;
 import com.kkinikong.be.user.utils.CustomUserDetails;
 
@@ -32,15 +34,18 @@ public class StoreController {
   public ResponseEntity<ApiResponse<Object>> getStoresMapList(
       @Parameter(description = "인천 서구의 임의의 위도 값", example = "37.545472")
           @RequestParam(required = false)
-          double latitude,
+          Double latitude,
       @Parameter(description = "인천 서구의 임의의 경도 값", example = "126.676902")
           @RequestParam(required = false)
-          double longitude,
+          Double longitude,
       @RequestParam(required = false) Category category,
       @RequestParam(defaultValue = "NAME") StoreSort sort,
       @RequestParam(defaultValue = "0") int page,
       @RequestParam(defaultValue = "10") int size,
       @AuthenticationPrincipal CustomUserDetails userDetails) {
+    if (sort == StoreSort.DISTANCE && (latitude == null || longitude == null)) {
+      throw new StoreException(StoreErrorCode.MISSING_GPS_FOR_DISTANCE);
+    }
     Long userId = (userDetails != null) ? userDetails.getId() : null;
     PagedResponse<StoreMapPreviewResponse> response =
         storeService.getStoresForMap(latitude, longitude, category, sort, page, size, userId);
@@ -61,15 +66,20 @@ public class StoreController {
         """)
   @GetMapping
   public ResponseEntity<ApiResponse<Object>> getStoresList(
-      @Parameter(description = "인천 서구의 임의의 위도 값", example = "37.545472") @RequestParam
-          double latitude,
-      @Parameter(description = "인천 서구의 임의의 경도 값", example = "126.676902") @RequestParam
-          double longitude,
+      @Parameter(description = "인천 서구의 임의의 위도 값", example = "37.545472")
+          @RequestParam(required = false)
+          Double latitude,
+      @Parameter(description = "인천 서구의 임의의 경도 값", example = "126.676902")
+          @RequestParam(required = false)
+          Double longitude,
       @RequestParam(required = false) Category category,
       @RequestParam(defaultValue = "VIEW_COUNT") StoreSort sort,
       @RequestParam(defaultValue = "0") int page,
       @RequestParam(defaultValue = "10") int size,
       @AuthenticationPrincipal CustomUserDetails userDetails) {
+    if (sort == StoreSort.DISTANCE && (latitude == null || longitude == null)) {
+      throw new StoreException(StoreErrorCode.MISSING_GPS_FOR_DISTANCE);
+    }
 
     Long userId = (userDetails != null) ? userDetails.getId() : null;
     PagedResponse<StorePreviewResponse> response =

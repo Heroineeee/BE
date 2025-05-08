@@ -27,8 +27,8 @@ public class StoreService {
   private final ReviewTagRepository reviewTagRepository;
 
   public PagedResponse<StorePreviewResponse> getStores(
-      double latitude,
-      double longitude,
+      Double latitude,
+      Double longitude,
       Category category,
       StoreSort sort,
       int page,
@@ -52,8 +52,8 @@ public class StoreService {
   }
 
   public PagedResponse<StoreMapPreviewResponse> getStoresForMap(
-      double latitude,
-      double longitude,
+      Double latitude,
+      Double longitude,
       Category category,
       StoreSort sort,
       int page,
