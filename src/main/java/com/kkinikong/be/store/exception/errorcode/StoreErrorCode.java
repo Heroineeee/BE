@@ -13,6 +13,9 @@ public enum StoreErrorCode implements ErrorCode {
   STORE_NOT_FOUND(HttpStatus.BAD_REQUEST, "가맹점을 찾을 수 없습니다."),
   KAKAO_API_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "카카오 API 호출에 실패했습니다."),
   KAKAO_API_PARSE_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "카카오 API 호출 결과를 파싱하는데 실패했습니다."),
+  GOOGLE_API_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "구글 API 호출에 실패했습니다."),
+  JSON_PARSE_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "JSON 파싱에 실패했습니다."),
+  CONVERT_TIME_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "시간 변환에 실패했습니다."),
   ;
   private final HttpStatus httpStatus;
   private final String message;
