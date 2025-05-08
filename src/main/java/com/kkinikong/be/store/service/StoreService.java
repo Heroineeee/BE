@@ -14,6 +14,7 @@ import com.kkinikong.be.store.dto.response.StoreInfoResponse;
 import com.kkinikong.be.store.exception.StoreException;
 import com.kkinikong.be.store.exception.errorcode.StoreErrorCode;
 import com.kkinikong.be.store.repository.StoreRepository;
+import com.kkinikong.be.store.util.google.StoreGoogleApiClient;
 import com.kkinikong.be.store.util.kakao.StoreKakaoApiClient;
 
 @Service
@@ -24,6 +25,7 @@ public class StoreService {
 
   private final StoreRepository storeRepository;
   private final StoreKakaoApiClient storeKakaoApiClient;
+  private final StoreGoogleApiClient storeGoogleApiClient;
 
   private static final String NO_INFO = "NO_INFO";
 
@@ -42,7 +44,7 @@ public class StoreService {
         .build();
   }
 
-  @Cacheable(value = "store-id", key = "storeId", unless = "#result == null")
+  @Cacheable(value = "store-id", key = "#storeId", unless = "#result == null")
   public StoreExternalLinkResponse getStoreExternalLink(Long storeId) {
     Store store = findStoreOrThrow(storeId);
 
