@@ -13,9 +13,9 @@ import lombok.RequiredArgsConstructor;
 import com.kkinikong.be.global.response.ApiResponse;
 import com.kkinikong.be.store.domain.type.Category;
 import com.kkinikong.be.store.domain.type.StoreSort;
-import com.kkinikong.be.store.dto.response.PagedResponse;
-import com.kkinikong.be.store.dto.response.StoreMapPreviewResponse;
-import com.kkinikong.be.store.dto.response.StorePreviewResponse;
+import com.kkinikong.be.store.dto.response.PageResponse;
+import com.kkinikong.be.store.dto.response.StoreListItemResponse;
+import com.kkinikong.be.store.dto.response.StoreMapItemResponse;
 import com.kkinikong.be.store.exception.StoreException;
 import com.kkinikong.be.store.exception.errorcode.StoreErrorCode;
 import com.kkinikong.be.store.service.StoreService;
@@ -47,8 +47,8 @@ public class StoreController {
       throw new StoreException(StoreErrorCode.MISSING_GPS_FOR_DISTANCE);
     }
     Long userId = (userDetails != null) ? userDetails.getId() : null;
-    PagedResponse<StoreMapPreviewResponse> response =
-        storeService.getStoresForMap(latitude, longitude, category, sort, page, size, userId);
+    PageResponse<StoreMapItemResponse> response =
+        storeService.getStoreListBasic(latitude, longitude, category, sort, page, size, userId);
     return ResponseEntity.ok(ApiResponse.from(response));
   }
 
@@ -80,10 +80,9 @@ public class StoreController {
     if (sort == StoreSort.DISTANCE && (latitude == null || longitude == null)) {
       throw new StoreException(StoreErrorCode.MISSING_GPS_FOR_DISTANCE);
     }
-
     Long userId = (userDetails != null) ? userDetails.getId() : null;
-    PagedResponse<StorePreviewResponse> response =
-        storeService.getStores(latitude, longitude, category, sort, page, size, userId);
+    PageResponse<StoreListItemResponse> response =
+        storeService.getStoreListWithTag(latitude, longitude, category, sort, page, size, userId);
     return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.from(response));
   }
 }

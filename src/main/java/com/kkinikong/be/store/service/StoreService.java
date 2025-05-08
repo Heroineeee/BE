@@ -7,6 +7,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import lombok.RequiredArgsConstructor;
 
@@ -14,9 +15,9 @@ import com.kkinikong.be.review.repository.reviewtag.ReviewTagRepository;
 import com.kkinikong.be.store.domain.Store;
 import com.kkinikong.be.store.domain.type.Category;
 import com.kkinikong.be.store.domain.type.StoreSort;
-import com.kkinikong.be.store.dto.response.PagedResponse;
-import com.kkinikong.be.store.dto.response.StoreMapPreviewResponse;
-import com.kkinikong.be.store.dto.response.StorePreviewResponse;
+import com.kkinikong.be.store.dto.response.PageResponse;
+import com.kkinikong.be.store.dto.response.StoreListItemResponse;
+import com.kkinikong.be.store.dto.response.StoreMapItemResponse;
 import com.kkinikong.be.store.repository.store.StoreRepository;
 
 @RequiredArgsConstructor
@@ -26,7 +27,8 @@ public class StoreService {
   private final StoreRepository storeRepository;
   private final ReviewTagRepository reviewTagRepository;
 
-  public PagedResponse<StorePreviewResponse> getStores(
+  @Transactional(readOnly = true)
+  public PageResponse<StoreListItemResponse> getStoreListWithTag(
       Double latitude,
       Double longitude,
       Category category,
@@ -41,17 +43,16 @@ public class StoreService {
         storeRepository.findStoresByCategoryAndSort(
             latitude, longitude, category, sort, pageable, userId);
 
-    // 가맹점 ID 리스트 뽑기
+    // 가맹점 ID 리스트 뽑아 태그 조회
     List<Long> storeIds = storePage.getContent().stream().map(Store::getId).toList();
-
-    // 대표 태그 조회
     Map<Long, String> tagMap = reviewTagRepository.findRepresentativeTagByStoreId(storeIds);
 
-    return PagedResponse.from(
-        storePage, store -> StorePreviewResponse.from(store, tagMap.get(store.getId())));
+    return PageResponse.from(
+        storePage, store -> StoreListItemResponse.from(store, tagMap.get(store.getId())));
   }
 
-  public PagedResponse<StoreMapPreviewResponse> getStoresForMap(
+  @Transactional(readOnly = true)
+  public PageResponse<StoreMapItemResponse> getStoreListBasic(
       Double latitude,
       Double longitude,
       Category category,
@@ -66,6 +67,6 @@ public class StoreService {
         storeRepository.findStoresByCategoryAndSort(
             latitude, longitude, category, sort, pageable, userId);
 
-    return PagedResponse.from(storePage, StoreMapPreviewResponse::from);
+    return PageResponse.from(storePage, StoreMapItemResponse::from);
   }
 }
