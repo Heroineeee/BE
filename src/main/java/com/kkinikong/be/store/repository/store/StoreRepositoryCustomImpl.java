@@ -90,6 +90,7 @@ public class StoreRepositoryCustomImpl implements StoreRepositoryCustom {
           new OrderSpecifier[] {store.reviewCount.desc().nullsLast(), store.name.asc()};
       case VIEW_COUNT ->
           new OrderSpecifier[] {store.viewCount.desc().nullsLast(), store.name.asc()};
+      case NAME -> new OrderSpecifier[] {store.name.asc()};
     };
   }
 }

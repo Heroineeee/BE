@@ -15,6 +15,7 @@ import com.kkinikong.be.store.domain.Store;
 import com.kkinikong.be.store.domain.type.Category;
 import com.kkinikong.be.store.domain.type.StoreSort;
 import com.kkinikong.be.store.dto.response.StoreListResponse;
+import com.kkinikong.be.store.dto.response.StoreMapListResponse;
 import com.kkinikong.be.store.repository.store.StoreRepository;
 
 @RequiredArgsConstructor
@@ -46,5 +47,23 @@ public class StoreService {
     Map<Long, String> tagMap = reviewTagRepository.findRepresentativeTagByStoreId(storeIds);
 
     return StoreListResponse.from(storePage, tagMap);
+  }
+
+  public StoreMapListResponse getStoresForMap(
+      double latitude,
+      double longitude,
+      Category category,
+      StoreSort sort,
+      int page,
+      int size,
+      Long userId) {
+
+    Pageable pageable = PageRequest.of(page, size);
+
+    Page<Store> storePage =
+        storeRepository.findStoresByCategoryAndSort(
+            latitude, longitude, category, sort, pageable, userId);
+
+    return StoreMapListResponse.from(storePage);
   }
 }

@@ -14,6 +14,7 @@ import com.kkinikong.be.global.response.ApiResponse;
 import com.kkinikong.be.store.domain.type.Category;
 import com.kkinikong.be.store.domain.type.StoreSort;
 import com.kkinikong.be.store.dto.response.StoreListResponse;
+import com.kkinikong.be.store.dto.response.StoreMapListResponse;
 import com.kkinikong.be.store.service.StoreService;
 import com.kkinikong.be.user.utils.CustomUserDetails;
 
@@ -24,6 +25,26 @@ import com.kkinikong.be.user.utils.CustomUserDetails;
 public class StoreController {
 
   private final StoreService storeService;
+
+  @Operation(summary = "가맹점 지도 리스트 조회")
+  @GetMapping("/map")
+  public ResponseEntity<ApiResponse<Object>> getStoresMapList(
+      @Parameter(description = "인천 서구의 임의의 위도 값", example = "37.545472")
+          @RequestParam(required = false)
+          double latitude,
+      @Parameter(description = "인천 서구의 임의의 경도 값", example = "126.676902")
+          @RequestParam(required = false)
+          double longitude,
+      @RequestParam(required = false) Category category,
+      @RequestParam(defaultValue = "NAME") StoreSort sort,
+      @RequestParam(defaultValue = "0") int page,
+      @RequestParam(defaultValue = "10") int size,
+      @AuthenticationPrincipal CustomUserDetails userDetails) {
+    Long userId = (userDetails != null) ? userDetails.getId() : null;
+    StoreMapListResponse response =
+        storeService.getStoresForMap(latitude, longitude, category, sort, page, size, userId);
+    return ResponseEntity.ok(ApiResponse.from(response));
+  }
 
   @Operation(
       summary = "가맹점 찾기 리스트 조회",
