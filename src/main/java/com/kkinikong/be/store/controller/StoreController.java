@@ -13,8 +13,9 @@ import lombok.RequiredArgsConstructor;
 import com.kkinikong.be.global.response.ApiResponse;
 import com.kkinikong.be.store.domain.type.Category;
 import com.kkinikong.be.store.domain.type.StoreSort;
-import com.kkinikong.be.store.dto.response.StoreListResponse;
-import com.kkinikong.be.store.dto.response.StoreMapListResponse;
+import com.kkinikong.be.store.dto.response.PagedResponse;
+import com.kkinikong.be.store.dto.response.StoreMapPreviewResponse;
+import com.kkinikong.be.store.dto.response.StorePreviewResponse;
 import com.kkinikong.be.store.service.StoreService;
 import com.kkinikong.be.user.utils.CustomUserDetails;
 
@@ -41,7 +42,7 @@ public class StoreController {
       @RequestParam(defaultValue = "10") int size,
       @AuthenticationPrincipal CustomUserDetails userDetails) {
     Long userId = (userDetails != null) ? userDetails.getId() : null;
-    StoreMapListResponse response =
+    PagedResponse<StoreMapPreviewResponse> response =
         storeService.getStoresForMap(latitude, longitude, category, sort, page, size, userId);
     return ResponseEntity.ok(ApiResponse.from(response));
   }
@@ -71,8 +72,7 @@ public class StoreController {
       @AuthenticationPrincipal CustomUserDetails userDetails) {
 
     Long userId = (userDetails != null) ? userDetails.getId() : null;
-
-    StoreListResponse response =
+    PagedResponse<StorePreviewResponse> response =
         storeService.getStores(latitude, longitude, category, sort, page, size, userId);
     return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.from(response));
   }

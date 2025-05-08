@@ -14,8 +14,9 @@ import com.kkinikong.be.review.repository.reviewtag.ReviewTagRepository;
 import com.kkinikong.be.store.domain.Store;
 import com.kkinikong.be.store.domain.type.Category;
 import com.kkinikong.be.store.domain.type.StoreSort;
-import com.kkinikong.be.store.dto.response.StoreListResponse;
-import com.kkinikong.be.store.dto.response.StoreMapListResponse;
+import com.kkinikong.be.store.dto.response.PagedResponse;
+import com.kkinikong.be.store.dto.response.StoreMapPreviewResponse;
+import com.kkinikong.be.store.dto.response.StorePreviewResponse;
 import com.kkinikong.be.store.repository.store.StoreRepository;
 
 @RequiredArgsConstructor
@@ -25,7 +26,7 @@ public class StoreService {
   private final StoreRepository storeRepository;
   private final ReviewTagRepository reviewTagRepository;
 
-  public StoreListResponse getStores(
+  public PagedResponse<StorePreviewResponse> getStores(
       double latitude,
       double longitude,
       Category category,
@@ -46,10 +47,11 @@ public class StoreService {
     // 대표 태그 조회
     Map<Long, String> tagMap = reviewTagRepository.findRepresentativeTagByStoreId(storeIds);
 
-    return StoreListResponse.from(storePage, tagMap);
+    return PagedResponse.from(
+        storePage, store -> StorePreviewResponse.from(store, tagMap.get(store.getId())));
   }
 
-  public StoreMapListResponse getStoresForMap(
+  public PagedResponse<StoreMapPreviewResponse> getStoresForMap(
       double latitude,
       double longitude,
       Category category,
@@ -64,6 +66,6 @@ public class StoreService {
         storeRepository.findStoresByCategoryAndSort(
             latitude, longitude, category, sort, pageable, userId);
 
-    return StoreMapListResponse.from(storePage);
+    return PagedResponse.from(storePage, StoreMapPreviewResponse::from);
   }
 }
