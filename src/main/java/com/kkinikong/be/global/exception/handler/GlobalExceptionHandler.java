@@ -24,6 +24,7 @@ import com.kkinikong.be.global.exception.errorcode.GlobalErrorCode;
 import com.kkinikong.be.global.exception.response.ErrorResponse;
 import com.kkinikong.be.global.exception.response.ErrorResponse.ValidationError;
 import com.kkinikong.be.global.exception.response.ErrorResponse.ValidationErrors;
+import com.kkinikong.be.report.exception.ReportException;
 import com.kkinikong.be.store.exception.StoreException;
 import com.kkinikong.be.user.exception.UserException;
 
@@ -62,6 +63,13 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
   @ExceptionHandler(StoreException.class)
   public ResponseEntity<Object> handleStoreException(
       final StoreException e, HttpServletRequest request) {
+    logInfo(e.getErrorCode(), e, request);
+    return handleExceptionInternal(e.getErrorCode());
+  }
+
+  @ExceptionHandler(ReportException.class)
+  public ResponseEntity<Object> handleReportException(
+      final ReportException e, HttpServletRequest request) {
     logInfo(e.getErrorCode(), e, request);
     return handleExceptionInternal(e.getErrorCode());
   }

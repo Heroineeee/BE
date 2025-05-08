@@ -47,7 +47,7 @@ public class SecurityConfig {
                         "/api/v1/user/**",
                         "/api/v1/store/scrap/**",
                         "/api/v1/report/**",
-                        "/api/v1/store/cache/**",
+                        "/api/v1/cache/**",
                         "/api/v1/batch/**")
                     .authenticated()
                     .requestMatchers(HttpMethod.POST, "/api/v1/*/review")
