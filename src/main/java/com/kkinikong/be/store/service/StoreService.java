@@ -1,6 +1,5 @@
 package com.kkinikong.be.store.service;
 
-import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -37,6 +36,7 @@ public class StoreService {
         .storeCategory(store.getCategory().getLabel())
         .storeName(store.getName())
         .storeAddress(store.getAddress())
+        .storeWeeklyOpeningHours(storeGoogleApiClient.getStoreOpeningHours(store))
         .storeRating(store.getRatingAvg())
         .storeReviewCount(store.getReviewCount())
         .storeScrapCount(store.getScrapCount())
@@ -55,11 +55,6 @@ public class StoreService {
         .menuUrl(hasInfo ? buildMenuUrl(kakaoPlaceId) : buildNaverUrl(store.getName()))
         .directionUrl(hasInfo ? buildDirectionUrl(kakaoPlaceId) : buildNaverUrl(store.getName()))
         .build();
-  }
-
-  @CacheEvict(value = "store-id", allEntries = true)
-  public String clearStoredKakaoCache() {
-    return "All Kakao Place IDs cleared from cache.";
   }
 
   private String fetchAndCacheKakaoPlaceId(Store store) {

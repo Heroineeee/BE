@@ -2,8 +2,6 @@ package com.kkinikong.be.store.controller;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -17,7 +15,6 @@ import com.kkinikong.be.global.response.ApiResponse;
 import com.kkinikong.be.store.dto.response.StoreExternalLinkResponse;
 import com.kkinikong.be.store.dto.response.StoreInfoResponse;
 import com.kkinikong.be.store.service.StoreService;
-import com.kkinikong.be.user.utils.CustomUserDetails;
 
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/store")
@@ -36,20 +33,11 @@ public class StoreController {
 
   @Operation(
       summary = "가맹점 메뉴 보러가기 및 길찾기",
-      description = "가맹점 메뉴 보러가기 및 길찾기 링크를 제공합니다. 가맹점이 카카오에 등록되어 있지 않으면 링크를 제공하지 않습니다.")
+      description = "가맹점 메뉴 보러가기 및 길찾기 링크를 제공합니다. 가맹점이 카카오에 등록되어 있지 않으면 네이버 링크를 제공합니다.")
   @GetMapping("/{storeId}/external-links")
   public ResponseEntity<ApiResponse<Object>> getStoreExternalLink(
       @PathVariable("storeId") Long storeId) {
     StoreExternalLinkResponse storeExternalLink = storeService.getStoreExternalLink(storeId);
     return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.from(storeExternalLink));
-  }
-
-  @Operation(
-      summary = "카카오 캐시 초기화 (관리자 전용, 프론트 연동 X)",
-      description = "모든 가맹점의 카카오 ID 캐시를 삭제합니다. 유저의 권한이 USER인 경우에는 삭제할 수 없습니다.")
-  @DeleteMapping("/cache/kakao-id")
-  public ResponseEntity<ApiResponse<Object>> clearStoredKakaoCache(
-      @AuthenticationPrincipal CustomUserDetails userDetails) {
-    return ResponseEntity.ok(ApiResponse.from(storeService.clearStoredKakaoCache()));
   }
 }
