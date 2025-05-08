@@ -1,6 +1,6 @@
 package com.kkinikong.be.store.dto.response;
 
-import com.kkinikong.be.store.dto.StoreDTO;
+import com.kkinikong.be.store.domain.Store;
 
 public record StorePreviewResponse(
     Long id,
@@ -12,15 +12,15 @@ public record StorePreviewResponse(
     String representativeTag,
     Boolean isScrapped) {
 
-  public static StorePreviewResponse from(StoreDTO storeDTO) {
+  public static StorePreviewResponse from(Store store, String representativeTag) {
     return new StorePreviewResponse(
-        storeDTO.id(),
-        storeDTO.name(),
-        storeDTO.address(),
-        storeDTO.category().getLabel(),
-        storeDTO.ratingAvg(),
-        storeDTO.scrapCount(),
-        storeDTO.representativeTag(),
-        storeDTO.isScrapped());
+        store.getId(),
+        store.getName(),
+        store.getAddress(),
+        store.getCategory().getLabel(),
+        store.getRatingAvg(),
+        store.getScrapCount(),
+        representativeTag,
+        store.getIsScrapped());
   }
 }

@@ -14,7 +14,6 @@ import com.kkinikong.be.review.repository.reviewtag.ReviewTagRepository;
 import com.kkinikong.be.store.domain.Store;
 import com.kkinikong.be.store.domain.type.Category;
 import com.kkinikong.be.store.domain.type.StoreSort;
-import com.kkinikong.be.store.dto.StoreListDTO;
 import com.kkinikong.be.store.dto.response.StoreListResponse;
 import com.kkinikong.be.store.repository.store.StoreRepository;
 
@@ -46,7 +45,6 @@ public class StoreService {
     // 대표 태그 조회
     Map<Long, String> tagMap = reviewTagRepository.findRepresentativeTagByStoreId(storeIds);
 
-    StoreListDTO dto = StoreListDTO.from(storePage, tagMap);
-    return StoreListResponse.from(dto);
+    return StoreListResponse.from(storePage, tagMap);
   }
 }

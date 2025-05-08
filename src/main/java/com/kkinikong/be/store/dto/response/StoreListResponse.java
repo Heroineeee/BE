@@ -1,16 +1,21 @@
 package com.kkinikong.be.store.dto.response;
 
 import java.util.List;
+import java.util.Map;
 
-import com.kkinikong.be.store.dto.StoreListDTO;
+import org.springframework.data.domain.Page;
+
+import com.kkinikong.be.store.domain.Store;
 
 public record StoreListResponse(
     List<StorePreviewResponse> storesList, int totalPage, int currentPage) {
 
-  public static StoreListResponse from(StoreListDTO storeListDTO) {
+  public static StoreListResponse from(Page<Store> storePage, Map<Long, String> tagMap) {
     return new StoreListResponse(
-        storeListDTO.storeDTOList().stream().map(StorePreviewResponse::from).toList(),
-        storeListDTO.totalPage(),
-        storeListDTO.currentPage());
+        storePage.getContent().stream()
+            .map(store -> StorePreviewResponse.from(store, tagMap.get(store.getId())))
+            .toList(),
+        storePage.getTotalPages(),
+        storePage.getNumber());
   }
 }
