@@ -38,10 +38,8 @@ public class StoreService {
       Long userId) {
     Pageable pageable = PageRequest.of(page, size);
 
-    // 가맹점 목록 조회
     Page<Store> storePage =
-        storeRepository.findStoresByCategoryAndSort(
-            latitude, longitude, category, sort, pageable, userId);
+        storeRepository.findStoresForSorted(latitude, longitude, category, sort, pageable, userId);
 
     // 가맹점 ID 리스트 뽑아 태그 조회
     List<Long> storeIds = storePage.getContent().stream().map(Store::getId).toList();
@@ -52,20 +50,13 @@ public class StoreService {
   }
 
   @Transactional(readOnly = true)
-  public PageResponse<StoreMapItemResponse> getStoreListBasic(
-      Double latitude,
-      Double longitude,
-      Category category,
-      StoreSort sort,
-      int page,
-      int size,
-      Long userId) {
+  public PageResponse<StoreMapItemResponse> getStoreListWithMap(
+      Double latitude, Double longitude, Category category, int page, int size, Long userId) {
 
     Pageable pageable = PageRequest.of(page, size);
 
     Page<Store> storePage =
-        storeRepository.findStoresByCategoryAndSort(
-            latitude, longitude, category, sort, pageable, userId);
+        storeRepository.findStoresByDistanceOrName(latitude, longitude, category, pageable, userId);
 
     return PageResponse.from(storePage, StoreMapItemResponse::from);
   }
