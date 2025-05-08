@@ -41,7 +41,7 @@ public class StoreGoogleApiClient {
     this.objectMapper = objectMapper;
   }
 
-  @Cacheable(value = "storeOpeningHours", key = "#store.id", unless = "#result == null")
+  @Cacheable(value = "storeOpeningHours", key = "#store.id")
   public Map<String, List<String>> getStoreOpeningHours(Store store) {
     ResponseEntity<String> response = sendRequestToGoogle(store);
 
@@ -79,6 +79,7 @@ public class StoreGoogleApiClient {
   }
 
   private ResponseEntity<String> sendRequestToGoogle(Store store) {
+    log.info("Google API request for store: {}", store.getName());
     HttpHeaders headers = new HttpHeaders();
     headers.setContentType(MediaType.APPLICATION_JSON);
     headers.set("X-Goog-FieldMask", "places.currentOpeningHours");
@@ -138,8 +139,7 @@ public class StoreGoogleApiClient {
         hour = 0;
       }
 
-      log.info(String.format("'%02d:%02d'", hour, minute));
-      return String.format("'%02d:%02d'", hour, minute);
+      return String.format("%02d:%02d", hour, minute);
     } catch (Exception e) {
       throw new StoreException(StoreErrorCode.CONVERT_TIME_ERROR);
     }

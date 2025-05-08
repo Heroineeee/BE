@@ -1,6 +1,8 @@
 package com.kkinikong.be.store.dto.response;
 
 import java.time.LocalDate;
+import java.util.List;
+import java.util.Map;
 
 import lombok.Builder;
 
@@ -10,8 +12,7 @@ public record StoreInfoResponse(
     String storeCategory,
     String storeName,
     String storeAddress,
-    // Boolean isOpenNow,
-    // List<String> weeklyOpenHours,
+    Map<String, List<String>> storeWeeklyOpeningHours,
     Long storeScrapCount,
     LocalDate storeUpdatedDate,
     Long storeReviewCount,
