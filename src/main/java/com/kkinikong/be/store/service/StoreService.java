@@ -25,11 +25,14 @@ public class StoreService {
   private final StoreRepository storeRepository;
   private final StoreKakaoApiClient storeKakaoApiClient;
   private final StoreGoogleApiClient storeGoogleApiClient;
+  private final StoreCacheService storeCacheService;
 
   private static final String NO_INFO = "NO_INFO";
 
   public StoreInfoResponse getStoreInfo(Long storeId) {
     Store store = findStoreOrThrow(storeId);
+
+    storeCacheService.increaseViewCounts(storeId);
 
     return StoreInfoResponse.builder()
         .storeId(storeId)
