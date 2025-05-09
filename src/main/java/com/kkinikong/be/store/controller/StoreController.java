@@ -126,7 +126,7 @@ public class StoreController {
   }
 
   @Operation(summary = "가맹점 스크랩")
-  @PostMapping("/{storeId}/scrap")
+  @PostMapping("/scrap/{storeId}")
   public ResponseEntity<ApiResponse<Object>> scrapPost(
       @AuthenticationPrincipal CustomUserDetails userDetails,
       @PathVariable("storeId") Long storeId) {
@@ -135,7 +135,7 @@ public class StoreController {
   }
 
   @Operation(summary = "가맹점 스크랩 취소")
-  @DeleteMapping("/{storeId}/scrap")
+  @DeleteMapping("/scrap/{storeId}")
   public ResponseEntity<ApiResponse<Object>> scrapDelete(
       @AuthenticationPrincipal CustomUserDetails userDetails,
       @PathVariable("storeId") Long storeId) {
