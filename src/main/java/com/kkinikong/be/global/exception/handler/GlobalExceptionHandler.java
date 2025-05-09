@@ -54,7 +54,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
   }
 
   @ExceptionHandler(StoreException.class)
-  public ResponseEntity<Object> handleUserException(
+  public ResponseEntity<Object> handleStoreException(
       final StoreException e, HttpServletRequest request) {
     logInfo(e.getErrorCode(), e, request);
     return handleExceptionInternal(e.getErrorCode());
