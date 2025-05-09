@@ -54,15 +54,15 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     return handleExceptionInternal(e.getErrorCode());
   }
 
-  @ExceptionHandler(BatchException.class)
-  public ResponseEntity<Object> handleBatchException(BatchException e, HttpServletRequest request) {
+  @ExceptionHandler(StoreException.class)
+  public ResponseEntity<Object> handleStoreException(
+      final StoreException e, HttpServletRequest request) {
     logInfo(e.getErrorCode(), e, request);
     return handleExceptionInternal(e.getErrorCode());
   }
 
-  @ExceptionHandler(StoreException.class)
-  public ResponseEntity<Object> handleStoreException(
-      final StoreException e, HttpServletRequest request) {
+  @ExceptionHandler(BatchException.class)
+  public ResponseEntity<Object> handleBatchException(BatchException e, HttpServletRequest request) {
     logInfo(e.getErrorCode(), e, request);
     return handleExceptionInternal(e.getErrorCode());
   }

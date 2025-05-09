@@ -1,0 +1,5 @@
+#!/bin/sh
+
+echo "Running Spotless before commit..."
+./gradlew spotlessApply --daemon
+git add .
