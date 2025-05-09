@@ -18,11 +18,7 @@ import com.kkinikong.be.store.domain.Store;
 import com.kkinikong.be.store.domain.StoreScrap;
 import com.kkinikong.be.store.domain.type.Category;
 import com.kkinikong.be.store.domain.type.StoreSort;
-import com.kkinikong.be.store.dto.response.PageResponse;
-import com.kkinikong.be.store.dto.response.StoreExternalLinkResponse;
-import com.kkinikong.be.store.dto.response.StoreInfoResponse;
-import com.kkinikong.be.store.dto.response.StoreListItemResponse;
-import com.kkinikong.be.store.dto.response.StoreMapItemResponse;
+import com.kkinikong.be.store.dto.response.*;
 import com.kkinikong.be.store.exception.StoreException;
 import com.kkinikong.be.store.exception.errorcode.StoreErrorCode;
 import com.kkinikong.be.store.repository.store.StoreRepository;
@@ -140,7 +136,7 @@ public class StoreService {
   }
 
   @Transactional
-  public void addScrap(Long storeId, Long userId) {
+  public StoreScrapResponse addScrap(Long storeId, Long userId) {
     User user =
         userRepository
             .findUserById(userId)
@@ -149,12 +145,20 @@ public class StoreService {
         storeRepository
             .findById(storeId)
             .orElseThrow(() -> new StoreException(StoreErrorCode.STORE_NOT_FOUND));
+
+    boolean alreadyExists =
+        storeScrapRepository.findByStoreIdAndUserId(storeId, userId).isPresent();
+    if (alreadyExists) {
+      throw new StoreException(StoreErrorCode.ALREADY_SCRAPPED);
+    }
+
     store.increaseScrapCount();
     storeScrapRepository.save(new StoreScrap(user, store));
+    return StoreScrapResponse.of(true, store.getScrapCount());
   }
 
   @Transactional
-  public void removeScrap(Long storeId, Long userId) {
+  public StoreScrapResponse removeScrap(Long storeId, Long userId) {
     StoreScrap storeScrap =
         storeScrapRepository
             .findByStoreIdAndUserId(storeId, userId)
@@ -162,5 +166,6 @@ public class StoreService {
     Store store = storeScrap.getStore();
     store.decreaseScrapCount();
     storeScrapRepository.delete(storeScrap);
+    return StoreScrapResponse.of(false, store.getScrapCount());
   }
 }
