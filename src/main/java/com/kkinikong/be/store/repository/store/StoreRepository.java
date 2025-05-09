@@ -1,4 +1,4 @@
-package com.kkinikong.be.store.repository;
+package com.kkinikong.be.store.repository.store;
 
 import java.util.Optional;
 
@@ -12,7 +12,7 @@ import io.lettuce.core.dynamic.annotation.Param;
 import com.kkinikong.be.store.domain.Store;
 
 @Repository
-public interface StoreRepository extends JpaRepository<Store, Long> {
+public interface StoreRepository extends JpaRepository<Store, Long>, StoreRepositoryCustom {
   Optional<Store> findStoreById(Long id);
 
   @Modifying
