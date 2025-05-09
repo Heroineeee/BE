@@ -52,8 +52,21 @@ public class Store extends BaseEntity {
   @Column(name = "review_count", nullable = false)
   private long reviewCount = 0L;
 
+  @Column(name = "view_count", nullable = false)
+  private long viewCount = 0L;
+
   @Column(name = "updated_date", nullable = false)
   private LocalDate updatedDate;
+
+  @Transient private Boolean isScrapped;
+
+  public void setIsScrapped(Boolean isScrapped) {
+    this.isScrapped = isScrapped;
+  }
+
+  public Boolean getIsScrapped() {
+    return isScrapped;
+  }
 
   @OneToMany(mappedBy = "store", cascade = CascadeType.ALL, orphanRemoval = true)
   private List<Review> reviewList = new ArrayList<>();
