@@ -6,7 +6,7 @@ services:
     ports:
       - "33306:3306"
     environment: # 환경 변수 설정
-      MYSQL_DATABASE: kkini-kong
+      MYSQL_DATABASE: kkinikong
       MYSQL_ROOT_PASSWORD: ${DOCKER_DB_PASS}  # MYSQL 패스워드 설정
       TZ: Asia/Seoul
     command: # 명령어 실행
