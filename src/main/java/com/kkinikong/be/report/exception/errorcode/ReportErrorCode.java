@@ -10,6 +10,7 @@ import com.kkinikong.be.global.exception.errorcode.ErrorCode;
 @Getter
 @RequiredArgsConstructor
 public enum ReportErrorCode implements ErrorCode {
+  REPORT_ALREADY_EXISTS(HttpStatus.BAD_REQUEST, "이미 신고한 가게입니다."),
   ;
   private final HttpStatus httpStatus;
   private final String message;

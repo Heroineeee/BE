@@ -1,6 +1,7 @@
 package com.kkinikong.be.report.domain;
 
 import jakarta.persistence.*;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -37,4 +38,14 @@ public class Report extends BaseEntity {
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "user_id", nullable = false)
   private User user;
+
+  @Builder
+  public Report(
+      Long targetId, ReportType reportType, String reason, String description, User user) {
+    this.reportType = reportType;
+    this.targetId = targetId;
+    this.reason = reason;
+    this.description = description;
+    this.user = user;
+  }
 }
