@@ -1,7 +1,13 @@
 #!/bin/sh
 
-MSG_FILE=$1
 BRANCH_NAME=$(git symbolic-ref --short HEAD)
+
+# develop 브랜치에서는 커밋 메시지 자동 삽입 생략
+if [ "$BRANCH_NAME" = "develop" ]; then
+  exit 0
+fi
+
+MSG_FILE=$1
 ISSUE_KEY=$(echo "$BRANCH_NAME" | grep -oE '[A-Z]+-[0-9]+')
 
 if [ -n "$ISSUE_KEY" ] && ! grep -q "$ISSUE_KEY" "$MSG_FILE"; then
