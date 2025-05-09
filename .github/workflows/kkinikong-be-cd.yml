@@ -40,7 +40,7 @@ jobs:
               docker-compose up -d spring-green
 
               echo "🔧 nginx 설정을 green(8081)으로 변경"
-              sudo sed -i 's/server 127.0.0.1:8080;/server 127.0.0.1:8081;/' /etc/nginx/sites-available/default
+              sudo sed -i 's/proxy_pass http:\/\/localhost:8080;/proxy_pass http:\/\/localhost:8081;/g' /etc/nginx/sites-available/default
               sudo nginx -s reload
 
               echo "🧹 기존 blue 컨테이너 중지"
@@ -53,7 +53,7 @@ jobs:
               docker-compose up -d spring-blue
 
               echo "🔧 nginx 설정을 blue(8080)으로 변경"
-              sudo sed -i 's/server 127.0.0.1:8081;/server 127.0.0.1:8080;/' /etc/nginx/sites-available/default
+              sudo sed -i 's/proxy_pass http:\/\/localhost:8081;/proxy_pass http:\/\/localhost:8080;/g' /etc/nginx/sites-available/default
               sudo nginx -s reload
 
               echo "🧹 기존 green 컨테이너 중지"
