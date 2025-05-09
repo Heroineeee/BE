@@ -93,4 +93,13 @@ public class StoreController {
         storeService.getStoreListWithMap(latitude, longitude, category, page, size, userId);
     return ResponseEntity.ok(ApiResponse.from(response));
   }
+
+  @Operation(summary = "가맹점 스크랩")
+  @PostMapping("/{storeId}/scrap")
+  public ResponseEntity<ApiResponse<Object>> scrapPost(
+      @AuthenticationPrincipal CustomUserDetails userDetails,
+      @PathVariable("storeId") Long storeId) {
+    storeService.addScrap(storeId, userDetails.getId());
+    return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.from(ApiResponse.EMPTY_RESPONSE));
+  }
 }
