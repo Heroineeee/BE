@@ -68,6 +68,14 @@ public class Store extends BaseEntity {
     return isScrapped;
   }
 
+  public void increaseScrapCount() {
+    this.scrapCount++;
+  }
+
+  public void decreaseScrapCount() {
+    this.scrapCount = Math.max(0, this.scrapCount - 1);
+  }
+
   @OneToMany(mappedBy = "store", cascade = CascadeType.ALL, orphanRemoval = true)
   private List<Review> reviewList = new ArrayList<>();
 

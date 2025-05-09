@@ -149,6 +149,7 @@ public class StoreService {
         storeRepository
             .findById(storeId)
             .orElseThrow(() -> new StoreException(StoreErrorCode.STORE_NOT_FOUND));
+    store.increaseScrapCount();
     storeScrapRepository.save(new StoreScrap(user, store));
   }
 
@@ -158,6 +159,8 @@ public class StoreService {
         storeScrapRepository
             .findByStoreIdAndUserId(storeId, userId)
             .orElseThrow(() -> new StoreException(StoreErrorCode.SCRAP_NOT_FOUND));
+    Store store = storeScrap.getStore();
+    store.decreaseScrapCount();
     storeScrapRepository.delete(storeScrap);
   }
 }
