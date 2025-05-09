@@ -102,4 +102,13 @@ public class StoreController {
     storeService.addScrap(storeId, userDetails.getId());
     return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.from(ApiResponse.EMPTY_RESPONSE));
   }
+
+  @Operation(summary = "가맹점 스크랩 취소")
+  @DeleteMapping("/{storeId}/scrap")
+  public ResponseEntity<ApiResponse<Object>> scrapDelete(
+      @AuthenticationPrincipal CustomUserDetails userDetails,
+      @PathVariable("storeId") Long storeId) {
+    storeService.removeScrap(storeId, userDetails.getId());
+    return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.from(ApiResponse.EMPTY_RESPONSE));
+  }
 }

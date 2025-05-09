@@ -83,4 +83,13 @@ public class StoreService {
             .orElseThrow(() -> new StoreException(StoreErrorCode.STORE_NOT_FOUND));
     storeScrapRepository.save(new StoreScrap(user, store));
   }
+
+  @Transactional
+  public void removeScrap(Long storeId, Long userId) {
+    StoreScrap storeScrap =
+        storeScrapRepository
+            .findByStoreIdAndUserId(storeId, userId)
+            .orElseThrow(() -> new StoreException(StoreErrorCode.SCRAP_NOT_FOUND));
+    storeScrapRepository.delete(storeScrap);
+  }
 }
