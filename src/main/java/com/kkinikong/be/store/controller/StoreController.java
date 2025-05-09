@@ -76,7 +76,7 @@ public class StoreController {
   - 페이지 번호는 0부터 시작
   - 페이지 크기(size)는 기본 10개이며, 조정 가능
 """)
-  @GetMapping("/map/list")
+  @GetMapping("/list/map")
   public ResponseEntity<ApiResponse<Object>> getStoresMapList(
       @Parameter(description = "인천 서구의 임의의 위도 값", example = "37.545472")
           @RequestParam(required = false)
