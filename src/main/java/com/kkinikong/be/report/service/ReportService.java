@@ -36,7 +36,7 @@ public class ReportService {
     User user = findUserOrThrow(userId);
 
     if (reportRepository.existsReportByTargetIdAndUserId(storeId, user.getId())) {
-      throw new ReportException(ReportErrorCode.REPORT_ALREAY_EXISTS);
+      throw new ReportException(ReportErrorCode.REPORT_ALREADY_EXISTS);
     }
 
     Report report =
