@@ -3,6 +3,7 @@ package com.kkinikong.be.review.service;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -90,7 +91,7 @@ public class ReviewService {
   }
 
   public ReviewListItemResponse getReviewListAndRating(Long storeId, int page, int size) {
-    Pageable pageable = PageRequest.of(page, size);
+    Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdDate"));
 
     Page<Review> reviewPage = reviewRepository.findReviewsByStoreId(storeId, pageable);
 
