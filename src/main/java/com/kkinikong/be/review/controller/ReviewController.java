@@ -35,7 +35,14 @@ public class ReviewController {
 
   @Operation(
       summary = "가맹점 리뷰 작성하기",
-      description = "가맹점의 리뷰를 작성합니다. 로그인한 사용자만 작성할 수 있습니다. 리뷰 작성 완료 후, 리뷰 id를 반환합니다.")
+      description =
+          """
+        - 가맹점의 리뷰는 로그인한 사용자만 작성할 수 있습니다.
+        - 리뷰 작성 완료 후, 리뷰 id를 반환합니다.
+        - 별점은 1~5 사이의 정수로 입력해야 합니다. (필수)
+        - 태그는 최대 5개까지 선택할 수 있습니다. (선택)
+        - 텍스트는 최대 500자까지 입력할 수 있습니다. (선택)
+        """)
   @PostMapping
   public ResponseEntity<ApiResponse<Object>> postReview(
       @PathVariable("storeId") Long storeId,
@@ -67,9 +74,12 @@ public class ReviewController {
   @Operation(
       summary = "리뷰 작성 시 사진 추가",
       description =
-          "리뷰 작성 api 호출을 통해 리뷰를 작성해 id를 받은 후, 해당 id로 사진을 추가합니다."
-              + "사진이 없는 경우 file 비워서 보내셔도 되고 아예 호출 안하셔도 됩니다."
-              + "사진은 1장만 전송 가능하며 최대 10MB까지 가능합니다.")
+          """
+           - 리뷰 작성 api 호출을 통해 리뷰를 작성해 id를 받은 후, 해당 id로 사진을 추가합니다.
+           - 사진이 없는 경우 file 비워서 보내셔도 되고 아예 호출 안하셔도 됩니다.
+           - 사진은 1장만 전송 가능하며 최대 10MB까지 가능합니다.
+           - 가능한 파일 확장자는 .jpg, .jpeg, .png, .heic 입니다.
+           """)
   @PostMapping(path = "/{reviewId}/photo", consumes = "multipart/form-data")
   public ResponseEntity<ApiResponse<Object>> postReviewPhoto(
       @PathVariable("storeId") Long storeId,
