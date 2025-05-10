@@ -1,14 +1,10 @@
 package com.kkinikong.be.review.domain;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-import com.kkinikong.be.review.domain.mapping.ReviewTagMap;
-import com.kkinikong.be.review.domain.type.TagCategory;
+import com.kkinikong.be.review.domain.type.Tag;
 
 @Table(name = "review_tags")
 @Entity
@@ -20,13 +16,11 @@ public class ReviewTag {
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Long id;
 
-  @Column(name = "name", nullable = false, unique = true)
-  private String name;
-
-  @Column(name = "category", nullable = false)
+  @Column(name = "tag", nullable = false)
   @Enumerated(EnumType.STRING)
-  private TagCategory category;
+  private Tag tag;
 
-  @OneToMany(mappedBy = "reviewTag")
-  private List<ReviewTagMap> reviewTagMapList = new ArrayList<>();
+  @ManyToOne(fetch = FetchType.LAZY)
+  @JoinColumn(name = "review_id", nullable = false)
+  private Review review;
 }
