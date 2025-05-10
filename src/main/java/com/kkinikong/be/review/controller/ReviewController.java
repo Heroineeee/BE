@@ -66,7 +66,10 @@ public class ReviewController {
 
   @Operation(
       summary = "리뷰 작성 시 사진 추가",
-      description = "리뷰 작성 api 호출을 통해 리뷰를 작성해 id를 받은 후, 해당 id로 사진을 추가합니다.")
+      description =
+          "리뷰 작성 api 호출을 통해 리뷰를 작성해 id를 받은 후, 해당 id로 사진을 추가합니다."
+              + "사진이 없는 경우 file 비워서 보내셔도 되고 아예 호출 안하셔도 됩니다."
+              + "사진은 1장만 전송 가능하며 최대 10MB까지 가능합니다.")
   @PostMapping(path = "/{reviewId}/photo", consumes = "multipart/form-data")
   public ResponseEntity<ApiResponse<Object>> postReviewPhoto(
       @PathVariable("storeId") Long storeId,
