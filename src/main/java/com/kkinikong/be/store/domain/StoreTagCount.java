@@ -50,6 +50,12 @@ public class StoreTagCount extends BaseEntity {
     this.count++;
   }
 
+  public void decrementCount() {
+    if (this.count > 0) {
+      this.count--;
+    }
+  }
+
   @Builder
   public StoreTagCount(Store store, Tag tag) {
     this.store = store;

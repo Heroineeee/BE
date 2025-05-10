@@ -4,6 +4,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -95,6 +96,20 @@ public class ReviewController {
       @AuthenticationPrincipal CustomUserDetails userDetails) {
 
     reviewService.postReviewImage(reviewId, file, userDetails.getId());
+    return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.EMPTY_RESPONSE);
+  }
+
+  @Operation(
+      summary = "리뷰 삭제하기",
+      description = "리뷰는 작성자만 삭제할 수 있습니다. 리뷰 삭제 시, 해당 리뷰에 대한 사진도 함께 삭제됩니다.")
+  @DeleteMapping("/{reviewId}")
+  public ResponseEntity<ApiResponse<Object>> deleteReview(
+      @PathVariable("storeId") Long storeId,
+      @PathVariable("reviewId") Long reviewId,
+      @AuthenticationPrincipal CustomUserDetails userDetails) {
+
+    reviewService.deleteReview(storeId, reviewId, userDetails.getId());
+
     return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.EMPTY_RESPONSE);
   }
 }

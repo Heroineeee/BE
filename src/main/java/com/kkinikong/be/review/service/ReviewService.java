@@ -79,11 +79,7 @@ public class ReviewService {
     }
 
     Review review = getReviewOrThrow(reviewId);
-    User user = getUserOrThrow(userId);
-
-    if (!review.getUser().getId().equals(user.getId())) {
-      throw new ReviewException(ReviewErrorCode.REVIEW_NOT_AUTHORIZED);
-    }
+    validateReviewOwner(review, userId);
 
     String imageUrl = reviewImageService.uploadFile(file);
 
@@ -114,6 +110,30 @@ public class ReviewService {
             });
 
     return ReviewListItemResponse.from(getStoreOrThrow(storeId), pageResponse);
+  }
+
+  @Transactional
+  public void deleteReview(Long storeId, Long reviewId, Long userId) {
+    Store store = getStoreOrThrow(storeId);
+    Review review = getReviewOrThrow(reviewId);
+
+    validateReviewOwner(review, userId);
+
+    // 리뷰 이미지 삭제 (S3도)
+    reviewImageRepository
+        .findByReviewId(reviewId)
+        .ifPresent(
+            image -> {
+              reviewImageService.deleteFile(image.getImageUrl());
+              reviewImageRepository.delete(image);
+            });
+
+    updateReviewCountAndRatingAvgOnDelete(review.getRating(), store);
+
+    // 추후 태그를 리뷰마다 저장한다면 여기서 태그 카운트도 줄여야 함
+    // 현재는 리뷰 삭제 시 태그 카운트 줄이지 않음
+
+    reviewRepository.delete(review);
   }
 
   private void updateTagCount(Long storeId, Tag[] tags, Store store) {
@@ -148,6 +168,20 @@ public class ReviewService {
     store.updateRatingAvg(newAvg);
   }
 
+  private static void updateReviewCountAndRatingAvgOnDelete(int rating, Store store) {
+    long currentReviewCount = store.getReviewCount();
+    double currentAvg = store.getRatingAvg();
+
+    if (currentReviewCount == 1) {
+      store.updateRatingAvg(0.0);
+    } else {
+      store.updateRatingAvg(
+          ((currentAvg * currentReviewCount) - (long) rating) / (currentReviewCount - 1));
+    }
+
+    store.decreaseReviewCount();
+  }
+
   private Store getStoreOrThrow(Long storeId) {
     return storeRepository
         .findById(storeId)
@@ -164,5 +198,11 @@ public class ReviewService {
     return reviewRepository
         .findById(reviewId)
         .orElseThrow(() -> new ReviewException(ReviewErrorCode.REVIEW_NOT_FOUND));
+  }
+
+  private void validateReviewOwner(Review review, Long userId) {
+    if (!review.getUser().getId().equals(userId)) {
+      throw new ReviewException(ReviewErrorCode.REVIEW_NOT_AUTHORIZED);
+    }
   }
 }
