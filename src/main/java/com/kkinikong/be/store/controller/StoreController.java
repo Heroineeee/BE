@@ -137,6 +137,9 @@ public class StoreController {
       @RequestParam(required = false) String keyword,
       @RequestParam(defaultValue = "0") int page,
       @RequestParam(defaultValue = "10") int size) {
+    if (latitude == null || longitude == null) {
+      throw new StoreException(StoreErrorCode.MISSING_GPS_FOR_SEARCH);
+    }
     PageResponse<StoreMapListResponse> response =
         storeService.searchStoresForMap(latitude, longitude, keyword, page, size);
     return ResponseEntity.ok(ApiResponse.from(response));
