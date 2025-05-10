@@ -19,6 +19,7 @@ import org.apache.commons.csv.CSVRecord;
 
 import com.kkinikong.be.store.domain.Store;
 import com.kkinikong.be.store.domain.type.Category;
+import com.kkinikong.be.store.dto.response.StoreUploadResponse;
 import com.kkinikong.be.store.exception.StoreException;
 import com.kkinikong.be.store.exception.errorcode.StoreErrorCode;
 import com.kkinikong.be.store.repository.storeupload.StoreJdbcRepository;
@@ -29,7 +30,7 @@ public class StoreUploadService {
   private final StoreJdbcRepository storeJdbcRepository;
 
   @Transactional
-  public void upload(MultipartFile file) {
+  public StoreUploadResponse upload(MultipartFile file) {
     // CSV 파일을 파싱해서 Store 리스트로 변환
     List<Store> stores = parseCsv(file);
 
@@ -54,6 +55,8 @@ public class StoreUploadService {
     if (!newStores.isEmpty()) {
       storeJdbcRepository.saveAllByJdbcTemplate(newStores);
     }
+
+    return new StoreUploadResponse(stores.size(), newStores.size());
   }
 
   /// CSV 파일을 읽어서 Store 객체 리스트로 변환
