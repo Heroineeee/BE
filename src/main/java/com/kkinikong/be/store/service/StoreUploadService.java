@@ -3,6 +3,7 @@ package com.kkinikong.be.store.service;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
@@ -62,7 +63,8 @@ public class StoreUploadService {
   /// CSV 파일을 읽어서 Store 객체 리스트로 변환
   private List<Store> parseCsv(MultipartFile file) {
     List<Store> stores = new ArrayList<>();
-    try (BufferedReader reader = new BufferedReader(new InputStreamReader(file.getInputStream()))) {
+    try (BufferedReader reader =
+        new BufferedReader(new InputStreamReader(file.getInputStream(), StandardCharsets.UTF_8))) {
       CSVParser csvParser =
           CSVFormat.DEFAULT
               .withFirstRecordAsHeader() // 첫 번째 줄은 헤더
