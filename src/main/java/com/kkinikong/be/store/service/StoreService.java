@@ -15,18 +15,20 @@ import lombok.extern.slf4j.Slf4j;
 
 import com.kkinikong.be.review.repository.reviewtag.ReviewTagRepository;
 import com.kkinikong.be.store.domain.Store;
+import com.kkinikong.be.store.domain.StoreScrap;
 import com.kkinikong.be.store.domain.type.Category;
 import com.kkinikong.be.store.domain.type.StoreSort;
-import com.kkinikong.be.store.dto.response.PageResponse;
-import com.kkinikong.be.store.dto.response.StoreExternalLinkResponse;
-import com.kkinikong.be.store.dto.response.StoreInfoResponse;
-import com.kkinikong.be.store.dto.response.StoreListItemResponse;
-import com.kkinikong.be.store.dto.response.StoreMapItemResponse;
+import com.kkinikong.be.store.dto.response.*;
 import com.kkinikong.be.store.exception.StoreException;
 import com.kkinikong.be.store.exception.errorcode.StoreErrorCode;
 import com.kkinikong.be.store.repository.store.StoreRepository;
+import com.kkinikong.be.store.repository.storescrap.StoreScrapRepository;
 import com.kkinikong.be.store.util.google.StoreGoogleApiClient;
 import com.kkinikong.be.store.util.kakao.StoreKakaoApiClient;
+import com.kkinikong.be.user.domain.User;
+import com.kkinikong.be.user.exception.UserException;
+import com.kkinikong.be.user.exception.errorcode.UserErrorCode;
+import com.kkinikong.be.user.repository.UserRepository;
 
 @Service
 @RequiredArgsConstructor
@@ -39,6 +41,8 @@ public class StoreService {
   private final StoreGoogleApiClient storeGoogleApiClient;
   private final StoreCacheService storeCacheService;
   private final ReviewTagRepository reviewTagRepository;
+  private final StoreScrapRepository storeScrapRepository;
+  private final UserRepository userRepository;
 
   private static final String NO_INFO = "NO_INFO";
 
@@ -92,7 +96,7 @@ public class StoreService {
         .build();
   }
 
-  @Cacheable(value = "store-id", key = "#storeId", unless = "#result == null")
+  @Cacheable(value = "store-ids", key = "#storeId", unless = "#result == null")
   public StoreExternalLinkResponse getStoreExternalLink(Long storeId) {
     Store store = findStoreOrThrow(storeId);
 
@@ -129,5 +133,39 @@ public class StoreService {
     return storeRepository
         .findStoreById(storeId)
         .orElseThrow(() -> new StoreException(StoreErrorCode.STORE_NOT_FOUND));
+  }
+
+  @Transactional
+  public StoreScrapResponse addScrap(Long storeId, Long userId) {
+    User user =
+        userRepository
+            .findUserById(userId)
+            .orElseThrow(() -> new UserException(UserErrorCode.USER_NOT_FOUND));
+    Store store =
+        storeRepository
+            .findById(storeId)
+            .orElseThrow(() -> new StoreException(StoreErrorCode.STORE_NOT_FOUND));
+
+    boolean alreadyExists =
+        storeScrapRepository.findByStoreIdAndUserId(storeId, userId).isPresent();
+    if (alreadyExists) {
+      throw new StoreException(StoreErrorCode.ALREADY_SCRAPPED);
+    }
+
+    store.increaseScrapCount();
+    storeScrapRepository.save(new StoreScrap(user, store));
+    return StoreScrapResponse.of(true, store.getScrapCount());
+  }
+
+  @Transactional
+  public StoreScrapResponse removeScrap(Long storeId, Long userId) {
+    StoreScrap storeScrap =
+        storeScrapRepository
+            .findByStoreIdAndUserId(storeId, userId)
+            .orElseThrow(() -> new StoreException(StoreErrorCode.SCRAP_NOT_FOUND));
+    Store store = storeScrap.getStore();
+    store.decreaseScrapCount();
+    storeScrapRepository.delete(storeScrap);
+    return StoreScrapResponse.of(false, store.getScrapCount());
   }
 }

@@ -41,7 +41,7 @@ public class StoreGoogleApiClient {
     this.objectMapper = objectMapper;
   }
 
-  @Cacheable(value = "storeOpeningHours", key = "#store.id")
+  @Cacheable(value = "store-opening-hours", key = "#store.id")
   public Map<String, List<String>> getStoreOpeningHours(Store store) {
     ResponseEntity<String> response = sendRequestToGoogle(store);
 

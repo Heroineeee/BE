@@ -13,11 +13,7 @@ import lombok.RequiredArgsConstructor;
 import com.kkinikong.be.global.response.ApiResponse;
 import com.kkinikong.be.store.domain.type.Category;
 import com.kkinikong.be.store.domain.type.StoreSort;
-import com.kkinikong.be.store.dto.response.PageResponse;
-import com.kkinikong.be.store.dto.response.StoreExternalLinkResponse;
-import com.kkinikong.be.store.dto.response.StoreInfoResponse;
-import com.kkinikong.be.store.dto.response.StoreListItemResponse;
-import com.kkinikong.be.store.dto.response.StoreMapItemResponse;
+import com.kkinikong.be.store.dto.response.*;
 import com.kkinikong.be.store.exception.StoreException;
 import com.kkinikong.be.store.exception.errorcode.StoreErrorCode;
 import com.kkinikong.be.store.service.StoreService;
@@ -127,5 +123,23 @@ public class StoreController {
       @PathVariable("storeId") Long storeId) {
     StoreExternalLinkResponse storeExternalLink = storeService.getStoreExternalLink(storeId);
     return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.from(storeExternalLink));
+  }
+
+  @Operation(summary = "가맹점 스크랩")
+  @PostMapping("/scrap/{storeId}")
+  public ResponseEntity<ApiResponse<Object>> scrapPost(
+      @AuthenticationPrincipal CustomUserDetails userDetails,
+      @PathVariable("storeId") Long storeId) {
+    StoreScrapResponse response = storeService.addScrap(storeId, userDetails.getId());
+    return ResponseEntity.ok(ApiResponse.from(response));
+  }
+
+  @Operation(summary = "가맹점 스크랩 취소")
+  @DeleteMapping("/scrap/{storeId}")
+  public ResponseEntity<ApiResponse<Object>> scrapDelete(
+      @AuthenticationPrincipal CustomUserDetails userDetails,
+      @PathVariable("storeId") Long storeId) {
+    StoreScrapResponse response = storeService.removeScrap(storeId, userDetails.getId());
+    return ResponseEntity.ok(ApiResponse.from(response));
   }
 }
