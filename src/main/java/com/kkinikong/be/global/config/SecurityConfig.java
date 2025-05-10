@@ -19,6 +19,7 @@ import lombok.RequiredArgsConstructor;
 
 import com.kkinikong.be.auth.filter.JwtAuthFilter;
 import com.kkinikong.be.auth.util.JwtTokenProvider;
+import com.kkinikong.be.global.exception.handler.CustomAccessDeniedHandler;
 import com.kkinikong.be.global.exception.handler.CustomAuthenticationEntryPoint;
 
 @Configuration
@@ -28,6 +29,7 @@ public class SecurityConfig {
 
   private final JwtTokenProvider jwtTokenProvider;
   private final CustomAuthenticationEntryPoint customAuthenticationEntryPoint;
+  private final CustomAccessDeniedHandler customAccessDeniedHandler;
 
   @Bean
   public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
@@ -36,7 +38,10 @@ public class SecurityConfig {
         .sessionManagement(
             session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)) // 세션 비활성화
         .exceptionHandling(
-            exception -> exception.authenticationEntryPoint(customAuthenticationEntryPoint))
+            exception ->
+                exception
+                    .authenticationEntryPoint(customAuthenticationEntryPoint)
+                    .accessDeniedHandler(customAccessDeniedHandler))
         .authorizeHttpRequests(
             authorize ->
                 authorize
@@ -47,6 +52,8 @@ public class SecurityConfig {
                         "/swagger-ui.html",
                         "/v3/api-docs/swagger-config")
                     .permitAll()
+                    .requestMatchers("/api/v1/store/upload/**")
+                    .hasAuthority("ROLE_ADMIN")
                     .requestMatchers(
                         "/api/v1/user/**",
                         "/api/v1/store/scrap/**",

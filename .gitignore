@@ -7,7 +7,6 @@ build/
 .env
 .git/hooks/
 *.pem
-*.csv
 
 ### STS ###
 .apt_generated
