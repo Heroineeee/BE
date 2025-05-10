@@ -26,7 +26,6 @@ import com.kkinikong.be.user.domain.User;
 import com.kkinikong.be.user.exception.UserException;
 import com.kkinikong.be.user.exception.errorcode.UserErrorCode;
 import com.kkinikong.be.user.repository.UserRepository;
-import com.kkinikong.be.util.service.S3Service;
 
 @Service
 @RequiredArgsConstructor
@@ -40,7 +39,7 @@ public class ReviewService {
   private final ReviewRepository reviewRepository;
   private final ReviewImageRepository reviewImageRepository;
 
-  private final S3Service s3Service;
+  private final ReviewImageService reviewImageService;
 
   @Transactional
   public ReviewPostResponse postReview(Long storeId, ReviewRequest request, Long userId) {
@@ -68,6 +67,10 @@ public class ReviewService {
 
   @Transactional
   public void postReviewImage(Long reviewId, MultipartFile file, Long userId) {
+    if (file == null || file.isEmpty()) {
+      return;
+    }
+
     Review review = getReviewOrThrow(reviewId);
     User user = getUserOrThrow(userId);
 
@@ -75,7 +78,7 @@ public class ReviewService {
       throw new ReviewException(ReviewErrorCode.REVIEW_NOT_AUTHORIZED);
     }
 
-    String imageUrl = s3Service.uploadFile(file);
+    String imageUrl = reviewImageService.uploadFile(file);
 
     reviewImageRepository.save(ReviewImage.builder().review(review).imageUrl(imageUrl).build());
   }

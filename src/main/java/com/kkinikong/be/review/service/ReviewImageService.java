@@ -1,6 +1,7 @@
-package com.kkinikong.be.util.service;
+package com.kkinikong.be.review.service;
 
 import java.io.IOException;
+import java.time.LocalDate;
 import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Value;
@@ -14,20 +15,25 @@ import lombok.extern.slf4j.Slf4j;
 
 import com.kkinikong.be.util.exception.S3Exception;
 import com.kkinikong.be.util.exception.errorcode.S3ErrorCode;
+import com.kkinikong.be.util.service.S3FileUploader;
 
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class S3Service {
+public class ReviewImageService implements S3FileUploader {
 
   private final AmazonS3 s3Client;
 
   @Value("${cloud.aws.s3.bucket}")
   private String bucket;
 
+  @Override
   public String uploadFile(MultipartFile file) {
     try {
-      String fileName = UUID.randomUUID() + "_" + file.getOriginalFilename();
+      String datePrefix = LocalDate.now().toString(); // "2025-05-10"
+      String uuid = UUID.randomUUID().toString();
+      String fileName = "review/" + datePrefix + "/" + uuid + "_" + file.getOriginalFilename();
+
       s3Client.putObject(bucket, fileName, file.getInputStream(), null);
       return s3Client.getUrl(bucket, fileName).toString();
     } catch (AmazonServiceException | IOException e) {
