@@ -7,9 +7,10 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 import com.kkinikong.be.report.domain.Report;
+import com.kkinikong.be.report.domain.type.CommonReportReason;
 import com.kkinikong.be.report.domain.type.ReportType;
 import com.kkinikong.be.report.domain.type.StoreReportReason;
-import com.kkinikong.be.report.dto.request.ReportStoreRequest;
+import com.kkinikong.be.report.dto.request.ReportRequest;
 import com.kkinikong.be.report.exception.ReportException;
 import com.kkinikong.be.report.exception.errorcode.ReportErrorCode;
 import com.kkinikong.be.report.respository.ReportRepository;
@@ -29,10 +30,7 @@ public class ReportService {
 
   @Transactional
   public void reportStore(
-      Long storeId,
-      StoreReportReason storeReportReason,
-      ReportStoreRequest reportStoreRequest,
-      Long userId) {
+      Long storeId, StoreReportReason storeReportReason, ReportRequest reportRequest, Long userId) {
     User user = findUserOrThrow(userId);
 
     if (reportRepository.existsReportByTargetIdAndUserId(storeId, user.getId())) {
@@ -46,7 +44,35 @@ public class ReportService {
             .reason(storeReportReason.toString())
             .description(
                 storeReportReason.equals(StoreReportReason.ETC)
-                    ? reportStoreRequest.description()
+                    ? reportRequest.description()
+                    : null)
+            .user(user)
+            .build();
+
+    reportRepository.save(report);
+  }
+
+  @Transactional
+  public void reportReview(
+      Long reviewId,
+      CommonReportReason CommonReportReason,
+      ReportRequest reportRequest,
+      Long userId) {
+    User user = findUserOrThrow(userId);
+
+    if (reportRepository.existsReportByTargetIdAndUserId(reviewId, user.getId())) {
+      throw new ReportException(ReportErrorCode.REPORT_ALREADY_EXISTS);
+    }
+
+    Report report =
+        Report.builder()
+            .targetId(reviewId)
+            .reportType(ReportType.REVIEW)
+            .reason(CommonReportReason.toString())
+            .description(
+                CommonReportReason.equals(
+                        com.kkinikong.be.report.domain.type.CommonReportReason.ETC)
+                    ? reportRequest.description()
                     : null)
             .user(user)
             .build();
