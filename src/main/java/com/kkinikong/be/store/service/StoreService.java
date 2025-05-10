@@ -15,6 +15,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 import com.kkinikong.be.global.response.PageResponse;
+import com.kkinikong.be.review.domain.type.Tag;
 import com.kkinikong.be.store.domain.Store;
 import com.kkinikong.be.store.domain.StoreScrap;
 import com.kkinikong.be.store.domain.type.Category;
@@ -95,17 +96,14 @@ public class StoreService {
 
     storeCacheService.increaseViewCounts(storeId);
 
-    return StoreInfoResponse.builder()
-        .storeId(storeId)
-        .storeCategory(store.getCategory().getLabel())
-        .storeName(store.getName())
-        .storeAddress(store.getAddress())
-        .storeWeeklyOpeningHours(storeGoogleApiClient.getStoreOpeningHours(store))
-        .storeRating(store.getRatingAvg())
-        .storeReviewCount(store.getReviewCount())
-        .storeScrapCount(store.getScrapCount())
-        .storeUpdatedDate(store.getUpdatedDate())
-        .build();
+    String representativeTag =
+        storeTagCountRepository
+            .findRepresentativeTagByStoreId(storeId)
+            .map(Tag::getLabel)
+            .orElse(null);
+
+    return StoreInfoResponse.from(
+        store, representativeTag, storeGoogleApiClient.getStoreOpeningHours(store));
   }
 
   @Cacheable(value = "store-ids", key = "#storeId", unless = "#result == null")
