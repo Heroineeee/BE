@@ -6,4 +6,7 @@ import org.springframework.stereotype.Repository;
 import com.kkinikong.be.review.domain.Review;
 
 @Repository
-public interface ReviewRepository extends JpaRepository<Review, Long> {}
+public interface ReviewRepository extends JpaRepository<Review, Long> {
+
+  boolean existsReviewByUserIdAndStoreId(Long userId, Long storeId);
+}

@@ -23,6 +23,7 @@ import lombok.RequiredArgsConstructor;
 
 import com.kkinikong.be.global.response.ApiResponse;
 import com.kkinikong.be.review.dto.request.ReviewRequest;
+import com.kkinikong.be.review.dto.response.ReviewPostResponse;
 import com.kkinikong.be.review.service.ReviewService;
 import com.kkinikong.be.user.utils.CustomUserDetails;
 
@@ -43,9 +44,10 @@ public class ReviewController {
       @RequestBody @Valid ReviewRequest reviewRequest,
       @AuthenticationPrincipal CustomUserDetails userDetails) {
 
-    Long reviewId = reviewService.postReview(storeId, reviewRequest, userDetails.getId());
+    ReviewPostResponse reviewPostResponse =
+        reviewService.postReview(storeId, reviewRequest, userDetails.getId());
 
-    return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.from(reviewId));
+    return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.from(reviewPostResponse));
   }
 
   @Operation(
