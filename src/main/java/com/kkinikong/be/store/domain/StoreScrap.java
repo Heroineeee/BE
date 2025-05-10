@@ -27,4 +27,9 @@ public class StoreScrap extends BaseEntity {
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "store_id", nullable = false)
   private Store store;
+
+  public StoreScrap(User user, Store store) {
+    this.user = user;
+    this.store = store;
+  }
 }

@@ -16,7 +16,11 @@ public enum StoreErrorCode implements ErrorCode {
   GOOGLE_API_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "구글 API 호출에 실패했습니다."),
   JSON_PARSE_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "JSON 파싱에 실패했습니다."),
   CONVERT_TIME_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "시간 변환에 실패했습니다."),
-  MISSING_GPS_FOR_DISTANCE(HttpStatus.BAD_REQUEST, "거리순 정렬에는 위경도 정보가 필요합니다.");
+  MISSING_GPS_FOR_DISTANCE(HttpStatus.BAD_REQUEST, "거리순 정렬에는 위경도 정보가 필요합니다."),
+
+  SCRAP_NOT_FOUND(HttpStatus.NOT_FOUND, "스크랩 정보가 없습니다."),
+  ALREADY_SCRAPPED(HttpStatus.BAD_REQUEST, "이미 스크랩한 가맹점입니다."),
+  ;
   private final HttpStatus httpStatus;
   private final String message;
 }
