@@ -17,6 +17,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.annotation.Nullable;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
@@ -69,9 +70,12 @@ public class ReviewController {
   public ResponseEntity<ApiResponse<Object>> getReviewListAndRating(
       @RequestParam(defaultValue = "0") int page,
       @RequestParam(defaultValue = "10") int size,
-      @PathVariable("storeId") Long storeId) {
+      @PathVariable("storeId") Long storeId,
+      @Nullable @AuthenticationPrincipal CustomUserDetails userDetails) {
+    Long userId = userDetails != null ? userDetails.getId() : null;
+
     ReviewListItemResponse reviewListAndRating =
-        reviewService.getReviewListAndRating(storeId, page, size);
+        reviewService.getReviewListAndRating(storeId, page, size, userId);
     return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.from(reviewListAndRating));
   }
 

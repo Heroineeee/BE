@@ -86,7 +86,8 @@ public class ReviewService {
     reviewImageRepository.save(ReviewImage.builder().review(review).imageUrl(imageUrl).build());
   }
 
-  public ReviewListItemResponse getReviewListAndRating(Long storeId, int page, int size) {
+  public ReviewListItemResponse getReviewListAndRating(
+      Long storeId, int page, int size, Long userId) {
     Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdDate"));
 
     Page<Review> reviewPage = reviewRepository.findReviewsByStoreId(storeId, pageable);
@@ -101,12 +102,20 @@ public class ReviewService {
                       .map(ReviewImage::getImageUrl)
                       .orElse(null);
 
+              User user = review.getUser();
+
+              Boolean isOwner = null;
+              if (userId != null) {
+                isOwner = review.getUser().getId().equals(userId);
+              }
+
               return ReviewItemResponse.from(
-                  review.getUser().getNickname(),
+                  user.getNickname(),
                   review.getCreatedDate().toLocalDate(),
                   review.getRating(),
                   review.getContent(),
-                  imageUrl);
+                  imageUrl,
+                  isOwner);
             });
 
     return ReviewListItemResponse.from(getStoreOrThrow(storeId), pageResponse);
