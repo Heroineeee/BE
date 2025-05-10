@@ -53,7 +53,7 @@ public class SecurityConfig {
                         "/v3/api-docs/swagger-config")
                     .permitAll()
                     .requestMatchers("/api/v1/store/upload/**")
-                    .hasRole("ADMIN")
+                    .hasAuthority("ROLE_ADMIN")
                     .requestMatchers(
                         "/api/v1/user/**",
                         "/api/v1/store/scrap/**",

@@ -26,6 +26,6 @@ public class CustomUserDetailService implements UserDetailsService {
             .findUserById(Long.parseLong(id))
             .orElseThrow(() -> new UserException(USER_NOT_FOUND));
 
-    return new CustomUserDetails(user.getId(), user.getNickname());
+    return new CustomUserDetails(user.getId(), user.getNickname(), user.getRole().name());
   }
 }
