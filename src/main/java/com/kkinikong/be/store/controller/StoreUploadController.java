@@ -18,7 +18,9 @@ import com.kkinikong.be.store.service.StoreUploadService;
 @RestController
 @RequestMapping("/api/v1/store/upload")
 @RequiredArgsConstructor
-@Tag(name = "StoreUpload", description = "CSV 파일 업로드를 통한 가맹점 등록 API (관리자 전용, 프론트 연동 X)")
+@Tag(
+    name = "StoreUpload",
+    description = "CSV 파일 업로드를 통한 가맹점 등록 API (관리자 전용, 프론트 연동 X) 유저의 권한이 USER인 경우에는 등록할 수 없습니다.")
 public class StoreUploadController {
 
   private final StoreUploadService storeUploadService;
