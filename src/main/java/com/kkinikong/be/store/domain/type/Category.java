@@ -21,4 +21,13 @@ public enum Category {
   Category(String label) {
     this.label = label;
   }
+
+  public static Category fromLabel(String label) {
+    for (Category category : Category.values()) {
+      if (category.getLabel().equals(label)) {
+        return category;
+      }
+    }
+    return null;
+  }
 }

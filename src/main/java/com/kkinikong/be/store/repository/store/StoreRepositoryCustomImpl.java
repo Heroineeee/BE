@@ -142,13 +142,21 @@ public class StoreRepositoryCustomImpl implements StoreRepositoryCustom {
 
     if (keyword != null && !keyword.isBlank()) {
       String keywordNoSpace = keyword.replaceAll("\\s+", ""); // 키워드 띄어쓰기 제거
+      Category matchedCategory = Category.fromLabel(keywordNoSpace);
 
-      builder.and(
+      BooleanBuilder keywordBuilder = new BooleanBuilder();
+      keywordBuilder.or(
           Expressions.stringTemplate("replace({0}, ' ', '')", store.name)
-              .containsIgnoreCase(keywordNoSpace)
-              .or(
-                  Expressions.stringTemplate("replace({0}, ' ', '')", store.address)
-                      .containsIgnoreCase(keywordNoSpace)));
+              .containsIgnoreCase(keywordNoSpace));
+      keywordBuilder.or(
+          Expressions.stringTemplate("replace({0}, ' ', '')", store.address)
+              .containsIgnoreCase(keywordNoSpace));
+
+      if (matchedCategory != null) {
+        keywordBuilder.or(store.category.eq(matchedCategory));
+      }
+
+      builder.and(keywordBuilder);
     }
     List<Tuple> tuples =
         queryFactory
