@@ -1,9 +1,11 @@
 name: 🚀 Kkini-kong CD 🚀
 
 on:
-  push:
+  pull_request:
     branches:
       - develop
+    types:
+      - closed
 
 permissions:
   contents: read

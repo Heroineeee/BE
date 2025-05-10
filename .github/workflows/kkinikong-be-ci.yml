@@ -2,12 +2,10 @@ name: ✨ Kkini-kong CI ✨
 
 on:
   pull_request:
-    types: [opened, synchronize, reopened] 
+    types: [opened, synchronize, reopened]
     branches:
       - develop
-  push:
-    branches:
-      - develop
+
 
 jobs:
   docker-build-and-push:
