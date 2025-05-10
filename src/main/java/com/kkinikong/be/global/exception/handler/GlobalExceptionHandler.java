@@ -18,7 +18,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.kkinikong.be.auth.exception.AuthException;
-import com.kkinikong.be.batch.exception.BatchException;
 import com.kkinikong.be.global.exception.errorcode.ErrorCode;
 import com.kkinikong.be.global.exception.errorcode.GlobalErrorCode;
 import com.kkinikong.be.global.exception.response.ErrorResponse;
@@ -57,12 +56,6 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
   @ExceptionHandler(StoreException.class)
   public ResponseEntity<Object> handleStoreException(
       final StoreException e, HttpServletRequest request) {
-    logInfo(e.getErrorCode(), e, request);
-    return handleExceptionInternal(e.getErrorCode());
-  }
-
-  @ExceptionHandler(BatchException.class)
-  public ResponseEntity<Object> handleBatchException(BatchException e, HttpServletRequest request) {
     logInfo(e.getErrorCode(), e, request);
     return handleExceptionInternal(e.getErrorCode());
   }

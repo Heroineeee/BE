@@ -5,12 +5,14 @@ import java.util.List;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
+import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
 import lombok.RequiredArgsConstructor;
 
 import com.kkinikong.be.store.domain.Store;
 
+@Repository
 @RequiredArgsConstructor
 public class StoreJdbcRepositoryImpl implements StoreJdbcRepository {
   private final JdbcTemplate jdbcTemplate;
