@@ -13,6 +13,9 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import lombok.RequiredArgsConstructor;
+import org.apache.commons.csv.CSVFormat;
+import org.apache.commons.csv.CSVParser;
+import org.apache.commons.csv.CSVRecord;
 
 import com.kkinikong.be.store.domain.Store;
 import com.kkinikong.be.store.domain.type.Category;
@@ -57,15 +60,15 @@ public class StoreUploadService {
   private List<Store> parseCsv(MultipartFile file) {
     List<Store> stores = new ArrayList<>();
     try (BufferedReader reader = new BufferedReader(new InputStreamReader(file.getInputStream()))) {
-      String line;
-      boolean isFirstLine = true;
-      while ((line = reader.readLine()) != null) {
-        if (isFirstLine) {
-          isFirstLine = false; // 첫 번째 헤더 -> 스킵
-          continue;
-        }
-        String[] tokens = line.split(",", -1); // 빈 칸도 허용
-        stores.add(toStore(tokens));
+      CSVParser csvParser =
+          CSVFormat.DEFAULT
+              .withFirstRecordAsHeader() // 첫 번째 줄은 헤더
+              .withIgnoreHeaderCase() // 대소문자 무시
+              .withTrim() // 공백 제거
+              .parse(reader);
+
+      for (CSVRecord record : csvParser) {
+        stores.add(toStore(record));
       }
     } catch (IOException e) {
       throw new StoreException(StoreErrorCode.CSV_PARSE_FAILED);
@@ -74,15 +77,15 @@ public class StoreUploadService {
   }
 
   /// CSV 한 줄을 Store 객체로 변환
-  private Store toStore(String[] tokens) {
+  private Store toStore(CSVRecord record) {
     return Store.builder()
-        .name(tokens[0].trim())
-        .address(tokens[1].trim())
-        .region(extractRegion(tokens[1].trim()))
-        .latitude(Double.parseDouble(tokens[2].trim()))
-        .longitude(Double.parseDouble(tokens[3].trim()))
-        .updatedDate(LocalDate.parse(tokens[4].trim()))
-        .category(Category.valueOf(tokens[5].trim()))
+        .name(record.get(0).trim())
+        .address(record.get(1).trim())
+        .region(extractRegion(record.get(1).trim()))
+        .latitude(Double.parseDouble(record.get(2).trim()))
+        .longitude(Double.parseDouble(record.get(3).trim()))
+        .updatedDate(LocalDate.parse(record.get(4).trim()))
+        .category(Category.valueOf(record.get(5).trim()))
         .build();
   }
 
