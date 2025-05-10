@@ -21,6 +21,7 @@ import lombok.RequiredArgsConstructor;
 
 import com.kkinikong.be.global.response.ApiResponse;
 import com.kkinikong.be.review.dto.request.ReviewRequest;
+import com.kkinikong.be.review.dto.response.ReviewListItemResponse;
 import com.kkinikong.be.review.dto.response.ReviewPostResponse;
 import com.kkinikong.be.review.service.ReviewService;
 import com.kkinikong.be.user.utils.CustomUserDetails;
@@ -58,17 +59,19 @@ public class ReviewController {
       summary = "가맹점 리뷰 리스트 및 별점 조회하기",
       description =
           """
-              - 리뷰 리스트 및 별점 조회하기
-              - 리뷰 리스트 및 별점 조회 시, 가맹점의 id를 path variable로 전달해야 함
-              - 리뷰 리스트 및 별점 조회 시, 로그인한 유저의 id를 header로 전달해야 함
-              """)
+          - 가맹점의 리뷰 리스트를 조회합니다.
+          - 리뷰는 최신순으로 가져옵니다.
+          - 페이지 번호는 0부터 시작
+          - 페이지 크기(size)는 기본 10개이며, 조정 가능
+          """)
   @GetMapping
   public ResponseEntity<ApiResponse<Object>> getReviewListAndRating(
       @RequestParam(defaultValue = "0") int page,
       @RequestParam(defaultValue = "10") int size,
-      @PathVariable("storeId") Long storeId,
-      @AuthenticationPrincipal CustomUserDetails userDetails) {
-    return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.EMPTY_RESPONSE);
+      @PathVariable("storeId") Long storeId) {
+    ReviewListItemResponse reviewListAndRating =
+        reviewService.getReviewListAndRating(storeId, page, size);
+    return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.from(reviewListAndRating));
   }
 
   @Operation(
@@ -81,7 +84,7 @@ public class ReviewController {
            - 가능한 파일 확장자는 .jpg, .jpeg, .png, .heic 입니다.
            """)
   @PostMapping(path = "/{reviewId}/photo", consumes = "multipart/form-data")
-  public ResponseEntity<ApiResponse<Object>> postReviewPhoto(
+  public ResponseEntity<ApiResponse<Object>> postReviewImage(
       @PathVariable("storeId") Long storeId,
       @PathVariable("reviewId") Long reviewId,
       @Parameter(

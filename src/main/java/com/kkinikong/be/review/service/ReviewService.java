@@ -1,5 +1,8 @@
 package com.kkinikong.be.review.service;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -11,6 +14,8 @@ import com.kkinikong.be.review.domain.Review;
 import com.kkinikong.be.review.domain.ReviewImage;
 import com.kkinikong.be.review.domain.type.Tag;
 import com.kkinikong.be.review.dto.request.ReviewRequest;
+import com.kkinikong.be.review.dto.response.ReviewItemResponse;
+import com.kkinikong.be.review.dto.response.ReviewListItemResponse;
 import com.kkinikong.be.review.dto.response.ReviewPostResponse;
 import com.kkinikong.be.review.exception.ReviewException;
 import com.kkinikong.be.review.exception.errorcode.ReviewErrorCode;
@@ -18,6 +23,7 @@ import com.kkinikong.be.review.repository.ReviewImageRepository;
 import com.kkinikong.be.review.repository.ReviewRepository;
 import com.kkinikong.be.store.domain.Store;
 import com.kkinikong.be.store.domain.StoreTagCount;
+import com.kkinikong.be.store.dto.response.PageResponse;
 import com.kkinikong.be.store.exception.StoreException;
 import com.kkinikong.be.store.exception.errorcode.StoreErrorCode;
 import com.kkinikong.be.store.repository.store.StoreRepository;
@@ -81,6 +87,32 @@ public class ReviewService {
     String imageUrl = reviewImageService.uploadFile(file);
 
     reviewImageRepository.save(ReviewImage.builder().review(review).imageUrl(imageUrl).build());
+  }
+
+  public ReviewListItemResponse getReviewListAndRating(Long storeId, int page, int size) {
+    Pageable pageable = PageRequest.of(page, size);
+
+    Page<Review> reviewPage = reviewRepository.findReviewsByStoreId(storeId, pageable);
+
+    PageResponse<ReviewItemResponse> pageResponse =
+        PageResponse.from(
+            reviewPage,
+            review -> {
+              String imageUrl =
+                  reviewImageRepository
+                      .findByReviewId(review.getId())
+                      .map(ReviewImage::getImageUrl)
+                      .orElse(null);
+
+              return ReviewItemResponse.from(
+                  review.getUser().getNickname(),
+                  review.getCreatedDate().toLocalDate(),
+                  review.getRating(),
+                  review.getContent(),
+                  imageUrl);
+            });
+
+    return ReviewListItemResponse.from(getStoreOrThrow(storeId), pageResponse);
   }
 
   private void updateTagCount(Long storeId, Tag[] tags, Store store) {
