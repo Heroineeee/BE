@@ -136,12 +136,14 @@ public class StoreController {
           Double longitude,
       @RequestParam(required = false) String keyword,
       @RequestParam(defaultValue = "0") int page,
-      @RequestParam(defaultValue = "10") int size) {
+      @RequestParam(defaultValue = "10") int size,
+      @AuthenticationPrincipal CustomUserDetails userDetails) {
+    Long userId = (userDetails != null) ? userDetails.getId() : null;
     if (latitude == null || longitude == null) {
       throw new StoreException(StoreErrorCode.MISSING_GPS_FOR_SEARCH);
     }
     PageResponse<StoreMapListResponse> response =
-        storeService.searchStoresForMap(latitude, longitude, keyword, page, size);
+        storeService.searchStoresForMap(latitude, longitude, keyword, page, size, userId);
     return ResponseEntity.ok(ApiResponse.from(response));
   }
 

@@ -170,11 +170,12 @@ public class StoreService {
   }
 
   public PageResponse<StoreMapListResponse> searchStoresForMap(
-      Double latitude, Double longitude, String keyword, int page, int size) {
+      Double latitude, Double longitude, String keyword, int page, int size, Long userId) {
     Pageable pageable = PageRequest.of(page, size);
     double searchRadiusKm = 3.0; // 항상 3km
     Page<Store> storePage =
-        storeRepository.searchNearByStores(latitude, longitude, keyword, searchRadiusKm, pageable);
+        storeRepository.searchNearByStores(
+            latitude, longitude, keyword, searchRadiusKm, pageable, userId);
     return PageResponse.from(storePage, StoreMapListResponse::from);
   }
 }

@@ -21,5 +21,10 @@ public interface StoreRepositoryCustom {
       Double latitude, Double longitude, Category category, Pageable pageable, Long userId);
 
   Page<Store> searchNearByStores(
-      Double latitude, Double longitude, String keyword, double radiusKm, Pageable pageable);
+      Double latitude,
+      Double longitude,
+      String keyword,
+      double radiusKm,
+      Pageable pageable,
+      Long userId);
 }

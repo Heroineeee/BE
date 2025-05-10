@@ -119,7 +119,12 @@ public class StoreRepositoryCustomImpl implements StoreRepositoryCustom {
   }
 
   public Page<Store> searchNearByStores(
-      Double latitude, Double longitude, String keyword, double radiusKm, Pageable pageable) {
+      Double latitude,
+      Double longitude,
+      String keyword,
+      double radiusKm,
+      Pageable pageable,
+      Long userId) {
 
     QStore store = QStore.store;
 
@@ -145,19 +150,36 @@ public class StoreRepositoryCustomImpl implements StoreRepositoryCustom {
                   Expressions.stringTemplate("replace({0}, ' ', '')", store.address)
                       .containsIgnoreCase(keywordNoSpace)));
     }
-
-    List<Store> stores =
+    List<Tuple> tuples =
         queryFactory
-            .selectFrom(store)
+            .select(store, storeScrap.id)
+            .from(store)
+            .leftJoin(storeScrap)
+            .on(
+                storeScrap
+                    .store
+                    .eq(store)
+                    .and(userId != null ? storeScrap.user.id.eq(userId) : null))
             .where(builder)
             .orderBy(store.name.asc()) // 가나다순 정렬
             .offset(pageable.getOffset())
             .limit(pageable.getPageSize())
             .fetch();
 
+    List<Store> storeList =
+        tuples.stream()
+            .map(
+                tuple -> {
+                  Store s = tuple.get(store);
+                  Long scrapId = tuple.get(storeScrap.id);
+                  s.setIsScrapped(userId != null ? scrapId != null : null);
+                  return s;
+                })
+            .toList();
+
     long total = queryFactory.select(store.count()).from(store).where(builder).fetchOne();
 
-    return new PageImpl<>(stores, pageable, total);
+    return new PageImpl<>(storeList, pageable, total);
   }
 
   private OrderSpecifier<?>[] getSortOrder(StoreSort sort, Double latitude, Double longitude) {
