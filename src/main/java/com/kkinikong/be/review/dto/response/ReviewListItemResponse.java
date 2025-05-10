@@ -1,7 +1,7 @@
 package com.kkinikong.be.review.dto.response;
 
+import com.kkinikong.be.global.response.PageResponse;
 import com.kkinikong.be.store.domain.Store;
-import com.kkinikong.be.store.dto.response.PageResponse;
 
 public record ReviewListItemResponse(
     double ratingAvg, long reviewCount, PageResponse<ReviewItemResponse> pageResponse) {

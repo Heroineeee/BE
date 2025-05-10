@@ -11,6 +11,7 @@ import org.springframework.web.multipart.MultipartFile;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
+import com.kkinikong.be.global.response.PageResponse;
 import com.kkinikong.be.review.domain.Review;
 import com.kkinikong.be.review.domain.ReviewImage;
 import com.kkinikong.be.review.domain.type.Tag;
@@ -24,7 +25,6 @@ import com.kkinikong.be.review.repository.ReviewImageRepository;
 import com.kkinikong.be.review.repository.ReviewRepository;
 import com.kkinikong.be.store.domain.Store;
 import com.kkinikong.be.store.domain.StoreTagCount;
-import com.kkinikong.be.store.dto.response.PageResponse;
 import com.kkinikong.be.store.exception.StoreException;
 import com.kkinikong.be.store.exception.errorcode.StoreErrorCode;
 import com.kkinikong.be.store.repository.store.StoreRepository;

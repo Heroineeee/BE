@@ -14,6 +14,7 @@ import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
+import com.kkinikong.be.global.response.PageResponse;
 import com.kkinikong.be.store.domain.Store;
 import com.kkinikong.be.store.domain.StoreScrap;
 import com.kkinikong.be.store.domain.type.Category;
