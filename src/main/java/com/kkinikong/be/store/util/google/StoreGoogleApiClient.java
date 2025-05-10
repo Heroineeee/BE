@@ -60,8 +60,8 @@ public class StoreGoogleApiClient {
       if (places != null && !places.isEmpty()) {
         return extractOpeningHours(places.get(0));
       }
-    } catch (Exception e) {
-      throw new StoreException(StoreErrorCode.JSON_PARSE_ERROR);
+    } catch (Exception ignored) {
+      // 구글에 등록된 정보의 형식 이상일 경우
     }
     return null;
   }
@@ -71,9 +71,7 @@ public class StoreGoogleApiClient {
 
     if (openingHours != null && openingHours.containsKey("weekdayDescriptions")) {
       List<String> weekdayDescriptions = (List<String>) openingHours.get("weekdayDescriptions");
-      return (weekdayDescriptions != null && !weekdayDescriptions.isEmpty())
-          ? parseOpeningHours(weekdayDescriptions)
-          : null;
+      return !weekdayDescriptions.isEmpty() ? parseOpeningHours(weekdayDescriptions) : null;
     }
     return null;
   }
@@ -97,6 +95,7 @@ public class StoreGoogleApiClient {
 
   private Map<String, List<String>> parseOpeningHours(List<String> openingHours) {
     Map<String, List<String>> parsedOpeningHours = new LinkedHashMap<>();
+    log.info("Found {} opening hours", openingHours.size());
 
     openingHours.forEach(
         description -> {
