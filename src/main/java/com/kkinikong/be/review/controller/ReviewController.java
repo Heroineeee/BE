@@ -23,6 +23,7 @@ import lombok.RequiredArgsConstructor;
 
 import com.kkinikong.be.global.response.ApiResponse;
 import com.kkinikong.be.review.dto.request.ReviewRequest;
+import com.kkinikong.be.review.service.ReviewService;
 import com.kkinikong.be.user.utils.CustomUserDetails;
 
 @Controller
@@ -31,21 +32,20 @@ import com.kkinikong.be.user.utils.CustomUserDetails;
 @RequestMapping("/api/v1/{storeId}/review")
 public class ReviewController {
 
+  private final ReviewService reviewService;
+
   @Operation(
       summary = "가맹점 리뷰 작성하기",
-      description =
-          """
-            - 리뷰 작성하기
-            - 리뷰 작성 시, 가맹점의 id를 path variable로 전달해야 함
-            - 리뷰 작성 시, 리뷰 내용과 평점을 body로 전달해야 함
-            - 리뷰 작성 시, 로그인한 유저의 id를 header로 전달해야 함
-            """)
+      description = "가맹점의 리뷰를 작성합니다. 로그인한 사용자만 작성할 수 있습니다. 리뷰 작성 완료 후, 리뷰 id를 반환합니다.")
   @PostMapping
   public ResponseEntity<ApiResponse<Object>> postReview(
       @PathVariable("storeId") Long storeId,
       @RequestBody @Valid ReviewRequest reviewRequest,
       @AuthenticationPrincipal CustomUserDetails userDetails) {
-    return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.EMPTY_RESPONSE);
+
+    Long reviewId = reviewService.postReview(storeId, reviewRequest, userDetails.getId());
+
+    return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.from(reviewId));
   }
 
   @Operation(

@@ -31,15 +31,16 @@ public class ReviewService {
   private final StoreTagCountRepository storeTagCountRepository;
 
   @Transactional
-  public void postReview(Long storeId, ReviewRequest request, Long userId) {
+  public Long postReview(Long storeId, ReviewRequest request, Long userId) {
     Store store = getStoreOrThrow(storeId);
 
-    Review.builder()
-        .rating(request.rating())
-        .content(request.content())
-        .store(store)
-        .user(getUserOrThrow(userId))
-        .build();
+    Review review =
+        Review.builder()
+            .rating(request.rating())
+            .content(request.content())
+            .store(store)
+            .user(getUserOrThrow(userId))
+            .build();
 
     for (Tag tag : request.tag()) {
       if (storeTagCountRepository.existsByStoreIdAndTag(storeId, tag)) {
@@ -48,6 +49,8 @@ public class ReviewService {
         storeTagCountRepository.save(StoreTagCount.builder().store(store).tag(tag).build());
       }
     }
+
+    return review.getId();
   }
 
   private Store getStoreOrThrow(Long storeId) {
