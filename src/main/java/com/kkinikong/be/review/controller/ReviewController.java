@@ -32,7 +32,7 @@ import com.kkinikong.be.user.utils.CustomUserDetails;
 public class ReviewController {
 
   @Operation(
-      summary = "리뷰 작성하기",
+      summary = "가맹점 리뷰 작성하기",
       description =
           """
             - 리뷰 작성하기
@@ -49,7 +49,7 @@ public class ReviewController {
   }
 
   @Operation(
-      summary = "리뷰 리스트 및 별점 조회하기",
+      summary = "가맹점 리뷰 리스트 및 별점 조회하기",
       description =
           """
               - 리뷰 리스트 및 별점 조회하기

@@ -4,11 +4,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 import jakarta.persistence.*;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import com.kkinikong.be.global.entity.BaseEntity;
-import com.kkinikong.be.review.domain.mapping.ReviewTagMap;
 import com.kkinikong.be.store.domain.Store;
 import com.kkinikong.be.user.domain.User;
 
@@ -32,9 +32,6 @@ public class Review extends BaseEntity {
   @Column(name = "like_count", nullable = false)
   private long likeCount = 0L;
 
-  @Column(name = "is_certified", nullable = false)
-  private boolean isCertified; // 아동급식카드 실 사용 인증 여부
-
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "store_id")
   private Store store;
@@ -44,8 +41,13 @@ public class Review extends BaseEntity {
   private User user;
 
   @OneToMany(mappedBy = "review", cascade = CascadeType.ALL, orphanRemoval = true)
-  private List<ReviewTagMap> reviewTagMapList = new ArrayList<>();
-
-  @OneToMany(mappedBy = "review", cascade = CascadeType.ALL, orphanRemoval = true)
   private List<ReviewImage> reviewImageList = new ArrayList<>();
+
+  @Builder
+  public Review(int rating, String content, Store store, User user) {
+    this.rating = rating;
+    this.content = content;
+    this.store = store;
+    this.user = user;
+  }
 }

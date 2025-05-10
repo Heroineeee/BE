@@ -1,5 +1,6 @@
 package com.kkinikong.be.store.service;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -13,7 +14,6 @@ import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
-import com.kkinikong.be.review.repository.reviewtag.ReviewTagRepository;
 import com.kkinikong.be.store.domain.Store;
 import com.kkinikong.be.store.domain.StoreScrap;
 import com.kkinikong.be.store.domain.type.Category;
@@ -23,6 +23,7 @@ import com.kkinikong.be.store.exception.StoreException;
 import com.kkinikong.be.store.exception.errorcode.StoreErrorCode;
 import com.kkinikong.be.store.repository.store.StoreRepository;
 import com.kkinikong.be.store.repository.storescrap.StoreScrapRepository;
+import com.kkinikong.be.store.repository.storetag.StoreTagCountRepository;
 import com.kkinikong.be.store.util.google.StoreGoogleApiClient;
 import com.kkinikong.be.store.util.kakao.StoreKakaoApiClient;
 import com.kkinikong.be.user.domain.User;
@@ -40,9 +41,9 @@ public class StoreService {
   private final StoreKakaoApiClient storeKakaoApiClient;
   private final StoreGoogleApiClient storeGoogleApiClient;
   private final StoreCacheService storeCacheService;
-  private final ReviewTagRepository reviewTagRepository;
   private final StoreScrapRepository storeScrapRepository;
   private final UserRepository userRepository;
+  private final StoreTagCountRepository storeTagCountRepository;
 
   private static final String NO_INFO = "NO_INFO";
 
@@ -61,7 +62,17 @@ public class StoreService {
 
     // 가맹점 ID 리스트 뽑아 태그 조회
     List<Long> storeIds = storePage.getContent().stream().map(Store::getId).toList();
-    Map<Long, String> tagMap = reviewTagRepository.findRepresentativeTagByStoreId(storeIds);
+    Map<Long, String> tagMap = new HashMap<>();
+    storeIds.forEach(
+        storeId -> {
+          storeTagCountRepository
+              .findRepresentativeTagByStoreId(storeId)
+              .ifPresent(
+                  tag -> {
+                    ;
+                    tagMap.put(storeId, tag.getLabel());
+                  }); // 태그가 없으면 null로 처리
+        });
 
     return PageResponse.from(
         storePage, store -> StoreListItemResponse.from(store, tagMap.get(store.getId())));
