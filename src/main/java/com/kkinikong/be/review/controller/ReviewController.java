@@ -30,7 +30,7 @@ import com.kkinikong.be.user.utils.CustomUserDetails;
 
 @Controller
 @RequiredArgsConstructor
-@Tag(name = "Store", description = "가맹점 관련 API")
+@Tag(name = "Review", description = "리뷰 관련 API")
 @RequestMapping("/api/v1/{storeId}/review")
 public class ReviewController {
 
@@ -65,6 +65,7 @@ public class ReviewController {
           - 리뷰는 최신순으로 가져옵니다.
           - 페이지 번호는 0부터 시작
           - 페이지 크기(size)는 기본 10개이며, 조정 가능
+          - 로그인 한 경우에는 isOwner 필드가 true/false로 반환되고 로그인 하지 않은 경우에는 null로 반환됩니다.
           """)
   @GetMapping
   public ResponseEntity<ApiResponse<Object>> getReviewListAndRating(
