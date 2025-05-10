@@ -2,7 +2,7 @@ package com.kkinikong.be.store.dto.response;
 
 import com.kkinikong.be.store.domain.Store;
 
-public record StoreMapItemResponse(
+public record StoreMapListResponse(
     Long id,
     String name,
     String address,
@@ -12,8 +12,8 @@ public record StoreMapItemResponse(
     double ratingAvg,
     long scrapCount,
     Boolean isScrapped) {
-  public static StoreMapItemResponse from(Store store) {
-    return new StoreMapItemResponse(
+  public static StoreMapListResponse from(Store store) {
+    return new StoreMapListResponse(
         store.getId(),
         store.getName(),
         store.getAddress(),

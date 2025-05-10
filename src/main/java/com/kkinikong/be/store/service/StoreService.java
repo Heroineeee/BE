@@ -67,7 +67,7 @@ public class StoreService {
         storePage, store -> StoreListItemResponse.from(store, tagMap.get(store.getId())));
   }
 
-  public PageResponse<StoreMapItemResponse> getStoreListWithMap(
+  public PageResponse<StoreMapListResponse> getStoreListWithMap(
       Double latitude, Double longitude, Category category, int page, int size, Long userId) {
 
     Pageable pageable = PageRequest.of(page, size);
@@ -75,7 +75,7 @@ public class StoreService {
     Page<Store> storePage =
         storeRepository.findStoresByDistanceOrName(latitude, longitude, category, pageable, userId);
 
-    return PageResponse.from(storePage, StoreMapItemResponse::from);
+    return PageResponse.from(storePage, StoreMapListResponse::from);
   }
 
   public StoreInfoResponse getStoreInfo(Long storeId) {
