@@ -38,7 +38,7 @@ dependencies {
 
 	// mysql
 	runtimeOnly 'com.microsoft.sqlserver:mssql-jdbc'
-	runtimeOnly 'com.mysql:mysql-connector-j'
+	runtimeOnly 'com.mysql:mysql-connector-j:8.0.33'
 
 	// test
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
