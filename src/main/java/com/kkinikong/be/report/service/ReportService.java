@@ -70,7 +70,7 @@ public class ReportService {
       throw new ReportException(ReportErrorCode.REPORT_ALREADY_EXISTS);
     }
 
-    if (review.getUser().getId().equals(user.getId())) {
+    if (review.getUser().getId().equals(userId)) {
       throw new ReportException(ReportErrorCode.REPORT_SELF);
     }
 
