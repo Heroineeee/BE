@@ -81,7 +81,7 @@ public class ReviewService {
     double currentAvg = store.getRatingAvg();
     double newAvg;
 
-    if (currentReviewCount <= 1) {
+    if (currentReviewCount == 0) {
       newAvg = (long) rating; // 첫 리뷰거나 유일한 리뷰인 경우
     } else {
       newAvg = ((currentAvg * currentReviewCount) + (long) rating) / (currentReviewCount + 1);
