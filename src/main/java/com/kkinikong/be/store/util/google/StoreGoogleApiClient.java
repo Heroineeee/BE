@@ -95,7 +95,6 @@ public class StoreGoogleApiClient {
 
   private Map<String, List<String>> parseOpeningHours(List<String> openingHours) {
     Map<String, List<String>> parsedOpeningHours = new LinkedHashMap<>();
-    log.info("Found {} opening hours", openingHours.size());
 
     openingHours.forEach(
         description -> {
