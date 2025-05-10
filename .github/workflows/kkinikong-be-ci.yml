@@ -5,9 +5,7 @@ on:
     types: [opened, synchronize, reopened] 
     branches:
       - develop
-  push:
-    branches:
-      - develop
+
 
 jobs:
   docker-build-and-push:
