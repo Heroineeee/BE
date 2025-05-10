@@ -1,7 +1,5 @@
 package com.kkinikong.be.review.controller;
 
-import java.util.List;
-
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -9,9 +7,9 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.multipart.MultipartFile;
 
 import io.swagger.v3.oas.annotations.Operation;
@@ -38,18 +36,11 @@ public class ReviewController {
   @Operation(
       summary = "가맹점 리뷰 작성하기",
       description = "가맹점의 리뷰를 작성합니다. 로그인한 사용자만 작성할 수 있습니다. 리뷰 작성 완료 후, 리뷰 id를 반환합니다.")
-  @PostMapping(consumes = "multipart/form-data")
+  @PostMapping
   public ResponseEntity<ApiResponse<Object>> postReview(
       @PathVariable("storeId") Long storeId,
-      @RequestPart("review") @Valid ReviewRequest reviewRequest,
-      @Parameter(
-              description = "업로드할 파일 리스트",
-              content = @Content(mediaType = "application/octet-stream"))
-          @RequestParam(value = "file", required = false)
-          List<MultipartFile> files,
-      // @RequestPart(value = "images", required = false) MultipartFile[] images,
+      @RequestBody @Valid ReviewRequest reviewRequest,
       @AuthenticationPrincipal CustomUserDetails userDetails) {
-
     ReviewPostResponse reviewPostResponse =
         reviewService.postReview(storeId, reviewRequest, userDetails.getId());
 
@@ -75,12 +66,7 @@ public class ReviewController {
 
   @Operation(
       summary = "리뷰 작성 시 사진 추가",
-      description =
-          """
-              - 리뷰 작성 시, 가맹점의 id를 path variable로 전달해야 함
-              - 리뷰 작성 시, 사진을 body로 전달해야 함
-              - 리뷰 작성 시, 로그인한 유저의 id를 header로 전달해야 함
-              """)
+      description = "리뷰 작성 api 호출을 통해 리뷰를 작성해 id를 받은 후, 해당 id로 사진을 추가합니다.")
   @PostMapping(path = "/{reviewId}/photo", consumes = "multipart/form-data")
   public ResponseEntity<ApiResponse<Object>> postReviewPhoto(
       @PathVariable("storeId") Long storeId,
@@ -89,8 +75,10 @@ public class ReviewController {
               description = "업로드할 파일 리스트",
               content = @Content(mediaType = "application/octet-stream"))
           @RequestParam(value = "file", required = false)
-          List<MultipartFile> files,
+          MultipartFile file,
       @AuthenticationPrincipal CustomUserDetails userDetails) {
+
+    reviewService.postReviewImage(reviewId, file, userDetails.getId());
     return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.EMPTY_RESPONSE);
   }
 }

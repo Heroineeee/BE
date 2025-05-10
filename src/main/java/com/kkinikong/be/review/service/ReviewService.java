@@ -2,16 +2,19 @@ package com.kkinikong.be.review.service;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 import com.kkinikong.be.review.domain.Review;
+import com.kkinikong.be.review.domain.ReviewImage;
 import com.kkinikong.be.review.domain.type.Tag;
 import com.kkinikong.be.review.dto.request.ReviewRequest;
 import com.kkinikong.be.review.dto.response.ReviewPostResponse;
 import com.kkinikong.be.review.exception.ReviewException;
 import com.kkinikong.be.review.exception.errorcode.ReviewErrorCode;
+import com.kkinikong.be.review.repository.ReviewImageRepository;
 import com.kkinikong.be.review.repository.ReviewRepository;
 import com.kkinikong.be.store.domain.Store;
 import com.kkinikong.be.store.domain.StoreTagCount;
@@ -23,6 +26,7 @@ import com.kkinikong.be.user.domain.User;
 import com.kkinikong.be.user.exception.UserException;
 import com.kkinikong.be.user.exception.errorcode.UserErrorCode;
 import com.kkinikong.be.user.repository.UserRepository;
+import com.kkinikong.be.util.service.S3Service;
 
 @Service
 @RequiredArgsConstructor
@@ -34,6 +38,9 @@ public class ReviewService {
   private final StoreRepository storeRepository;
   private final StoreTagCountRepository storeTagCountRepository;
   private final ReviewRepository reviewRepository;
+  private final ReviewImageRepository reviewImageRepository;
+
+  private final S3Service s3Service;
 
   @Transactional
   public ReviewPostResponse postReview(Long storeId, ReviewRequest request, Long userId) {
@@ -57,6 +64,20 @@ public class ReviewService {
     updateTagCount(storeId, request.tag(), store);
 
     return new ReviewPostResponse(savedReview.getId());
+  }
+
+  @Transactional
+  public void postReviewImage(Long reviewId, MultipartFile file, Long userId) {
+    Review review = getReviewOrThrow(reviewId);
+    User user = getUserOrThrow(userId);
+
+    if (!review.getUser().getId().equals(user.getId())) {
+      throw new ReviewException(ReviewErrorCode.REVIEW_NOT_AUTHORIZED);
+    }
+
+    String imageUrl = s3Service.uploadFile(file);
+
+    reviewImageRepository.save(ReviewImage.builder().review(review).imageUrl(imageUrl).build());
   }
 
   private void updateTagCount(Long storeId, Tag[] tags, Store store) {
@@ -101,5 +122,11 @@ public class ReviewService {
     return userRepository
         .findById(userId)
         .orElseThrow(() -> new UserException(UserErrorCode.USER_NOT_FOUND));
+  }
+
+  private Review getReviewOrThrow(Long reviewId) {
+    return reviewRepository
+        .findById(reviewId)
+        .orElseThrow(() -> new ReviewException(ReviewErrorCode.REVIEW_NOT_FOUND));
   }
 }

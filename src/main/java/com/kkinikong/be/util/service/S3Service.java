@@ -22,7 +22,7 @@ public class S3Service {
 
   private final AmazonS3 s3Client;
 
-  @Value("${cloud.aws.s3.imgBucket}")
+  @Value("${cloud.aws.s3.bucket}")
   private String bucket;
 
   public String uploadFile(MultipartFile file) {

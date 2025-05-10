@@ -15,8 +15,8 @@ public class S3Config {
 
   @Bean
   public AmazonS3 amazonS3(
-      @Value("${cloud.aws.credentials.accessKey}") String accessKey,
-      @Value("${cloud.aws.credentials.secretKey}") String secretKey,
+      @Value("${cloud.aws.credentials.access-key}") String accessKey,
+      @Value("${cloud.aws.credentials.secret-key}") String secretKey,
       @Value("${cloud.aws.region.static}") String region) {
 
     BasicAWSCredentials awsCreds = new BasicAWSCredentials(accessKey, secretKey);
