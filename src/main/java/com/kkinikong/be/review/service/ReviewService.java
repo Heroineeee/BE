@@ -12,7 +12,7 @@ import com.kkinikong.be.review.dto.request.ReviewRequest;
 import com.kkinikong.be.review.dto.response.ReviewPostResponse;
 import com.kkinikong.be.review.exception.ReviewException;
 import com.kkinikong.be.review.exception.errorcode.ReviewErrorCode;
-import com.kkinikong.be.review.repository.review.ReviewRepository;
+import com.kkinikong.be.review.repository.ReviewRepository;
 import com.kkinikong.be.store.domain.Store;
 import com.kkinikong.be.store.domain.StoreTagCount;
 import com.kkinikong.be.store.exception.StoreException;

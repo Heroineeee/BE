@@ -27,6 +27,7 @@ import com.kkinikong.be.global.exception.response.ErrorResponse.ValidationErrors
 import com.kkinikong.be.report.exception.ReportException;
 import com.kkinikong.be.store.exception.StoreException;
 import com.kkinikong.be.user.exception.UserException;
+import com.kkinikong.be.util.exception.S3Exception;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
@@ -70,6 +71,12 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
   @ExceptionHandler(ReportException.class)
   public ResponseEntity<Object> handleReportException(
       final ReportException e, HttpServletRequest request) {
+    logInfo(e.getErrorCode(), e, request);
+    return handleExceptionInternal(e.getErrorCode());
+  }
+
+  @ExceptionHandler(S3Exception.class)
+  public ResponseEntity<Object> handleS3Exception(final S3Exception e, HttpServletRequest request) {
     logInfo(e.getErrorCode(), e, request);
     return handleExceptionInternal(e.getErrorCode());
   }
