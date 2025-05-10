@@ -6,9 +6,11 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 
+import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.Tuple;
 import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.dsl.Expressions;
+import com.querydsl.core.types.dsl.NumberTemplate;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 
@@ -114,6 +116,48 @@ public class StoreRepositoryCustomImpl implements StoreRepositoryCustom {
             .fetchOne();
 
     return new PageImpl<>(storeList, pageable, total);
+  }
+
+  public Page<Store> searchNearByStores(
+      Double latitude, Double longitude, String keyword, double radiusKm, Pageable pageable) {
+
+    QStore store = QStore.store;
+
+    NumberTemplate<Double> distance =
+        Expressions.numberTemplate(
+            Double.class,
+            "6371 * acos(cos(radians({0})) * cos(radians({1})) * cos(radians({2}) - radians({3})) + sin(radians({0})) * sin(radians({1})))",
+            latitude,
+            store.latitude,
+            longitude,
+            store.longitude);
+
+    BooleanBuilder builder = new BooleanBuilder();
+    builder.and(distance.loe(radiusKm)); // 반경 3km 이내
+
+    if (keyword != null && !keyword.isBlank()) {
+      String keywordNoSpace = keyword.replaceAll("\\s+", ""); // 키워드 띄어쓰기 제거
+
+      builder.and(
+          Expressions.stringTemplate("replace({0}, ' ', '')", store.name)
+              .containsIgnoreCase(keywordNoSpace)
+              .or(
+                  Expressions.stringTemplate("replace({0}, ' ', '')", store.address)
+                      .containsIgnoreCase(keywordNoSpace)));
+    }
+
+    List<Store> stores =
+        queryFactory
+            .selectFrom(store)
+            .where(builder)
+            .orderBy(store.name.asc()) // 가나다순 정렬
+            .offset(pageable.getOffset())
+            .limit(pageable.getPageSize())
+            .fetch();
+
+    long total = queryFactory.select(store.count()).from(store).where(builder).fetchOne();
+
+    return new PageImpl<>(stores, pageable, total);
   }
 
   private OrderSpecifier<?>[] getSortOrder(StoreSort sort, Double latitude, Double longitude) {

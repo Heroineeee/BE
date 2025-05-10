@@ -125,6 +125,23 @@ public class StoreController {
     return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.from(storeExternalLink));
   }
 
+  @Operation(summary = "가맹점 검색", description = "메인페이지와 가맹점 지도 화면에 해당하는 API 입니다.")
+  @GetMapping("/map")
+  public ResponseEntity<ApiResponse<Object>> geStoreMapList(
+      @Parameter(description = "인천 서구의 임의의 위도 값", example = "37.545472")
+          @RequestParam(required = false)
+          Double latitude,
+      @Parameter(description = "인천 서구의 임의의 경도 값", example = "126.676902")
+          @RequestParam(required = false)
+          Double longitude,
+      @RequestParam(required = false) String keyword,
+      @RequestParam(defaultValue = "0") int page,
+      @RequestParam(defaultValue = "10") int size) {
+    PageResponse<StoreMapListResponse> response =
+        storeService.searchStoresForMap(latitude, longitude, keyword, page, size);
+    return ResponseEntity.ok(ApiResponse.from(response));
+  }
+
   @Operation(summary = "가맹점 스크랩")
   @PostMapping("/scrap/{storeId}")
   public ResponseEntity<ApiResponse<Object>> scrapPost(

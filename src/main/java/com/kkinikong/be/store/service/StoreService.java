@@ -168,4 +168,13 @@ public class StoreService {
     storeScrapRepository.delete(storeScrap);
     return StoreScrapResponse.of(false, store.getScrapCount());
   }
+
+  public PageResponse<StoreMapListResponse> searchStoresForMap(
+      Double latitude, Double longitude, String keyword, int page, int size) {
+    Pageable pageable = PageRequest.of(page, size);
+    double searchRadiusKm = 3.0; // 항상 3km
+    Page<Store> storePage =
+        storeRepository.searchNearByStores(latitude, longitude, keyword, searchRadiusKm, pageable);
+    return PageResponse.from(storePage, StoreMapListResponse::from);
+  }
 }
