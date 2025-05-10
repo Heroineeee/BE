@@ -24,15 +24,6 @@ spring:
       token:
         expiration: ${JWT_ACCESS_TOKEN_EXPIRATION}
 
-  sql:
-    init:
-      mode: never
-      schema-locations: classpath:/org/springframework/batch/core/schema-mysql.sql
-
-  batch:
-    job:
-      enabled: false
-
   servlet:
     multipart:
       max-file-size: 10MB

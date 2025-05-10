@@ -38,7 +38,7 @@ dependencies {
 
 	// mysql
 	runtimeOnly 'com.microsoft.sqlserver:mssql-jdbc'
-	runtimeOnly 'com.mysql:mysql-connector-j'
+	runtimeOnly 'com.mysql:mysql-connector-j:8.0.33'
 
 	// test
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
@@ -57,9 +57,6 @@ dependencies {
 	implementation 'io.jsonwebtoken:jjwt-api:0.11.5'
 	implementation 'io.jsonwebtoken:jjwt-impl:0.11.5'
 	implementation 'io.jsonwebtoken:jjwt-jackson:0.11.5'
-
-	// Spring Batch
-	implementation 'org.springframework.boot:spring-boot-starter-batch'
 
 	// Spring WebFlux
 	implementation 'org.springframework.boot:spring-boot-starter-webflux'
@@ -83,6 +80,9 @@ dependencies {
 
 	// AWS S3
 	implementation 'org.springframework.cloud:spring-cloud-starter-aws:2.2.6.RELEASE'
+
+	// CSV 파싱용
+	implementation 'org.apache.commons:commons-csv:1.10.0'
 }
 
 tasks.named('test') {
