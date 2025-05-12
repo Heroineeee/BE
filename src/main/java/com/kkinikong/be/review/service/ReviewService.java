@@ -72,10 +72,12 @@ public class ReviewService {
                 .build());
 
     updateReviewCountAndRatingAvg(request.rating(), store);
-    updateTagCount(storeId, request.tag(), store, false);
 
-    for (Tag tag : request.tag()) {
-      reviewTagRepository.save(ReviewTag.builder().review(savedReview).tag(tag).build());
+    if (request.tag() != null) {
+      updateTagCount(storeId, request.tag(), store, false);
+      for (Tag tag : request.tag()) {
+        reviewTagRepository.save(ReviewTag.builder().review(savedReview).tag(tag).build());
+      }
     }
 
     return new ReviewPostResponse(savedReview.getId());
@@ -157,9 +159,11 @@ public class ReviewService {
 
     List<Tag> tags =
         reviewTagRepository.findAllByReviewId(reviewId).stream().map(ReviewTag::getTag).toList();
-    updateTagCount(storeId, tags, store, true);
 
-    reviewTagRepository.deleteByReviewId(reviewId);
+    if (!tags.isEmpty()) {
+      updateTagCount(storeId, tags, store, true);
+      reviewTagRepository.deleteByReviewId(reviewId);
+    }
 
     reviewRepository.delete(review);
   }
@@ -173,10 +177,6 @@ public class ReviewService {
    * @param isDelete
    */
   private void updateTagCount(Long storeId, List<Tag> tags, Store store, Boolean isDelete) {
-    if (tags == null) {
-      return;
-    }
-
     for (Tag tag : tags) {
       StoreTagCount tagCount =
           storeTagCountRepository
