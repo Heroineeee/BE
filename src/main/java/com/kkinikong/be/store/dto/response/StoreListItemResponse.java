@@ -1,5 +1,8 @@
 package com.kkinikong.be.store.dto.response;
 
+import jakarta.annotation.Nullable;
+
+import com.kkinikong.be.review.domain.type.Tag;
 import com.kkinikong.be.store.domain.Store;
 
 public record StoreListItemResponse(
@@ -9,10 +12,10 @@ public record StoreListItemResponse(
     String category,
     double ratingAvg,
     long scrapCount,
-    String representativeTag,
+    @Nullable String representativeTag,
     Boolean isScrapped) {
 
-  public static StoreListItemResponse from(Store store, String representativeTag) {
+  public static StoreListItemResponse from(Store store, Tag representativeTag) {
     return new StoreListItemResponse(
         store.getId(),
         store.getName(),
@@ -20,7 +23,7 @@ public record StoreListItemResponse(
         store.getCategory().getLabel(),
         store.getRatingAvg(),
         store.getScrapCount(),
-        representativeTag,
+        representativeTag == null ? null : representativeTag.getLabel(),
         store.getIsScrapped());
   }
 }

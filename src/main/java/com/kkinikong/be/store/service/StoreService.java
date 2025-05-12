@@ -1,6 +1,5 @@
 package com.kkinikong.be.store.service;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -64,20 +63,14 @@ public class StoreService {
 
     // 가맹점 ID 리스트 뽑아 태그 조회
     List<Long> storeIds = storePage.getContent().stream().map(Store::getId).toList();
-    Map<Long, String> tagMap = new HashMap<>();
-    storeIds.forEach(
-        storeId -> {
-          storeTagCountRepository
-              .findRepresentativeTagByStoreId(storeId)
-              .ifPresent(
-                  tag -> {
-                    ;
-                    tagMap.put(storeId, tag.getLabel());
-                  }); // 태그가 없으면 null로 처리
-        });
+
+    Map<Long, Tag> representativeTagByStoreIdList =
+        storeTagCountRepository.findRepresentativeTagByStoreIdList(storeIds);
 
     return PageResponse.from(
-        storePage, store -> StoreListItemResponse.from(store, tagMap.get(store.getId())));
+        storePage,
+        store ->
+            StoreListItemResponse.from(store, representativeTagByStoreIdList.get(store.getId())));
   }
 
   public PageResponse<StoreMapItemResponse> getStoreListWithMap(
