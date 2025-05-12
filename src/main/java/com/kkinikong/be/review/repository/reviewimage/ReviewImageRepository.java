@@ -1,4 +1,4 @@
-package com.kkinikong.be.review.repository;
+package com.kkinikong.be.review.repository.reviewimage;
 
 import java.util.Optional;
 
@@ -8,7 +8,8 @@ import org.springframework.stereotype.Repository;
 import com.kkinikong.be.review.domain.ReviewImage;
 
 @Repository
-public interface ReviewImageRepository extends JpaRepository<ReviewImage, Long> {
+public interface ReviewImageRepository
+    extends JpaRepository<ReviewImage, Long>, ReviewImageCustomRepository {
 
   Optional<ReviewImage> findByReviewId(long reviewId);
 }

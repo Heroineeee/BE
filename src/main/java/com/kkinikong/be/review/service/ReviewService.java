@@ -1,6 +1,8 @@
 package com.kkinikong.be.review.service;
 
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -24,9 +26,9 @@ import com.kkinikong.be.review.dto.response.ReviewListItemResponse;
 import com.kkinikong.be.review.dto.response.ReviewPostResponse;
 import com.kkinikong.be.review.exception.ReviewException;
 import com.kkinikong.be.review.exception.errorcode.ReviewErrorCode;
-import com.kkinikong.be.review.repository.ReviewImageRepository;
 import com.kkinikong.be.review.repository.ReviewRepository;
-import com.kkinikong.be.review.repository.ReviewTagRepository;
+import com.kkinikong.be.review.repository.reviewimage.ReviewImageRepository;
+import com.kkinikong.be.review.repository.reviewtag.ReviewTagRepository;
 import com.kkinikong.be.store.domain.Store;
 import com.kkinikong.be.store.domain.StoreTagCount;
 import com.kkinikong.be.store.exception.StoreException;
@@ -103,16 +105,24 @@ public class ReviewService {
 
     Page<Review> reviewPage = reviewRepository.findReviewsByStoreId(storeId, pageable);
 
+    List<Long> reviewIds = reviewPage.getContent().stream().map(Review::getId).toList();
+
+    // 리뷰 작성자 Map
+    Map<Long, User> reviewUserByReviewIds =
+        reviewPage.getContent().stream().collect(Collectors.toMap(Review::getId, Review::getUser));
+
+    // 이미지 Map
+    Map<Long, String> reviewImageByReviewIds =
+        reviewImageRepository.getReviewImageByReviewIds(reviewIds);
+
+    // 태그 Map
+    Map<Long, List<Tag>> reviewTagsByReviewIds =
+        reviewTagRepository.getReviewTagsByReviewIds(reviewIds);
+
     PageResponse<ReviewItemResponse> pageResponse =
         PageResponse.from(
             reviewPage,
             review -> {
-              String imageUrl =
-                  reviewImageRepository
-                      .findByReviewId(review.getId())
-                      .map(ReviewImage::getImageUrl)
-                      .orElse(null);
-
               User user = review.getUser();
 
               Boolean isOwner = null;
@@ -120,19 +130,11 @@ public class ReviewService {
                 isOwner = review.getUser().getId().equals(userId);
               }
 
-              List<String> tags =
-                  reviewTagRepository.findAllByReviewId(review.getId()).stream()
-                      .map(ReviewTag::getTag)
-                      .map(Tag::getLabel)
-                      .toList();
-
               return ReviewItemResponse.from(
-                  user.getNickname(),
-                  review.getCreatedDate().toLocalDate(),
-                  review.getRating(),
-                  tags,
-                  review.getContent(),
-                  imageUrl,
+                  reviewUserByReviewIds.get(review.getId()).getNickname(),
+                  review,
+                  reviewTagsByReviewIds.get(review.getId()),
+                  reviewImageByReviewIds.get(review.getId()),
                   isOwner);
             });
 
