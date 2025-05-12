@@ -1,5 +1,7 @@
 package com.kkinikong.be.review.service;
 
+import java.util.List;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -14,6 +16,7 @@ import lombok.extern.slf4j.Slf4j;
 import com.kkinikong.be.global.response.PageResponse;
 import com.kkinikong.be.review.domain.Review;
 import com.kkinikong.be.review.domain.ReviewImage;
+import com.kkinikong.be.review.domain.ReviewTag;
 import com.kkinikong.be.review.domain.type.Tag;
 import com.kkinikong.be.review.dto.request.ReviewRequest;
 import com.kkinikong.be.review.dto.response.ReviewItemResponse;
@@ -23,6 +26,7 @@ import com.kkinikong.be.review.exception.ReviewException;
 import com.kkinikong.be.review.exception.errorcode.ReviewErrorCode;
 import com.kkinikong.be.review.repository.ReviewImageRepository;
 import com.kkinikong.be.review.repository.ReviewRepository;
+import com.kkinikong.be.review.repository.ReviewTagRepository;
 import com.kkinikong.be.store.domain.Store;
 import com.kkinikong.be.store.domain.StoreTagCount;
 import com.kkinikong.be.store.exception.StoreException;
@@ -45,6 +49,7 @@ public class ReviewService {
   private final StoreTagCountRepository storeTagCountRepository;
   private final ReviewRepository reviewRepository;
   private final ReviewImageRepository reviewImageRepository;
+  private final ReviewTagRepository reviewTagRepository;
 
   private final ReviewImageService reviewImageService;
 
@@ -68,6 +73,10 @@ public class ReviewService {
 
     updateReviewCountAndRatingAvg(request.rating(), store);
     updateTagCount(storeId, request.tag(), store);
+
+    for (Tag tag : request.tag()) {
+      reviewTagRepository.save(ReviewTag.builder().review(savedReview).tag(tag).build());
+    }
 
     return new ReviewPostResponse(savedReview.getId());
   }
@@ -109,10 +118,17 @@ public class ReviewService {
                 isOwner = review.getUser().getId().equals(userId);
               }
 
+              List<String> tags =
+                  reviewTagRepository.findAllByReviewId(review.getId()).stream()
+                      .map(ReviewTag::getTag)
+                      .map(Tag::getLabel)
+                      .toList();
+
               return ReviewItemResponse.from(
                   user.getNickname(),
                   review.getCreatedDate().toLocalDate(),
                   review.getRating(),
+                  tags,
                   review.getContent(),
                   imageUrl,
                   isOwner);
