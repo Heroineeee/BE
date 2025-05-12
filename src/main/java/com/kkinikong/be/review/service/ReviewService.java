@@ -153,10 +153,10 @@ public class ReviewService {
               reviewImageRepository.delete(image);
             });
 
+    updateReviewCountAndRatingAvgOnDelete(review.getRating(), store);
+
     List<Tag> tags =
         reviewTagRepository.findAllByReviewId(reviewId).stream().map(ReviewTag::getTag).toList();
-
-    updateReviewCountAndRatingAvgOnDelete(review.getRating(), store);
     updateTagCount(storeId, tags, store, true);
 
     reviewTagRepository.deleteByReviewId(reviewId);
@@ -164,6 +164,14 @@ public class ReviewService {
     reviewRepository.delete(review);
   }
 
+  /**
+   * 리뷰 작성, 삭제 시 태그 카운트 업데이트
+   *
+   * @param storeId
+   * @param tags
+   * @param store
+   * @param isDelete
+   */
   private void updateTagCount(Long storeId, List<Tag> tags, Store store, Boolean isDelete) {
     if (tags == null) {
       return;
@@ -174,9 +182,11 @@ public class ReviewService {
           storeTagCountRepository
               .findByStoreIdAndTag(storeId, tag)
               .orElseGet(
-                  () ->
-                      storeTagCountRepository.save(
-                          StoreTagCount.builder().store(store).tag(tag).build()));
+                  () -> {
+                    return storeTagCountRepository.save(
+                        StoreTagCount.builder().store(store).tag(tag).build());
+                  });
+
       if (isDelete) {
         tagCount.decrementCount();
       } else {
@@ -185,6 +195,12 @@ public class ReviewService {
     }
   }
 
+  /**
+   * 리뷰 작성 시 리뷰 수와 평점 평균 업데이트
+   *
+   * @param rating
+   * @param store
+   */
   private static void updateReviewCountAndRatingAvg(int rating, Store store) {
     long currentReviewCount = store.getReviewCount();
     double currentAvg = store.getRatingAvg();
@@ -200,6 +216,12 @@ public class ReviewService {
     store.updateRatingAvg(newAvg);
   }
 
+  /**
+   * 리뷰 삭제 시 리뷰 수와 평점 평균 업데이트
+   *
+   * @param rating
+   * @param store
+   */
   private static void updateReviewCountAndRatingAvgOnDelete(int rating, Store store) {
     long currentReviewCount = store.getReviewCount();
     double currentAvg = store.getRatingAvg();

@@ -44,7 +44,7 @@ public class StoreTagCount extends BaseEntity {
   @Column(name = "tag", nullable = false)
   private Tag tag;
 
-  private Long count = 0L;
+  private Long count = 1L;
 
   public void incrementCount() {
     this.count++;
