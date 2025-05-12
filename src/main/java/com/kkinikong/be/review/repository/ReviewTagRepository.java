@@ -11,4 +11,6 @@ import com.kkinikong.be.review.domain.ReviewTag;
 public interface ReviewTagRepository extends JpaRepository<ReviewTag, Long> {
 
   List<ReviewTag> findAllByReviewId(Long reviewId);
+
+  void deleteByReviewId(Long reviewId);
 }

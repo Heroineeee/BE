@@ -72,7 +72,7 @@ public class ReviewService {
                 .build());
 
     updateReviewCountAndRatingAvg(request.rating(), store);
-    updateTagCount(storeId, request.tag(), store);
+    updateTagCount(storeId, request.tag(), store, false);
 
     for (Tag tag : request.tag()) {
       reviewTagRepository.save(ReviewTag.builder().review(savedReview).tag(tag).build());
@@ -153,15 +153,18 @@ public class ReviewService {
               reviewImageRepository.delete(image);
             });
 
-    updateReviewCountAndRatingAvgOnDelete(review.getRating(), store);
+    List<Tag> tags =
+        reviewTagRepository.findAllByReviewId(reviewId).stream().map(ReviewTag::getTag).toList();
 
-    // 추후 태그를 리뷰마다 저장한다면 여기서 태그 카운트도 줄여야 함
-    // 현재는 리뷰 삭제 시 태그 카운트 줄이지 않음
+    updateReviewCountAndRatingAvgOnDelete(review.getRating(), store);
+    updateTagCount(storeId, tags, store, true);
+
+    reviewTagRepository.deleteByReviewId(reviewId);
 
     reviewRepository.delete(review);
   }
 
-  private void updateTagCount(Long storeId, Tag[] tags, Store store) {
+  private void updateTagCount(Long storeId, List<Tag> tags, Store store, Boolean isDelete) {
     if (tags == null) {
       return;
     }
@@ -174,7 +177,11 @@ public class ReviewService {
                   () ->
                       storeTagCountRepository.save(
                           StoreTagCount.builder().store(store).tag(tag).build()));
-      tagCount.incrementCount();
+      if (isDelete) {
+        tagCount.decrementCount();
+      } else {
+        tagCount.incrementCount();
+      }
     }
   }
 
