@@ -83,6 +83,11 @@ public class StoreService {
   public PageResponse<StoreMapListItemResponse> getStoreListWithMap(
       Double latitude, Double longitude, Category category, int page, int size, Long userId) {
 
+    if (latitude == null || longitude == null) {
+      latitude = DEFAULT_LATITUDE;
+      longitude = DEFAULT_LONGITUDE;
+    }
+
     Pageable pageable = PageRequest.of(page, size);
 
     Page<Store> storePage =

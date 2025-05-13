@@ -23,6 +23,8 @@ import com.kkinikong.be.store.domain.type.StoreSort;
 @RequiredArgsConstructor
 public class StoreRepositoryCustomImpl implements StoreRepositoryCustom {
 
+  private static final double DEFAULT_RADIUS_METERS = 5000.0;
+
   private final JPAQueryFactory queryFactory;
   private final QStore store = QStore.store;
   private final QStoreScrap storeScrap = QStoreScrap.storeScrap;
@@ -35,21 +37,8 @@ public class StoreRepositoryCustomImpl implements StoreRepositoryCustom {
       StoreSort sort,
       Pageable pageable,
       Long userId) {
-
-    NumberTemplate<Double> distanceExpression = null;
     BooleanBuilder whereBuilder = new BooleanBuilder();
-
-    if (latitude != null && longitude != null) {
-      distanceExpression =
-          Expressions.numberTemplate(
-              Double.class,
-              "ST_Distance_Sphere(POINT({0}, {1}), POINT({2}, {3}))",
-              store.longitude,
-              store.latitude,
-              longitude,
-              latitude);
-      whereBuilder.and(distanceExpression.loe(5000)); // 5km 반경
-    }
+    whereBuilder.and(buildDistanceCondition(latitude, longitude, DEFAULT_RADIUS_METERS));
 
     if (category != null) {
       whereBuilder.and(store.category.eq(category));
@@ -95,11 +84,13 @@ public class StoreRepositoryCustomImpl implements StoreRepositoryCustom {
   @Override
   public Page<Store> findStoresByDistanceOrName(
       Double latitude, Double longitude, Category category, Pageable pageable, Long userId) {
-    boolean useDistance = (latitude != null && longitude != null);
-    OrderSpecifier<?>[] sortOrder =
-        useDistance
-            ? getDistanceOrder(latitude, longitude)
-            : new OrderSpecifier[] {store.name.asc()};
+
+    BooleanBuilder whereBuilder = new BooleanBuilder();
+    whereBuilder.and(buildDistanceCondition(latitude, longitude, DEFAULT_RADIUS_METERS));
+    if (category != null) {
+      whereBuilder.and(store.category.eq(category));
+    }
+    OrderSpecifier<?>[] sortOrder = getDistanceOrder(latitude, longitude);
 
     List<Tuple> tuples =
         queryFactory
@@ -145,39 +136,8 @@ public class StoreRepositoryCustomImpl implements StoreRepositoryCustom {
       double radiusKm,
       Pageable pageable,
       Long userId) {
-
-    QStore store = QStore.store;
-
-    NumberTemplate<Double> distance =
-        Expressions.numberTemplate(
-            Double.class,
-            "6371 * acos(cos(radians({0})) * cos(radians({1})) * cos(radians({2}) - radians({3})) + sin(radians({0})) * sin(radians({1})))",
-            latitude,
-            store.latitude,
-            longitude,
-            store.longitude);
-
-    BooleanBuilder builder = new BooleanBuilder();
-    builder.and(distance.loe(radiusKm)); // 반경 3km 이내
-
-    if (keyword != null && !keyword.isBlank()) {
-      String keywordNoSpace = keyword.replaceAll("\\s+", ""); // 키워드 띄어쓰기 제거
-      Category matchedCategory = Category.fromLabel(keywordNoSpace);
-
-      BooleanBuilder keywordBuilder = new BooleanBuilder();
-      keywordBuilder.or(
-          Expressions.stringTemplate("replace({0}, ' ', '')", store.name)
-              .containsIgnoreCase(keywordNoSpace));
-      keywordBuilder.or(
-          Expressions.stringTemplate("replace({0}, ' ', '')", store.address)
-              .containsIgnoreCase(keywordNoSpace));
-
-      if (matchedCategory != null) {
-        keywordBuilder.or(store.category.eq(matchedCategory));
-      }
-
-      builder.and(keywordBuilder);
-    }
+    BooleanBuilder whereBuilder = new BooleanBuilder();
+    whereBuilder.and(buildDistanceCondition(latitude, longitude, DEFAULT_RADIUS_METERS));
     List<Tuple> tuples =
         queryFactory
             .select(store, storeScrap.id)
@@ -188,7 +148,7 @@ public class StoreRepositoryCustomImpl implements StoreRepositoryCustom {
                     .store
                     .eq(store)
                     .and(userId != null ? storeScrap.user.id.eq(userId) : null))
-            .where(builder)
+            .where(whereBuilder)
             .orderBy(store.name.asc()) // 가나다순 정렬
             .offset(pageable.getOffset())
             .limit(pageable.getPageSize())
@@ -205,9 +165,26 @@ public class StoreRepositoryCustomImpl implements StoreRepositoryCustom {
                 })
             .toList();
 
-    long total = queryFactory.select(store.count()).from(store).where(builder).fetchOne();
+    long total = queryFactory.select(store.count()).from(store).where(whereBuilder).fetchOne();
 
     return new PageImpl<>(storeList, pageable, total);
+  }
+
+  private BooleanBuilder buildDistanceCondition(
+      Double latitude, Double longitude, double radiusMeters) {
+    if (latitude == null || longitude == null) {
+      return new BooleanBuilder();
+    }
+
+    NumberTemplate<Double> distanceExpression =
+        Expressions.numberTemplate(
+            Double.class,
+            "ST_Distance_Sphere(POINT({0}, {1}), POINT({2}, {3}))",
+            store.longitude,
+            store.latitude,
+            longitude,
+            latitude);
+    return new BooleanBuilder(distanceExpression.loe(radiusMeters));
   }
 
   private OrderSpecifier<?>[] getSortOrder(StoreSort sort, Double latitude, Double longitude) {
