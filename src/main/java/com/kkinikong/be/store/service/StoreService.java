@@ -79,7 +79,7 @@ public class StoreService {
   }
 
   public StoreInfoResponse getStoreInfo(Long storeId) {
-    Store store = findStoreOrThrow(storeId);
+    Store store = getStoreOrThrow(storeId);
 
     storeCacheService.increaseViewCounts(storeId);
 
@@ -98,7 +98,7 @@ public class StoreService {
 
   @Cacheable(value = "store-ids", key = "#storeId", unless = "#result == null")
   public StoreExternalLinkResponse getStoreExternalLink(Long storeId) {
-    Store store = findStoreOrThrow(storeId);
+    Store store = getStoreOrThrow(storeId);
 
     String kakaoPlaceId = fetchAndCacheKakaoPlaceId(store);
     boolean hasInfo = !NO_INFO.equals(kakaoPlaceId);
@@ -129,29 +129,16 @@ public class StoreService {
     return "https://map.naver.com/v5/search/" + placeName;
   }
 
-  private Store findStoreOrThrow(Long storeId) {
-    return storeRepository
-        .findStoreById(storeId)
-        .orElseThrow(() -> new StoreException(StoreErrorCode.STORE_NOT_FOUND));
-  }
-
   @Transactional
   public StoreScrapResponse addScrap(Long storeId, Long userId) {
-    User user =
-        userRepository
-            .findUserById(userId)
-            .orElseThrow(() -> new UserException(UserErrorCode.USER_NOT_FOUND));
-    Store store =
-        storeRepository
-            .findById(storeId)
-            .orElseThrow(() -> new StoreException(StoreErrorCode.STORE_NOT_FOUND));
+    User user = getUserOrThrow(userId);
+    Store store = getStoreOrThrow(storeId);
 
     boolean alreadyExists =
         storeScrapRepository.findByStoreIdAndUserId(storeId, userId).isPresent();
     if (alreadyExists) {
       throw new StoreException(StoreErrorCode.ALREADY_SCRAPPED);
     }
-
     store.increaseScrapCount();
     storeScrapRepository.save(new StoreScrap(user, store));
     return StoreScrapResponse.of(true, store.getScrapCount());
@@ -159,10 +146,7 @@ public class StoreService {
 
   @Transactional
   public StoreScrapResponse removeScrap(Long storeId, Long userId) {
-    StoreScrap storeScrap =
-        storeScrapRepository
-            .findByStoreIdAndUserId(storeId, userId)
-            .orElseThrow(() -> new StoreException(StoreErrorCode.SCRAP_NOT_FOUND));
+    StoreScrap storeScrap = getStoreScrapOrThrow(storeId, userId);
     Store store = storeScrap.getStore();
     store.decreaseScrapCount();
     storeScrapRepository.delete(storeScrap);
@@ -177,5 +161,23 @@ public class StoreService {
         storeRepository.searchNearByStores(
             latitude, longitude, keyword, searchRadiusKm, pageable, userId);
     return PageResponse.from(storePage, StoreMapListItemResponse::from);
+  }
+
+  private User getUserOrThrow(Long userId) {
+    return userRepository
+        .findById(userId)
+        .orElseThrow(() -> new UserException(UserErrorCode.USER_NOT_FOUND));
+  }
+
+  private Store getStoreOrThrow(Long storeId) {
+    return storeRepository
+        .findById(storeId)
+        .orElseThrow(() -> new StoreException(StoreErrorCode.STORE_NOT_FOUND));
+  }
+
+  private StoreScrap getStoreScrapOrThrow(Long storeId, Long userId) {
+    return storeScrapRepository
+        .findByStoreIdAndUserId(storeId, userId)
+        .orElseThrow(() -> new StoreException(StoreErrorCode.SCRAP_NOT_FOUND));
   }
 }
