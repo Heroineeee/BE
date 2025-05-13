@@ -32,14 +32,13 @@ public class StoreController {
       summary = "가맹점 찾기 화면 리스트 조회",
       description =
           """
+  - GPS 설정을 하지 않았을 경우 : 기본 값인 인천 서구 중심 좌표 기준 5km 반경 가맹점 조회
+  - GPS 설정을 하였을 경우 : 사용자의 위치를 기반으로 주변 반경 5km 의 가맹점 조회
   - 정렬 조건은 가까운 순(DISTANCE), 별점 높은 순(RATING), 리뷰 많은 순(REVIEW_COUNT), 조회수 순(VIEW_COUNT) 중 선택
   - category를 선택하지 않으면 전체 가맹점 조회
   - 필터링 결과가 동일할 경우, 이름 가나다순으로 정렬
-  - 정렬 조건이 DISTANCE이고 위도/경도가 없을 경우, 요청은 예외 처리됨
   - 로그인한 유저는 isScrapped 가 true/false 로 반환
   - 로그인하지 않은 경우, isScrapped는 null로 응답
-  - 페이지 번호는 0부터 시작
-  - 페이지 크기(size)는 기본 10개이며, 조정 가능
                   """)
   @GetMapping("/list")
   public ResponseEntity<ApiResponse<Object>> getStoresList(
@@ -50,13 +49,10 @@ public class StoreController {
           @RequestParam(required = false)
           Double longitude,
       @RequestParam(required = false) Category category,
-      @RequestParam(defaultValue = "VIEW_COUNT") StoreSort sort,
+      @RequestParam StoreSort sort,
       @RequestParam(defaultValue = "0") int page,
       @RequestParam(defaultValue = "10") int size,
       @AuthenticationPrincipal CustomUserDetails userDetails) {
-    if (sort == StoreSort.DISTANCE && (latitude == null || longitude == null)) {
-      throw new StoreException(StoreErrorCode.MISSING_GPS_FOR_DISTANCE);
-    }
     Long userId = (userDetails != null) ? userDetails.getId() : null;
     PageResponse<StoreListItemResponse> response =
         storeService.getStoreList(latitude, longitude, category, sort, page, size, userId);
@@ -67,13 +63,11 @@ public class StoreController {
       summary = "가맹점 지도 화면 리스트 조회",
       description =
           """
-  - GPS를 포함하면 가까운 순으로 자동 정렬
-  - GPS가 없으면 category 기준으로 이름 가나다순 정렬
+  - GPS 설정을 하지 않았을 경우 : 기본 값은 인천 서구 중심 좌표 기준 5km 반경 가맹점 조회 & 카테고리 기준 이름 가나다 정렬
+  - GPS 설정을 하였을 경우 : 사용자의 위치를 기반으로 주변 반경 5km 의 가맹점 조회 & 가까운 순으로 정렬
   - category를 선택하지 않으면 전체 가맹점 조회
   - 로그인한 유저는 isScrapped 필드가 true/false로 반환
   - 로그인하지 않은 경우, isScrapped는 null로 반환
-  - 페이지 번호는 0부터 시작
-  - 페이지 크기(size)는 기본 10개이며, 조정 가능
 """)
   @GetMapping("/list/map")
   public ResponseEntity<ApiResponse<Object>> getStoresMapList(

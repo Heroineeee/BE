@@ -28,13 +28,33 @@ public class StoreRepositoryCustomImpl implements StoreRepositoryCustom {
   private final QStoreScrap storeScrap = QStoreScrap.storeScrap;
 
   @Override
-  public Page<Store> findStoresForSorted(
+  public Page<Store> findStoresBySort(
       Double latitude,
       Double longitude,
       Category category,
       StoreSort sort,
       Pageable pageable,
       Long userId) {
+
+    NumberTemplate<Double> distanceExpression = null;
+    BooleanBuilder whereBuilder = new BooleanBuilder();
+
+    if (latitude != null && longitude != null) {
+      distanceExpression =
+          Expressions.numberTemplate(
+              Double.class,
+              "ST_Distance_Sphere(POINT({0}, {1}), POINT({2}, {3}))",
+              store.longitude,
+              store.latitude,
+              longitude,
+              latitude);
+      whereBuilder.and(distanceExpression.loe(5000)); // 5km 반경
+    }
+
+    if (category != null) {
+      whereBuilder.and(store.category.eq(category));
+    }
+
     List<Tuple> tuples =
         queryFactory
             .select(store, storeScrap.id)
@@ -45,7 +65,7 @@ public class StoreRepositoryCustomImpl implements StoreRepositoryCustom {
                     .store
                     .eq(store)
                     .and(userId != null ? storeScrap.user.id.eq(userId) : null))
-            .where(category == null ? null : store.category.eq(category))
+            .where(whereBuilder)
             .orderBy(getSortOrder(sort, latitude, longitude))
             .offset(pageable.getOffset())
             .limit(pageable.getPageSize())

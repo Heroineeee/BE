@@ -47,6 +47,8 @@ public class StoreService {
   private final StoreTagCountRepository storeTagCountRepository;
 
   private static final String NO_INFO = "NO_INFO";
+  private static final double DEFAULT_LATITUDE = 37.545472;
+  private static final double DEFAULT_LONGITUDE = 126.676902;
 
   public PageResponse<StoreListItemResponse> getStoreList(
       Double latitude,
@@ -56,10 +58,15 @@ public class StoreService {
       int page,
       int size,
       Long userId) {
+    if (latitude == null || longitude == null) {
+      latitude = DEFAULT_LATITUDE;
+      longitude = DEFAULT_LONGITUDE;
+    }
+
     Pageable pageable = PageRequest.of(page, size);
 
     Page<Store> storePage =
-        storeRepository.findStoresForSorted(latitude, longitude, category, sort, pageable, userId);
+        storeRepository.findStoresBySort(latitude, longitude, category, sort, pageable, userId);
 
     // 가맹점 ID 리스트 뽑아 태그 조회
     List<Long> storeIds = storePage.getContent().stream().map(Store::getId).toList();

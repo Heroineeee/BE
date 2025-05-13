@@ -9,7 +9,7 @@ import com.kkinikong.be.store.domain.type.StoreSort;
 
 public interface StoreRepositoryCustom {
 
-  Page<Store> findStoresForSorted(
+  Page<Store> findStoresBySort(
       Double latitude,
       Double longitude,
       Category category,
