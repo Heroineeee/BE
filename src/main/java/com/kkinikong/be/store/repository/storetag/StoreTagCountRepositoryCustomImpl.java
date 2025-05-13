@@ -36,7 +36,7 @@ public class StoreTagCountRepositoryCustomImpl implements StoreTagCountRepositor
 
   @Override
   public Map<Long, Tag> findRepresentativeTagByStoreIdList(List<Long> storeIds) {
-    QStoreTagCount storeTagCount = QStoreTagCount.toreTagCount;
+    QStoreTagCount storeTagCount = QStoreTagCount.storeTagCount;
 
     List<StoreTagCount> results =
         queryFactory
