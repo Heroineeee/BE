@@ -13,6 +13,4 @@ public interface StoreScrapRepository
   List<StoreScrap> store(Store store);
 
   Optional<StoreScrap> findByStoreIdAndUserId(Long storeId, Long userId);
-
-  Long store(Store store);
 }
