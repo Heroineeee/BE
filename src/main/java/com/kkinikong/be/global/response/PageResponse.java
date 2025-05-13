@@ -1,4 +1,4 @@
-package com.kkinikong.be.store.dto.response;
+package com.kkinikong.be.global.response;
 
 import java.util.List;
 import java.util.function.Function;
