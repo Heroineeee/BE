@@ -11,6 +11,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 
 import com.kkinikong.be.global.response.ApiResponse;
+import com.kkinikong.be.global.response.PageResponse;
 import com.kkinikong.be.store.domain.type.Category;
 import com.kkinikong.be.store.domain.type.StoreSort;
 import com.kkinikong.be.store.dto.response.*;

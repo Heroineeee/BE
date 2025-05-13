@@ -17,8 +17,9 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
 import com.kkinikong.be.global.response.ApiResponse;
+import com.kkinikong.be.report.domain.type.CommonReportReason;
 import com.kkinikong.be.report.domain.type.StoreReportReason;
-import com.kkinikong.be.report.dto.request.ReportStoreRequest;
+import com.kkinikong.be.report.dto.request.ReportRequest;
 import com.kkinikong.be.report.service.ReportService;
 import com.kkinikong.be.user.utils.CustomUserDetails;
 
@@ -41,14 +42,36 @@ public class ReportController {
       - ETC를 선택하지 않은 경우, description은 내용이 있더라도 null로 전달되며 requestBody를 비워서 보내도 됩니다.
       - 이미 신고한 가게인 경우, REPORT_ALREAY_EXISTS 400 에러를 반환합니다.
       """)
-  @PostMapping("/{storeId}")
+  @PostMapping("store/{storeId}")
   public ResponseEntity<ApiResponse<Object>> reportStore(
       @PathVariable("storeId") Long storeId,
       @RequestParam StoreReportReason reason,
-      @RequestBody @Nullable @Valid ReportStoreRequest reportStoreRequest,
+      @RequestBody @Nullable @Valid ReportRequest reportRequest,
       @AuthenticationPrincipal CustomUserDetails userDetails) {
 
-    reportService.reportStore(storeId, reason, reportStoreRequest, userDetails.getId());
+    reportService.reportStore(storeId, reason, reportRequest, userDetails.getId());
+
+    return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.EMPTY_RESPONSE);
+  }
+
+  @Operation(
+      summary = "리뷰 신고하기",
+      description =
+          """
+      - reason은 "ABUSIVE_LANGUAGE", "FAKE_INFO", "SPAM", "CLOSED", "PRIVACY" 중에서 선택해주세요.
+      - ETC를 선택한 경우, description을 입력해주세요.
+      - description은 500자 이내로 작성해주세요.
+      - ETC를 선택하지 않은 경우, description은 내용이 있더라도 null로 전달되며 requestBody를 비워서 보내도 됩니다.
+      - 이미 신고한 가게인 경우, REPORT_ALREADY_EXISTS 400 에러를 반환합니다.
+      """)
+  @PostMapping("review/{reviewId}")
+  public ResponseEntity<ApiResponse<Object>> reportReview(
+      @PathVariable("reviewId") Long reviewId,
+      @RequestParam CommonReportReason reason,
+      @RequestBody @Nullable @Valid ReportRequest reportRequest,
+      @AuthenticationPrincipal CustomUserDetails userDetails) {
+
+    reportService.reportReview(reviewId, reason, reportRequest, userDetails.getId());
 
     return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.EMPTY_RESPONSE);
   }

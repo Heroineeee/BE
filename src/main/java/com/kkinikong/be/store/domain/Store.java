@@ -76,6 +76,18 @@ public class Store extends BaseEntity {
     this.scrapCount = Math.max(0, this.scrapCount - 1);
   }
 
+  public void increaseReviewCount() {
+    this.reviewCount++;
+  }
+
+  public void decreaseReviewCount() {
+    this.reviewCount = Math.max(0, this.reviewCount - 1);
+  }
+
+  public void updateRatingAvg(double ratingAvg) {
+    this.ratingAvg = ratingAvg;
+  }
+
   @OneToMany(mappedBy = "store", cascade = CascadeType.ALL, orphanRemoval = true)
   private List<Review> reviewList = new ArrayList<>();
 
