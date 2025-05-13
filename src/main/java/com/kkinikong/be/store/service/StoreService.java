@@ -48,7 +48,7 @@ public class StoreService {
 
   private static final String NO_INFO = "NO_INFO";
 
-  public PageResponse<StoreListItemResponse> getStoreListWithTag(
+  public PageResponse<StoreListItemResponse> getStoreList(
       Double latitude,
       Double longitude,
       Category category,

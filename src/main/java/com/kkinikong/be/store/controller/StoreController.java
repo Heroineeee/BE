@@ -59,7 +59,7 @@ public class StoreController {
     }
     Long userId = (userDetails != null) ? userDetails.getId() : null;
     PageResponse<StoreListItemResponse> response =
-        storeService.getStoreListWithTag(latitude, longitude, category, sort, page, size, userId);
+        storeService.getStoreList(latitude, longitude, category, sort, page, size, userId);
     return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.from(response));
   }
 
