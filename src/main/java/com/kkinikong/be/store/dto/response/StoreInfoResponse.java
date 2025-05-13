@@ -16,9 +16,9 @@ public record StoreInfoResponse(
     String representativeTag,
     String storeAddress,
     Map<String, List<String>> storeWeeklyOpeningHours,
-    Long storeScrapCount,
+    long storeScrapCount,
     LocalDate storeUpdatedDate,
-    Long storeReviewCount,
+    long storeReviewCount,
     Double storeRating) {
 
   public static StoreInfoResponse from(
