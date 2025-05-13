@@ -67,7 +67,7 @@ public class StoreService {
         storePage, store -> StoreListItemResponse.from(store, tagMap.get(store.getId())));
   }
 
-  public PageResponse<StoreMapListResponse> getStoreListWithMap(
+  public PageResponse<StoreMapListItemResponse> getStoreListWithMap(
       Double latitude, Double longitude, Category category, int page, int size, Long userId) {
 
     Pageable pageable = PageRequest.of(page, size);
@@ -75,7 +75,7 @@ public class StoreService {
     Page<Store> storePage =
         storeRepository.findStoresByDistanceOrName(latitude, longitude, category, pageable, userId);
 
-    return PageResponse.from(storePage, StoreMapListResponse::from);
+    return PageResponse.from(storePage, StoreMapListItemResponse::from);
   }
 
   public StoreInfoResponse getStoreInfo(Long storeId) {
@@ -169,13 +169,13 @@ public class StoreService {
     return StoreScrapResponse.of(false, store.getScrapCount());
   }
 
-  public PageResponse<StoreMapListResponse> searchStoresForMap(
+  public PageResponse<StoreMapListItemResponse> searchStoresForMap(
       Double latitude, Double longitude, String keyword, int page, int size, Long userId) {
     Pageable pageable = PageRequest.of(page, size);
     double searchRadiusKm = 3.0; // 항상 3km
     Page<Store> storePage =
         storeRepository.searchNearByStores(
             latitude, longitude, keyword, searchRadiusKm, pageable, userId);
-    return PageResponse.from(storePage, StoreMapListResponse::from);
+    return PageResponse.from(storePage, StoreMapListItemResponse::from);
   }
 }

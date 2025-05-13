@@ -87,7 +87,7 @@ public class StoreController {
       @RequestParam(defaultValue = "10") int size,
       @AuthenticationPrincipal CustomUserDetails userDetails) {
     Long userId = (userDetails != null) ? userDetails.getId() : null;
-    PageResponse<StoreMapListResponse> response =
+    PageResponse<StoreMapListItemResponse> response =
         storeService.getStoreListWithMap(latitude, longitude, category, page, size, userId);
     return ResponseEntity.ok(ApiResponse.from(response));
   }
@@ -142,7 +142,7 @@ public class StoreController {
     if (latitude == null || longitude == null) {
       throw new StoreException(StoreErrorCode.MISSING_GPS_FOR_SEARCH);
     }
-    PageResponse<StoreMapListResponse> response =
+    PageResponse<StoreMapListItemResponse> response =
         storeService.searchStoresForMap(latitude, longitude, keyword, page, size, userId);
     return ResponseEntity.ok(ApiResponse.from(response));
   }
