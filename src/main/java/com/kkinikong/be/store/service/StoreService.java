@@ -50,6 +50,7 @@ public class StoreService {
   private static final double DEFAULT_LATITUDE = 37.545472;
   private static final double DEFAULT_LONGITUDE = 126.676902;
 
+  ///  카테고리와 정렬 조건 기반 가맹점 리스트 조회
   public PageResponse<StoreListItemResponse> getStoreList(
       Double latitude,
       Double longitude,
@@ -58,42 +59,62 @@ public class StoreService {
       int page,
       int size,
       Long userId) {
-    if (latitude == null || longitude == null) {
-      latitude = DEFAULT_LATITUDE;
-      longitude = DEFAULT_LONGITUDE;
-    }
-
+    latitude = getOrDefault(latitude, StoreService.DEFAULT_LATITUDE);
+    longitude = getOrDefault(longitude, StoreService.DEFAULT_LONGITUDE);
     Pageable pageable = PageRequest.of(page, size);
-
     Page<Store> storePage =
-        storeRepository.findStoresBySort(latitude, longitude, category, sort, pageable, userId);
-
-    // 가맹점 ID 리스트 뽑아 태그 조회
+        storeRepository.findStoresSorted(latitude, longitude, category, sort, pageable, userId);
     List<Long> storeIds = storePage.getContent().stream().map(Store::getId).toList();
-
     Map<Long, Tag> representativeTagByStoreIdList =
         storeTagCountRepository.findRepresentativeTagByStoreIdList(storeIds);
-
     return PageResponse.from(
         storePage,
         store ->
             StoreListItemResponse.from(store, representativeTagByStoreIdList.get(store.getId())));
   }
 
+  /// 거리순으로 가맹점 리스트 조회하여 지도 화면 표시
   public PageResponse<StoreMapListItemResponse> getStoreListWithMap(
       Double latitude, Double longitude, Category category, int page, int size, Long userId) {
-
-    if (latitude == null || longitude == null) {
-      latitude = DEFAULT_LATITUDE;
-      longitude = DEFAULT_LONGITUDE;
-    }
-
+    latitude = getOrDefault(latitude, StoreService.DEFAULT_LATITUDE);
+    longitude = getOrDefault(longitude, StoreService.DEFAULT_LONGITUDE);
     Pageable pageable = PageRequest.of(page, size);
-
     Page<Store> storePage =
-        storeRepository.findStoresByDistanceOrName(latitude, longitude, category, pageable, userId);
-
+        storeRepository.findStoresByNearest(latitude, longitude, category, pageable, userId);
     return PageResponse.from(storePage, StoreMapListItemResponse::from);
+  }
+
+  ///  키워드를 통해 가맹점 검색 결과 조회 (가맹점 찾기 화면)
+  public PageResponse<StoreListItemResponse> searchStoresForList(
+      Double latitude,
+      Double longitude,
+      String keyword,
+      StoreSort sort,
+      int page,
+      int size,
+      Long userId) {
+    latitude = getOrDefault(latitude, StoreService.DEFAULT_LATITUDE);
+    longitude = getOrDefault(longitude, StoreService.DEFAULT_LONGITUDE);
+    if (keyword == null || keyword.isBlank()) {
+      return PageResponse.empty(PageRequest.of(page, size));
+    }
+    Pageable pageable = PageRequest.of(page, size);
+    Page<Store> storePage =
+        storeRepository.searchStoresByKeyword(latitude, longitude, keyword, sort, pageable, userId);
+    List<Long> storeIds = storePage.getContent().stream().map(Store::getId).toList();
+    if (storeIds.isEmpty()) {
+      return PageResponse.from(storePage, store -> StoreListItemResponse.from(store, null));
+    }
+    Map<Long, Tag> representativeTagByStoreIdList =
+        storeTagCountRepository.findRepresentativeTagByStoreIdList(storeIds);
+    return PageResponse.from(
+        storePage,
+        store ->
+            StoreListItemResponse.from(store, representativeTagByStoreIdList.get(store.getId())));
+  }
+
+  private double getOrDefault(Double value, double defaultValue) {
+    return value != null ? value : defaultValue;
   }
 
   public StoreInfoResponse getStoreInfo(Long storeId) {
@@ -148,7 +169,6 @@ public class StoreService {
   public StoreScrapResponse addScrap(Long storeId, Long userId) {
     User user = getUserOrThrow(userId);
     Store store = getStoreOrThrow(storeId);
-
     boolean alreadyExists =
         storeScrapRepository.findByStoreIdAndUserId(storeId, userId).isPresent();
     if (alreadyExists) {
@@ -166,16 +186,6 @@ public class StoreService {
     store.decreaseScrapCount();
     storeScrapRepository.delete(storeScrap);
     return StoreScrapResponse.of(false, store.getScrapCount());
-  }
-
-  public PageResponse<StoreMapListItemResponse> searchStoresForMap(
-      Double latitude, Double longitude, String keyword, int page, int size, Long userId) {
-    Pageable pageable = PageRequest.of(page, size);
-    double searchRadiusKm = 3.0; // 항상 3km
-    Page<Store> storePage =
-        storeRepository.searchNearByStores(
-            latitude, longitude, keyword, searchRadiusKm, pageable, userId);
-    return PageResponse.from(storePage, StoreMapListItemResponse::from);
   }
 
   private User getUserOrThrow(Long userId) {

@@ -15,8 +15,6 @@ import com.kkinikong.be.global.response.PageResponse;
 import com.kkinikong.be.store.domain.type.Category;
 import com.kkinikong.be.store.domain.type.StoreSort;
 import com.kkinikong.be.store.dto.response.*;
-import com.kkinikong.be.store.exception.StoreException;
-import com.kkinikong.be.store.exception.errorcode.StoreErrorCode;
 import com.kkinikong.be.store.service.StoreService;
 import com.kkinikong.be.user.utils.CustomUserDetails;
 
@@ -121,9 +119,16 @@ public class StoreController {
     return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.from(storeExternalLink));
   }
 
-  @Operation(summary = "가맹점 검색", description = "메인페이지와 가맹점 지도 화면에 해당하는 API 입니다.")
-  @GetMapping("/map")
-  public ResponseEntity<ApiResponse<Object>> geStoreMapList(
+  @Operation(
+      summary = "가맹점 찾기 화면 검색",
+      description =
+          """
+  - GPS 설정을 하지 않았을 경우 : 기본 값은 인천 서구 중심 좌표 기준 5km 반경 가맹점 조회
+  - GPS 설정을 하였을 경우 : 사용자의 위치를 기반으로 주변 반경 5km 의 가맹점 조회
+  - 검색어를 입력하지 않으면 빈 리스트 반환
+                  """)
+  @GetMapping()
+  public ResponseEntity<ApiResponse<Object>> findStoresList(
       @Parameter(description = "인천 서구의 임의의 위도 값", example = "37.545472")
           @RequestParam(required = false)
           Double latitude,
@@ -131,15 +136,13 @@ public class StoreController {
           @RequestParam(required = false)
           Double longitude,
       @RequestParam(required = false) String keyword,
+      @RequestParam StoreSort sort,
       @RequestParam(defaultValue = "0") int page,
       @RequestParam(defaultValue = "10") int size,
       @AuthenticationPrincipal CustomUserDetails userDetails) {
     Long userId = (userDetails != null) ? userDetails.getId() : null;
-    if (latitude == null || longitude == null) {
-      throw new StoreException(StoreErrorCode.MISSING_GPS_FOR_SEARCH);
-    }
-    PageResponse<StoreMapListItemResponse> response =
-        storeService.searchStoresForMap(latitude, longitude, keyword, page, size, userId);
+    PageResponse<StoreListItemResponse> response =
+        storeService.searchStoresForList(latitude, longitude, keyword, sort, page, size, userId);
     return ResponseEntity.ok(ApiResponse.from(response));
   }
 

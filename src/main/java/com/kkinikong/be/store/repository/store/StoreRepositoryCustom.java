@@ -9,7 +9,7 @@ import com.kkinikong.be.store.domain.type.StoreSort;
 
 public interface StoreRepositoryCustom {
 
-  Page<Store> findStoresBySort(
+  Page<Store> findStoresSorted(
       Double latitude,
       Double longitude,
       Category category,
@@ -17,14 +17,14 @@ public interface StoreRepositoryCustom {
       Pageable pageable,
       Long userId);
 
-  Page<Store> findStoresByDistanceOrName(
+  Page<Store> findStoresByNearest(
       Double latitude, Double longitude, Category category, Pageable pageable, Long userId);
 
-  Page<Store> searchNearByStores(
+  Page<Store> searchStoresByKeyword(
       Double latitude,
       Double longitude,
       String keyword,
-      double radiusKm,
+      StoreSort sort,
       Pageable pageable,
       Long userId);
 }

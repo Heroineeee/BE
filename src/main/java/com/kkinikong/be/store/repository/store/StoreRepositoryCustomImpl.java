@@ -30,13 +30,14 @@ public class StoreRepositoryCustomImpl implements StoreRepositoryCustom {
   private final QStoreScrap storeScrap = QStoreScrap.storeScrap;
 
   @Override
-  public Page<Store> findStoresBySort(
+  public Page<Store> findStoresSorted(
       Double latitude,
       Double longitude,
       Category category,
       StoreSort sort,
       Pageable pageable,
       Long userId) {
+
     BooleanBuilder whereBuilder = new BooleanBuilder();
     whereBuilder.and(buildDistanceCondition(latitude, longitude, DEFAULT_RADIUS_METERS));
 
@@ -45,137 +46,106 @@ public class StoreRepositoryCustomImpl implements StoreRepositoryCustom {
     }
 
     List<Tuple> tuples =
-        queryFactory
-            .select(store, storeScrap.id)
-            .from(store)
-            .leftJoin(storeScrap)
-            .on(
-                storeScrap
-                    .store
-                    .eq(store)
-                    .and(userId != null ? storeScrap.user.id.eq(userId) : null))
-            .where(whereBuilder)
-            .orderBy(getSortOrder(sort, latitude, longitude))
-            .offset(pageable.getOffset())
-            .limit(pageable.getPageSize())
-            .fetch();
-
-    List<Store> storeList =
-        tuples.stream()
-            .map(
-                tuple -> {
-                  Store s = tuple.get(store);
-                  Long scrapId = tuple.get(storeScrap.id);
-                  s.setIsScrapped(userId != null ? scrapId != null : null);
-                  return s;
-                })
-            .toList();
-
-    long total =
-        queryFactory
-            .select(store.count())
-            .from(store)
-            .where(category == null ? null : store.category.eq(category))
-            .fetchOne();
+        fetchStores(whereBuilder, getSortOrder(sort, latitude, longitude), pageable, userId);
+    List<Store> storeList = convertTuplesToStores(tuples, userId);
+    long total = fetchTotalCount(whereBuilder);
 
     return new PageImpl<>(storeList, pageable, total);
   }
 
   @Override
-  public Page<Store> findStoresByDistanceOrName(
+  public Page<Store> findStoresByNearest(
       Double latitude, Double longitude, Category category, Pageable pageable, Long userId) {
 
     BooleanBuilder whereBuilder = new BooleanBuilder();
     whereBuilder.and(buildDistanceCondition(latitude, longitude, DEFAULT_RADIUS_METERS));
+
     if (category != null) {
       whereBuilder.and(store.category.eq(category));
     }
+
     OrderSpecifier<?>[] sortOrder = getDistanceOrder(latitude, longitude);
 
-    List<Tuple> tuples =
-        queryFactory
-            .select(store, storeScrap.id)
-            .from(store)
-            .leftJoin(storeScrap)
-            .on(
-                storeScrap
-                    .store
-                    .eq(store)
-                    .and(userId != null ? storeScrap.user.id.eq(userId) : null))
-            .where(category == null ? null : store.category.eq(category))
-            .orderBy(sortOrder)
-            .offset(pageable.getOffset())
-            .limit(pageable.getPageSize())
-            .fetch();
-
-    List<Store> storeList =
-        tuples.stream()
-            .map(
-                tuple -> {
-                  Store s = tuple.get(store);
-                  Long scrapId = tuple.get(storeScrap.id);
-                  s.setIsScrapped(userId != null ? scrapId != null : null);
-                  return s;
-                })
-            .toList();
-
-    long total =
-        queryFactory
-            .select(store.count())
-            .from(store)
-            .where(category == null ? null : store.category.eq(category))
-            .fetchOne();
+    List<Tuple> tuples = fetchStores(whereBuilder, sortOrder, pageable, userId);
+    List<Store> storeList = convertTuplesToStores(tuples, userId);
+    long total = fetchTotalCount(whereBuilder);
 
     return new PageImpl<>(storeList, pageable, total);
   }
 
-  public Page<Store> searchNearByStores(
+  @Override
+  public Page<Store> searchStoresByKeyword(
       Double latitude,
       Double longitude,
       String keyword,
-      double radiusKm,
+      StoreSort sort,
       Pageable pageable,
       Long userId) {
+
     BooleanBuilder whereBuilder = new BooleanBuilder();
     whereBuilder.and(buildDistanceCondition(latitude, longitude, DEFAULT_RADIUS_METERS));
+
+    if (keyword != null && !keyword.isBlank()) {
+      whereBuilder.and(buildKeywordCondition(keyword));
+    }
+
     List<Tuple> tuples =
-        queryFactory
-            .select(store, storeScrap.id)
-            .from(store)
-            .leftJoin(storeScrap)
-            .on(
-                storeScrap
-                    .store
-                    .eq(store)
-                    .and(userId != null ? storeScrap.user.id.eq(userId) : null))
-            .where(whereBuilder)
-            .orderBy(store.name.asc()) // 가나다순 정렬
-            .offset(pageable.getOffset())
-            .limit(pageable.getPageSize())
-            .fetch();
-
-    List<Store> storeList =
-        tuples.stream()
-            .map(
-                tuple -> {
-                  Store s = tuple.get(store);
-                  Long scrapId = tuple.get(storeScrap.id);
-                  s.setIsScrapped(userId != null ? scrapId != null : null);
-                  return s;
-                })
-            .toList();
-
-    long total = queryFactory.select(store.count()).from(store).where(whereBuilder).fetchOne();
+        fetchStores(whereBuilder, getSortOrder(sort, latitude, longitude), pageable, userId);
+    List<Store> storeList = convertTuplesToStores(tuples, userId);
+    long total = fetchTotalCount(whereBuilder);
 
     return new PageImpl<>(storeList, pageable, total);
   }
 
+  // 키워드 검색 조건 생성
+  private BooleanBuilder buildKeywordCondition(String keyword) {
+    String normalizedKeyword = keyword.replaceAll("\\s+", "");
+    BooleanBuilder keywordCondition = new BooleanBuilder();
+    keywordCondition.or(
+        Expressions.stringTemplate("replace({0}, ' ', '')", store.name)
+            .containsIgnoreCase(normalizedKeyword));
+    keywordCondition.or(
+        Expressions.stringTemplate("replace({0}, ' ', '')", store.address)
+            .containsIgnoreCase(normalizedKeyword));
+    return keywordCondition;
+  }
+
+  private List<Tuple> fetchStores(
+      BooleanBuilder whereBuilder,
+      OrderSpecifier<?>[] orderSpecifiers,
+      Pageable pageable,
+      Long userId) {
+    return queryFactory
+        .select(store, storeScrap.id)
+        .from(store)
+        .leftJoin(storeScrap)
+        .on(storeScrap.store.eq(store).and(userId != null ? storeScrap.user.id.eq(userId) : null))
+        .where(whereBuilder)
+        .orderBy(orderSpecifiers)
+        .offset(pageable.getOffset())
+        .limit(pageable.getPageSize())
+        .fetch();
+  }
+
+  private List<Store> convertTuplesToStores(List<Tuple> tuples, Long userId) {
+    return tuples.stream()
+        .map(
+            tuple -> {
+              Store s = tuple.get(store);
+              Long scrapId = tuple.get(storeScrap.id);
+              s.setIsScrapped(userId != null ? scrapId != null : null);
+              return s;
+            })
+        .toList();
+  }
+
+  private long fetchTotalCount(BooleanBuilder whereBuilder) {
+    return queryFactory.select(store.count()).from(store).where(whereBuilder).fetchOne();
+  }
+
+  // 지정된 반경 내 거리 조건 생성
   private BooleanBuilder buildDistanceCondition(
       Double latitude, Double longitude, double radiusMeters) {
-    if (latitude == null || longitude == null) {
-      return new BooleanBuilder();
-    }
-
     NumberTemplate<Double> distanceExpression =
         Expressions.numberTemplate(
             Double.class,
@@ -187,6 +157,7 @@ public class StoreRepositoryCustomImpl implements StoreRepositoryCustom {
     return new BooleanBuilder(distanceExpression.loe(radiusMeters));
   }
 
+  // 정렬 조건 선택
   private OrderSpecifier<?>[] getSortOrder(StoreSort sort, Double latitude, Double longitude) {
     return switch (sort) {
       case DISTANCE -> getDistanceOrder(latitude, longitude);
@@ -198,6 +169,7 @@ public class StoreRepositoryCustomImpl implements StoreRepositoryCustom {
     };
   }
 
+  // 거리순 정렬
   private OrderSpecifier<?>[] getDistanceOrder(Double latitude, Double longitude) {
     return new OrderSpecifier[] {
       Expressions.numberTemplate(
