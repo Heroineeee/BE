@@ -74,7 +74,7 @@ public class StoreRepositoryCustomImpl implements StoreRepositoryCustom {
   }
 
   @Override
-  public Page<Store> searchStoresByKeyword(
+  public Page<Store> searchStoresSorted(
       Double latitude,
       Double longitude,
       String keyword,
@@ -91,6 +91,25 @@ public class StoreRepositoryCustomImpl implements StoreRepositoryCustom {
 
     List<Tuple> tuples =
         fetchStores(whereBuilder, getSortOrder(sort, latitude, longitude), pageable, userId);
+    List<Store> storeList = convertTuplesToStores(tuples, userId);
+    long total = fetchTotalCount(whereBuilder);
+
+    return new PageImpl<>(storeList, pageable, total);
+  }
+
+  @Override
+  public Page<Store> searchStoresByNearest(
+      Double latitude, Double longitude, String keyword, Pageable pageable, Long userId) {
+    BooleanBuilder whereBuilder = new BooleanBuilder();
+    whereBuilder.and(buildDistanceCondition(latitude, longitude, DEFAULT_RADIUS_METERS));
+
+    if (keyword != null && !keyword.isBlank()) {
+      whereBuilder.and(buildKeywordCondition(keyword));
+    }
+
+    OrderSpecifier<?>[] sortOrder = getDistanceOrder(latitude, longitude);
+
+    List<Tuple> tuples = fetchStores(whereBuilder, sortOrder, pageable, userId);
     List<Store> storeList = convertTuplesToStores(tuples, userId);
     long total = fetchTotalCount(whereBuilder);
 

@@ -83,7 +83,7 @@ public class StoreController {
     Long userId = (userDetails != null) ? userDetails.getId() : null;
     PageResponse<StoreMapListItemResponse> response =
         storeService.getStoreListWithMap(latitude, longitude, category, page, size, userId);
-    return ResponseEntity.ok(ApiResponse.from(response));
+    return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.from(response));
   }
 
   @Operation(
@@ -143,7 +143,33 @@ public class StoreController {
     Long userId = (userDetails != null) ? userDetails.getId() : null;
     PageResponse<StoreListItemResponse> response =
         storeService.searchStoresForList(latitude, longitude, keyword, sort, page, size, userId);
-    return ResponseEntity.ok(ApiResponse.from(response));
+    return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.from(response));
+  }
+
+  @Operation(
+      summary = "가맹점 지도 화면 & 메인페이지 검색",
+      description =
+          """
+            - GPS 설정을 하지 않았을 경우 : 기본 값은 인천 서구 중심 좌표 기준 5km 반경 가맹점 조회
+            - GPS 설정을 하였을 경우 : 사용자의 위치를 기반으로 주변 반경 5km 의 가맹점 조회
+            - 검색어를 입력하지 않으면 빈 리스트 반환
+                            """)
+  @GetMapping("/map")
+  public ResponseEntity<ApiResponse<Object>> findStoresMapList(
+      @Parameter(description = "인천 서구의 임의의 위도 값", example = "37.545472")
+          @RequestParam(required = false)
+          Double latitude,
+      @Parameter(description = "인천 서구의 임의의 경도 값", example = "126.676902")
+          @RequestParam(required = false)
+          Double longitude,
+      @RequestParam(required = false) String keyword,
+      @RequestParam(defaultValue = "0") int page,
+      @RequestParam(defaultValue = "10") int size,
+      @AuthenticationPrincipal CustomUserDetails userDetails) {
+    Long userId = (userDetails != null) ? userDetails.getId() : null;
+    PageResponse<StoreMapListItemResponse> response =
+        storeService.searchStoresForMapList(latitude, longitude, keyword, page, size, userId);
+    return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.from(response));
   }
 
   @Operation(summary = "가맹점 스크랩")
@@ -152,7 +178,7 @@ public class StoreController {
       @AuthenticationPrincipal CustomUserDetails userDetails,
       @PathVariable("storeId") Long storeId) {
     StoreScrapResponse response = storeService.addScrap(storeId, userDetails.getId());
-    return ResponseEntity.ok(ApiResponse.from(response));
+    return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.from(response));
   }
 
   @Operation(summary = "가맹점 스크랩 취소")
@@ -161,6 +187,6 @@ public class StoreController {
       @AuthenticationPrincipal CustomUserDetails userDetails,
       @PathVariable("storeId") Long storeId) {
     StoreScrapResponse response = storeService.removeScrap(storeId, userDetails.getId());
-    return ResponseEntity.ok(ApiResponse.from(response));
+    return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.from(response));
   }
 }

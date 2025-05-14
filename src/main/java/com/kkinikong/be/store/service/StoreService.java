@@ -100,7 +100,7 @@ public class StoreService {
     }
     Pageable pageable = PageRequest.of(page, size);
     Page<Store> storePage =
-        storeRepository.searchStoresByKeyword(latitude, longitude, keyword, sort, pageable, userId);
+        storeRepository.searchStoresSorted(latitude, longitude, keyword, sort, pageable, userId);
     List<Long> storeIds = storePage.getContent().stream().map(Store::getId).toList();
     if (storeIds.isEmpty()) {
       return PageResponse.from(storePage, store -> StoreListItemResponse.from(store, null));
@@ -111,6 +111,20 @@ public class StoreService {
         storePage,
         store ->
             StoreListItemResponse.from(store, representativeTagByStoreIdList.get(store.getId())));
+  }
+
+  ///  키워드를 통해 가맹점 검색 결과 조회 (가맹점 지도 화면 & 메인페이지)
+  public PageResponse<StoreMapListItemResponse> searchStoresForMapList(
+      Double latitude, Double longitude, String keyword, int page, int size, Long userId) {
+    latitude = getOrDefault(latitude, StoreService.DEFAULT_LATITUDE);
+    longitude = getOrDefault(longitude, StoreService.DEFAULT_LONGITUDE);
+    if (keyword == null || keyword.isBlank()) {
+      return PageResponse.empty(PageRequest.of(page, size));
+    }
+    Pageable pageable = PageRequest.of(page, size);
+    Page<Store> storePage =
+        storeRepository.searchStoresByNearest(latitude, longitude, keyword, pageable, userId);
+    return PageResponse.from(storePage, StoreMapListItemResponse::from);
   }
 
   private double getOrDefault(Double value, double defaultValue) {

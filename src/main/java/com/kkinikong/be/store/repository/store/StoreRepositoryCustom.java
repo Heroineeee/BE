@@ -20,11 +20,14 @@ public interface StoreRepositoryCustom {
   Page<Store> findStoresByNearest(
       Double latitude, Double longitude, Category category, Pageable pageable, Long userId);
 
-  Page<Store> searchStoresByKeyword(
+  Page<Store> searchStoresSorted(
       Double latitude,
       Double longitude,
       String keyword,
       StoreSort sort,
       Pageable pageable,
       Long userId);
+
+  Page<Store> searchStoresByNearest(
+      Double latitude, Double longitude, String keyword, Pageable pageable, Long userId);
 }
