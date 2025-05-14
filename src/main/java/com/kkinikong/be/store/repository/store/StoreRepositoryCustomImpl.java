@@ -55,10 +55,15 @@ public class StoreRepositoryCustomImpl implements StoreRepositoryCustom {
 
   @Override
   public Page<Store> findStoresByNearest(
-      Double latitude, Double longitude, Category category, Pageable pageable, Long userId) {
+      Double latitude,
+      Double longitude,
+      double radiusMeters,
+      Category category,
+      Pageable pageable,
+      Long userId) {
 
     BooleanBuilder whereBuilder = new BooleanBuilder();
-    whereBuilder.and(buildDistanceCondition(latitude, longitude, DEFAULT_RADIUS_METERS));
+    whereBuilder.and(buildDistanceCondition(latitude, longitude, radiusMeters));
 
     if (category != null) {
       whereBuilder.and(store.category.eq(category));
@@ -99,9 +104,14 @@ public class StoreRepositoryCustomImpl implements StoreRepositoryCustom {
 
   @Override
   public Page<Store> searchStoresByNearest(
-      Double latitude, Double longitude, String keyword, Pageable pageable, Long userId) {
+      Double latitude,
+      Double longitude,
+      double radiusMeters,
+      String keyword,
+      Pageable pageable,
+      Long userId) {
     BooleanBuilder whereBuilder = new BooleanBuilder();
-    whereBuilder.and(buildDistanceCondition(latitude, longitude, DEFAULT_RADIUS_METERS));
+    whereBuilder.and(buildDistanceCondition(latitude, longitude, radiusMeters));
 
     if (keyword != null && !keyword.isBlank()) {
       whereBuilder.and(buildKeywordCondition(keyword));

@@ -18,7 +18,12 @@ public interface StoreRepositoryCustom {
       Long userId);
 
   Page<Store> findStoresByNearest(
-      Double latitude, Double longitude, Category category, Pageable pageable, Long userId);
+      Double latitude,
+      Double longitude,
+      double radiusMeters,
+      Category category,
+      Pageable pageable,
+      Long userId);
 
   Page<Store> searchStoresSorted(
       Double latitude,
@@ -29,5 +34,10 @@ public interface StoreRepositoryCustom {
       Long userId);
 
   Page<Store> searchStoresByNearest(
-      Double latitude, Double longitude, String keyword, Pageable pageable, Long userId);
+      Double latitude,
+      Double longitude,
+      double radiusMeters,
+      String keyword,
+      Pageable pageable,
+      Long userId);
 }
