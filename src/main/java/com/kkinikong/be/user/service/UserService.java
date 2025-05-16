@@ -7,9 +7,10 @@ import org.springframework.stereotype.Service;
 
 import lombok.RequiredArgsConstructor;
 
-import com.kkinikong.be.auth.dto.request.NicknameRequest;
 import com.kkinikong.be.user.domain.User;
 import com.kkinikong.be.user.domain.type.LoginType;
+import com.kkinikong.be.user.dto.request.NicknameRequest;
+import com.kkinikong.be.user.dto.response.NicknameResponse;
 import com.kkinikong.be.user.exception.UserException;
 import com.kkinikong.be.user.repository.UserRepository;
 
@@ -30,7 +31,7 @@ public class UserService {
                         .buildSocialLogin()));
   }
 
-  public void updateNickname(NicknameRequest request, Long userId) {
+  public NicknameResponse updateNickname(NicknameRequest request, Long userId) {
     User user =
         userRepository.findById(userId).orElseThrow(() -> new UserException(USER_NOT_FOUND));
     if (userRepository.existsByNickname(request.nickname())) {
@@ -38,6 +39,8 @@ public class UserService {
     }
     user.updateNickname(request.nickname());
     userRepository.save(user);
+
+    return new NicknameResponse(user.getEmail(), request.nickname());
   }
 
   public boolean checkNickname(String nickname) {
