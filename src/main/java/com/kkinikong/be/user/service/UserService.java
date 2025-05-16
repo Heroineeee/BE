@@ -7,9 +7,9 @@ import org.springframework.stereotype.Service;
 
 import lombok.RequiredArgsConstructor;
 
-import com.kkinikong.be.auth.dto.request.NicknameRequest;
 import com.kkinikong.be.user.domain.User;
 import com.kkinikong.be.user.domain.type.LoginType;
+import com.kkinikong.be.user.dto.request.NicknameRequest;
 import com.kkinikong.be.user.exception.UserException;
 import com.kkinikong.be.user.repository.UserRepository;
 

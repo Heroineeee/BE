@@ -10,8 +10,8 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
-import com.kkinikong.be.auth.dto.request.NicknameRequest;
 import com.kkinikong.be.global.response.ApiResponse;
+import com.kkinikong.be.user.dto.request.NicknameRequest;
 import com.kkinikong.be.user.service.UserService;
 import com.kkinikong.be.user.utils.CustomUserDetails;
 
