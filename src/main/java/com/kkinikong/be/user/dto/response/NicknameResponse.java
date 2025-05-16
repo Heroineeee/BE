@@ -1,3 +1,3 @@
 package com.kkinikong.be.user.dto.response;
 
-public class NicknameResponse {}
+public record NicknameResponse(String email, String nickname) {}

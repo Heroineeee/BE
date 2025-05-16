@@ -12,6 +12,7 @@ import lombok.RequiredArgsConstructor;
 
 import com.kkinikong.be.global.response.ApiResponse;
 import com.kkinikong.be.user.dto.request.NicknameRequest;
+import com.kkinikong.be.user.dto.response.NicknameResponse;
 import com.kkinikong.be.user.service.UserService;
 import com.kkinikong.be.user.utils.CustomUserDetails;
 
@@ -28,8 +29,8 @@ public class UserController {
       @Valid @RequestBody NicknameRequest request,
       @AuthenticationPrincipal CustomUserDetails userDetails) {
 
-    userService.updateNickname(request, userDetails.getId());
-    return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.EMPTY_RESPONSE);
+    NicknameResponse response = userService.updateNickname(request, userDetails.getId());
+    return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.from(response));
   }
 
   @Operation(summary = "닉네임 중복 확인", description = "닉네임이 중복되면 true를, 중복되지 않으면 false를 반환합니다.")
