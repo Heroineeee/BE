@@ -47,6 +47,6 @@ cloud:
 springdoc:
   swagger-ui:
     path: /swagger-ui/index.html
-    url: /v3/api-docs
+    url: https://kkinikong.store/v3/api-docs
   api-docs:
     path: /v3/api-docs
