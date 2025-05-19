@@ -13,6 +13,8 @@ public record StoreInfoResponse(
     Long storeId,
     String storeCategory,
     String storeName,
+    Double latitude,
+    Double longitude,
     String representativeTag,
     String storeAddress,
     Map<String, List<String>> storeWeeklyOpeningHours,
@@ -27,6 +29,8 @@ public record StoreInfoResponse(
         .storeId(store.getId())
         .storeCategory(store.getCategory().getLabel())
         .storeName(store.getName())
+        .latitude(store.getLatitude())
+        .longitude(store.getLongitude())
         .representativeTag(representativeTag)
         .storeAddress(store.getAddress())
         .storeWeeklyOpeningHours(storeWeeklyOpeningHours)
