@@ -49,6 +49,7 @@ public class StoreService {
   private static final String NO_INFO = "NO_INFO";
   private static final double DEFAULT_LATITUDE = 37.545472;
   private static final double DEFAULT_LONGITUDE = 126.676902;
+  private static final double DEFAULT_SEARCH_RADIUS = 5000.0;
 
   ///  카테고리와 정렬 조건 기반 가맹점 리스트 조회
   public PageResponse<StoreListItemResponse> getStoreList(
@@ -84,7 +85,7 @@ public class StoreService {
       Long userId) {
     latitude = getOrDefault(latitude, StoreService.DEFAULT_LATITUDE);
     longitude = getOrDefault(longitude, StoreService.DEFAULT_LONGITUDE);
-    double searchRadius = (radius != null) ? radius : 5000.0; // 없으면 5km
+    double searchRadius = (radius != null) ? radius : DEFAULT_SEARCH_RADIUS; // 없으면 5km
     Pageable pageable = PageRequest.of(page, size);
     Page<Store> storePage =
         storeRepository.findStoresByNearest(
@@ -132,7 +133,7 @@ public class StoreService {
       Long userId) {
     latitude = getOrDefault(latitude, StoreService.DEFAULT_LATITUDE);
     longitude = getOrDefault(longitude, StoreService.DEFAULT_LONGITUDE);
-    double searchRadius = (radius != null) ? radius : 5000.0; // 없으면 5km
+    double searchRadius = (radius != null) ? radius : DEFAULT_SEARCH_RADIUS; // 없으면 5km
     if (keyword == null || keyword.isBlank()) {
       return PageResponse.empty(PageRequest.of(page, size));
     }
