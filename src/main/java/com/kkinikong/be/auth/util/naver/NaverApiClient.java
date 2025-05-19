@@ -17,11 +17,14 @@ public class NaverApiClient {
   private static final String TOKEN_REQUEST_URI = "https://nid.naver.com/oauth2.0/token";
   private static final String USER_INFO_URI = "https://openapi.naver.com/v1/nid/me";
 
-  @Value("${VITE_NAVER_CLIENT_ID}")
-  private String clientId;
+  @Value("${NAVER_CLIENT_ID}")
+  private String naverApiKey;
 
-  @Value("${VITE_NAVER_REDIRECT_URI}")
-  private String redirectUri;
+  @Value("${NAVER_REDIRECT_URI}")
+  private String naverRedirectUri;
+
+  @Value("${NAVER_CLIENT_SECRET}")
+  private String naverClientSecret;
 
   public String getAccessToken(String code) {
     return webClient
@@ -31,9 +34,11 @@ public class NaverApiClient {
         .bodyValue(
             "grant_type=authorization_code"
                 + "&client_id="
-                + clientId
+                + naverApiKey
+                + "&cleint_secret"
+                + naverClientSecret
                 + "&redirect_uri="
-                + redirectUri
+                + naverRedirectUri
                 + "&code="
                 + code)
         .retrieve()

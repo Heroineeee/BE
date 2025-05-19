@@ -17,11 +17,14 @@ public class GoogleApiClient {
   private static final String TOKEN_REQUEST_URI = "https://oauth2.googleapis.com/token";
   private static final String USER_INFO_URI = "https://www.googleapis.com/oauth2/v1/userinfo";
 
-  @Value("${VITE_GOOGLE_CLIENT_ID}")
+  @Value("${GOOGLE_CLIENT_ID}")
   private String googleApiKey;
 
-  @Value("${VITE_GOOGLE_REDIRECT_URI}")
+  @Value("${GOOGLE_REDIRECT_URI}")
   private String googleRedirectUri;
+
+  @Value("${GOOGLE_CLIENT_SECRET}")
+  private String googleClientSecret;
 
   public String getAccessToken(String code) {
     return webClient
@@ -32,6 +35,8 @@ public class GoogleApiClient {
             "grant_type=authorization_code"
                 + "&client_id="
                 + googleApiKey
+                + "&client_secret="
+                + googleClientSecret
                 + "&redirect_uri="
                 + googleRedirectUri
                 + "&code="
