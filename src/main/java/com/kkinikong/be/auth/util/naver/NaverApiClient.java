@@ -35,7 +35,7 @@ public class NaverApiClient {
             "grant_type=authorization_code"
                 + "&client_id="
                 + naverApiKey
-                + "&cleint_secret"
+                + "&client_secret="
                 + naverClientSecret
                 + "&redirect_uri="
                 + naverRedirectUri
