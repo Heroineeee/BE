@@ -26,7 +26,7 @@ public class NaverLoginStrategy implements SocialLoginStrategy {
   public LoginResponse login(String code) {
     String accessToken = naverApiClient.getAccessToken(code);
     NaverUserInfoResponse userInfo = naverApiClient.getUserInfo(accessToken);
-    User user = userService.findOrCreateUser(userInfo.email(), LoginType.NAVER);
+    User user = userService.findOrCreateUser(userInfo.response().email(), LoginType.NAVER);
     String token = jwtTokenProvider.createToken(user.getId().toString());
     return LoginResponse.from(user.getNickname(), user.getRole(), token);
   }
