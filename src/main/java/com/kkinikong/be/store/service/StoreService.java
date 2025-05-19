@@ -47,8 +47,12 @@ public class StoreService {
   private final StoreTagCountRepository storeTagCountRepository;
 
   private static final String NO_INFO = "NO_INFO";
+  private static final double DEFAULT_LATITUDE = 37.545472;
+  private static final double DEFAULT_LONGITUDE = 126.676902;
+  private static final double DEFAULT_SEARCH_RADIUS = 5000.0;
 
-  public PageResponse<StoreListItemResponse> getStoreListWithTag(
+  ///  카테고리와 정렬 조건 기반 가맹점 리스트 조회
+  public PageResponse<StoreListItemResponse> getStoreList(
       Double latitude,
       Double longitude,
       Category category,
@@ -56,36 +60,96 @@ public class StoreService {
       int page,
       int size,
       Long userId) {
+    latitude = getOrDefault(latitude, StoreService.DEFAULT_LATITUDE);
+    longitude = getOrDefault(longitude, StoreService.DEFAULT_LONGITUDE);
     Pageable pageable = PageRequest.of(page, size);
-
     Page<Store> storePage =
-        storeRepository.findStoresForSorted(latitude, longitude, category, sort, pageable, userId);
-
-    // 가맹점 ID 리스트 뽑아 태그 조회
+        storeRepository.findStoresSorted(latitude, longitude, category, sort, pageable, userId);
     List<Long> storeIds = storePage.getContent().stream().map(Store::getId).toList();
-
     Map<Long, Tag> representativeTagByStoreIdList =
         storeTagCountRepository.findRepresentativeTagByStoreIdList(storeIds);
-
     return PageResponse.from(
         storePage,
         store ->
             StoreListItemResponse.from(store, representativeTagByStoreIdList.get(store.getId())));
   }
 
-  public PageResponse<StoreMapItemResponse> getStoreListWithMap(
-      Double latitude, Double longitude, Category category, int page, int size, Long userId) {
-
+  /// 거리순으로 가맹점 리스트 조회하여 지도 화면 표시
+  public PageResponse<StoreMapListItemResponse> getStoreListWithMap(
+      Double latitude,
+      Double longitude,
+      Double radius,
+      Category category,
+      int page,
+      int size,
+      Long userId) {
+    latitude = getOrDefault(latitude, StoreService.DEFAULT_LATITUDE);
+    longitude = getOrDefault(longitude, StoreService.DEFAULT_LONGITUDE);
+    double searchRadius = (radius != null) ? radius : DEFAULT_SEARCH_RADIUS; // 없으면 5km
     Pageable pageable = PageRequest.of(page, size);
-
     Page<Store> storePage =
-        storeRepository.findStoresByDistanceOrName(latitude, longitude, category, pageable, userId);
+        storeRepository.findStoresByNearest(
+            latitude, longitude, searchRadius, category, pageable, userId);
+    return PageResponse.from(storePage, StoreMapListItemResponse::from);
+  }
 
-    return PageResponse.from(storePage, StoreMapItemResponse::from);
+  ///  키워드를 통해 가맹점 검색 결과 조회 (가맹점 찾기 화면)
+  public PageResponse<StoreListItemResponse> searchStoresForList(
+      Double latitude,
+      Double longitude,
+      String keyword,
+      StoreSort sort,
+      int page,
+      int size,
+      Long userId) {
+    latitude = getOrDefault(latitude, StoreService.DEFAULT_LATITUDE);
+    longitude = getOrDefault(longitude, StoreService.DEFAULT_LONGITUDE);
+    if (keyword == null || keyword.isBlank()) {
+      return PageResponse.empty(PageRequest.of(page, size));
+    }
+    Pageable pageable = PageRequest.of(page, size);
+    Page<Store> storePage =
+        storeRepository.searchStoresSorted(latitude, longitude, keyword, sort, pageable, userId);
+    List<Long> storeIds = storePage.getContent().stream().map(Store::getId).toList();
+    if (storeIds.isEmpty()) {
+      return PageResponse.from(storePage, store -> StoreListItemResponse.from(store, null));
+    }
+    Map<Long, Tag> representativeTagByStoreIdList =
+        storeTagCountRepository.findRepresentativeTagByStoreIdList(storeIds);
+    return PageResponse.from(
+        storePage,
+        store ->
+            StoreListItemResponse.from(store, representativeTagByStoreIdList.get(store.getId())));
+  }
+
+  ///  키워드를 통해 가맹점 검색 결과 조회 (가맹점 지도 화면 & 메인페이지)
+  public PageResponse<StoreMapListItemResponse> searchStoresForMapList(
+      Double latitude,
+      Double longitude,
+      Double radius,
+      String keyword,
+      int page,
+      int size,
+      Long userId) {
+    latitude = getOrDefault(latitude, StoreService.DEFAULT_LATITUDE);
+    longitude = getOrDefault(longitude, StoreService.DEFAULT_LONGITUDE);
+    double searchRadius = (radius != null) ? radius : DEFAULT_SEARCH_RADIUS; // 없으면 5km
+    if (keyword == null || keyword.isBlank()) {
+      return PageResponse.empty(PageRequest.of(page, size));
+    }
+    Pageable pageable = PageRequest.of(page, size);
+    Page<Store> storePage =
+        storeRepository.searchStoresByNearest(
+            latitude, longitude, searchRadius, keyword, pageable, userId);
+    return PageResponse.from(storePage, StoreMapListItemResponse::from);
+  }
+
+  private double getOrDefault(Double value, double defaultValue) {
+    return value != null ? value : defaultValue;
   }
 
   public StoreInfoResponse getStoreInfo(Long storeId) {
-    Store store = findStoreOrThrow(storeId);
+    Store store = getStoreOrThrow(storeId);
 
     storeCacheService.increaseViewCounts(storeId);
 
@@ -101,7 +165,7 @@ public class StoreService {
 
   @Cacheable(value = "store-ids", key = "#storeId", unless = "#result == null")
   public StoreExternalLinkResponse getStoreExternalLink(Long storeId) {
-    Store store = findStoreOrThrow(storeId);
+    Store store = getStoreOrThrow(storeId);
 
     String kakaoPlaceId = fetchAndCacheKakaoPlaceId(store);
     boolean hasInfo = !NO_INFO.equals(kakaoPlaceId);
@@ -132,29 +196,15 @@ public class StoreService {
     return "https://map.naver.com/v5/search/" + placeName;
   }
 
-  private Store findStoreOrThrow(Long storeId) {
-    return storeRepository
-        .findStoreById(storeId)
-        .orElseThrow(() -> new StoreException(StoreErrorCode.STORE_NOT_FOUND));
-  }
-
   @Transactional
   public StoreScrapResponse addScrap(Long storeId, Long userId) {
-    User user =
-        userRepository
-            .findUserById(userId)
-            .orElseThrow(() -> new UserException(UserErrorCode.USER_NOT_FOUND));
-    Store store =
-        storeRepository
-            .findById(storeId)
-            .orElseThrow(() -> new StoreException(StoreErrorCode.STORE_NOT_FOUND));
-
+    User user = getUserOrThrow(userId);
+    Store store = getStoreOrThrow(storeId);
     boolean alreadyExists =
         storeScrapRepository.findByStoreIdAndUserId(storeId, userId).isPresent();
     if (alreadyExists) {
       throw new StoreException(StoreErrorCode.ALREADY_SCRAPPED);
     }
-
     store.increaseScrapCount();
     storeScrapRepository.save(new StoreScrap(user, store));
     return StoreScrapResponse.of(true, store.getScrapCount());
@@ -162,13 +212,28 @@ public class StoreService {
 
   @Transactional
   public StoreScrapResponse removeScrap(Long storeId, Long userId) {
-    StoreScrap storeScrap =
-        storeScrapRepository
-            .findByStoreIdAndUserId(storeId, userId)
-            .orElseThrow(() -> new StoreException(StoreErrorCode.SCRAP_NOT_FOUND));
+    StoreScrap storeScrap = getStoreScrapOrThrow(storeId, userId);
     Store store = storeScrap.getStore();
     store.decreaseScrapCount();
     storeScrapRepository.delete(storeScrap);
     return StoreScrapResponse.of(false, store.getScrapCount());
+  }
+
+  private User getUserOrThrow(Long userId) {
+    return userRepository
+        .findById(userId)
+        .orElseThrow(() -> new UserException(UserErrorCode.USER_NOT_FOUND));
+  }
+
+  private Store getStoreOrThrow(Long storeId) {
+    return storeRepository
+        .findById(storeId)
+        .orElseThrow(() -> new StoreException(StoreErrorCode.STORE_NOT_FOUND));
+  }
+
+  private StoreScrap getStoreScrapOrThrow(Long storeId, Long userId) {
+    return storeScrapRepository
+        .findByStoreIdAndUserId(storeId, userId)
+        .orElseThrow(() -> new StoreException(StoreErrorCode.SCRAP_NOT_FOUND));
   }
 }

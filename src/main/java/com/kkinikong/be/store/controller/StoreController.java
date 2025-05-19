@@ -15,8 +15,6 @@ import com.kkinikong.be.global.response.PageResponse;
 import com.kkinikong.be.store.domain.type.Category;
 import com.kkinikong.be.store.domain.type.StoreSort;
 import com.kkinikong.be.store.dto.response.*;
-import com.kkinikong.be.store.exception.StoreException;
-import com.kkinikong.be.store.exception.errorcode.StoreErrorCode;
 import com.kkinikong.be.store.service.StoreService;
 import com.kkinikong.be.user.utils.CustomUserDetails;
 
@@ -32,15 +30,12 @@ public class StoreController {
       summary = "가맹점 찾기 화면 리스트 조회",
       description =
           """
-  - 정렬 조건은 가까운 순(DISTANCE), 별점 높은 순(RATING), 리뷰 많은 순(REVIEW_COUNT), 조회수 순(VIEW_COUNT) 중 선택
-  - category를 선택하지 않으면 전체 가맹점 조회
-  - 필터링 결과가 동일할 경우, 이름 가나다순으로 정렬
-  - 정렬 조건이 DISTANCE이고 위도/경도가 없을 경우, 요청은 예외 처리됨
-  - 로그인한 유저는 isScrapped 가 true/false 로 반환
-  - 로그인하지 않은 경우, isScrapped는 null로 응답
-  - 페이지 번호는 0부터 시작
-  - 페이지 크기(size)는 기본 10개이며, 조정 가능
-                  """)
+            - GPS 설정을 하지 않았을 경우 : 기본 값인 인천 서구 중심 좌표 기준 5km 반경 가맹점 조회합니다.
+            - GPS 설정을 하였을 경우 : 사용자의 위치를 기반으로 주변 반경 5km 의 가맹점 조회합니다.
+            - 가까운 순(DISTANCE), 별점 높은 순(RATING), 리뷰 많은 순(REVIEW_COUNT), 조회수 순(VIEW_COUNT) 중 선택합니다.
+            - category를 선택하지 않으면 전체 가맹점 조회합니다.
+            - 로그인한 유저는 isScrapped true/false 값을, 비로그인 시는 null을 반환합니다.
+            """)
   @GetMapping("/list")
   public ResponseEntity<ApiResponse<Object>> getStoresList(
       @Parameter(description = "인천 서구의 임의의 위도 값", example = "37.545472")
@@ -50,16 +45,13 @@ public class StoreController {
           @RequestParam(required = false)
           Double longitude,
       @RequestParam(required = false) Category category,
-      @RequestParam(defaultValue = "VIEW_COUNT") StoreSort sort,
+      @RequestParam StoreSort sort,
       @RequestParam(defaultValue = "0") int page,
       @RequestParam(defaultValue = "10") int size,
       @AuthenticationPrincipal CustomUserDetails userDetails) {
-    if (sort == StoreSort.DISTANCE && (latitude == null || longitude == null)) {
-      throw new StoreException(StoreErrorCode.MISSING_GPS_FOR_DISTANCE);
-    }
     Long userId = (userDetails != null) ? userDetails.getId() : null;
     PageResponse<StoreListItemResponse> response =
-        storeService.getStoreListWithTag(latitude, longitude, category, sort, page, size, userId);
+        storeService.getStoreList(latitude, longitude, category, sort, page, size, userId);
     return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.from(response));
   }
 
@@ -67,14 +59,13 @@ public class StoreController {
       summary = "가맹점 지도 화면 리스트 조회",
       description =
           """
-  - GPS를 포함하면 가까운 순으로 자동 정렬
-  - GPS가 없으면 category 기준으로 이름 가나다순 정렬
-  - category를 선택하지 않으면 전체 가맹점 조회
-  - 로그인한 유저는 isScrapped 필드가 true/false로 반환
-  - 로그인하지 않은 경우, isScrapped는 null로 반환
-  - 페이지 번호는 0부터 시작
-  - 페이지 크기(size)는 기본 10개이며, 조정 가능
-""")
+            - GPS 버튼을 눌러 현재 위치를 가져온 경우, 중심 좌표만 전달하면 되고, radius는 보내지 않아도 됩니다 (기본 5000m로 조회).
+            - 지도를 이동(드래그, 줌)한 경우, 새 중심 좌표와 radius(검색 반경, meter)를 함께 전달하여 가맹점을 조회할 수 있습니다.
+            - radius를 전달하지 않으면 기본 5000m로 조회합니다.
+            - 가맹점은 무조건 가까운 거리순으로 조회
+            - category를 선택하지 않으면 전체 가맹점 조회합니다.
+            - 로그인한 유저는 isScrapped true/false 값을, 비로그인 시는 null을 반환합니다.
+            """)
   @GetMapping("/list/map")
   public ResponseEntity<ApiResponse<Object>> getStoresMapList(
       @Parameter(description = "인천 서구의 임의의 위도 값", example = "37.545472")
@@ -83,14 +74,16 @@ public class StoreController {
       @Parameter(description = "인천 서구의 임의의 경도 값", example = "126.676902")
           @RequestParam(required = false)
           Double longitude,
+      @Parameter(description = "검색 반경 (단위: meter, 기본 5000m)") @RequestParam(required = false)
+          Double radius,
       @RequestParam(required = false) Category category,
       @RequestParam(defaultValue = "0") int page,
       @RequestParam(defaultValue = "10") int size,
       @AuthenticationPrincipal CustomUserDetails userDetails) {
     Long userId = (userDetails != null) ? userDetails.getId() : null;
-    PageResponse<StoreMapItemResponse> response =
-        storeService.getStoreListWithMap(latitude, longitude, category, page, size, userId);
-    return ResponseEntity.ok(ApiResponse.from(response));
+    PageResponse<StoreMapListItemResponse> response =
+        storeService.getStoreListWithMap(latitude, longitude, radius, category, page, size, userId);
+    return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.from(response));
   }
 
   @Operation(
@@ -126,13 +119,70 @@ public class StoreController {
     return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.from(storeExternalLink));
   }
 
+  @Operation(
+      summary = "가맹점 찾기 화면 검색",
+      description =
+          """
+            - GPS 설정을 하지 않았을 경우 : 기본 값은 인천 서구 중심 좌표 기준 5km 반경 가맹점 조회합니다.
+            - GPS 설정을 하였을 경우 : 사용자의 위치를 기반으로 주변 반경 5km 의 가맹점 조회합니다.
+            - 검색어를 입력하지 않으면 빈 리스트를 반환합니다.
+            """)
+  @GetMapping()
+  public ResponseEntity<ApiResponse<Object>> findStoresList(
+      @Parameter(description = "인천 서구의 임의의 위도 값", example = "37.545472")
+          @RequestParam(required = false)
+          Double latitude,
+      @Parameter(description = "인천 서구의 임의의 경도 값", example = "126.676902")
+          @RequestParam(required = false)
+          Double longitude,
+      @RequestParam(required = false) String keyword,
+      @RequestParam StoreSort sort,
+      @RequestParam(defaultValue = "0") int page,
+      @RequestParam(defaultValue = "10") int size,
+      @AuthenticationPrincipal CustomUserDetails userDetails) {
+    Long userId = (userDetails != null) ? userDetails.getId() : null;
+    PageResponse<StoreListItemResponse> response =
+        storeService.searchStoresForList(latitude, longitude, keyword, sort, page, size, userId);
+    return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.from(response));
+  }
+
+  @Operation(
+      summary = "가맹점 지도 화면 & 메인페이지 검색",
+      description =
+          """
+            - GPS 버튼을 눌러 현재 위치를 가져온 경우, 중심 좌표만 전달하면 됩니다 (반경은 기본 5000m 적용).
+            - 지도를 이동(드래그, 줌 인/아웃)한 경우, 새 중심 좌표와 radius(검색 반경, 단위: meter)를 함께 전달하여 가맹점을 조회할 수 있습니다.
+            - radius를 전달하지 않으면 기본 5000m로 조회합니다.
+            - 검색어를 입력하지 않으면 빈 리스트를 반환합니다.
+            """)
+  @GetMapping("/map")
+  public ResponseEntity<ApiResponse<Object>> findStoresMapList(
+      @Parameter(description = "인천 서구의 임의의 위도 값", example = "37.545472")
+          @RequestParam(required = false)
+          Double latitude,
+      @Parameter(description = "인천 서구의 임의의 경도 값", example = "126.676902")
+          @RequestParam(required = false)
+          Double longitude,
+      @Parameter(description = "검색 반경 (단위: meter, 기본 5000m)") @RequestParam(required = false)
+          Double radius,
+      @RequestParam(required = false) String keyword,
+      @RequestParam(defaultValue = "0") int page,
+      @RequestParam(defaultValue = "10") int size,
+      @AuthenticationPrincipal CustomUserDetails userDetails) {
+    Long userId = (userDetails != null) ? userDetails.getId() : null;
+    PageResponse<StoreMapListItemResponse> response =
+        storeService.searchStoresForMapList(
+            latitude, longitude, radius, keyword, page, size, userId);
+    return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.from(response));
+  }
+
   @Operation(summary = "가맹점 스크랩")
   @PostMapping("/scrap/{storeId}")
   public ResponseEntity<ApiResponse<Object>> scrapPost(
       @AuthenticationPrincipal CustomUserDetails userDetails,
       @PathVariable("storeId") Long storeId) {
     StoreScrapResponse response = storeService.addScrap(storeId, userDetails.getId());
-    return ResponseEntity.ok(ApiResponse.from(response));
+    return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.from(response));
   }
 
   @Operation(summary = "가맹점 스크랩 취소")
@@ -141,6 +191,6 @@ public class StoreController {
       @AuthenticationPrincipal CustomUserDetails userDetails,
       @PathVariable("storeId") Long storeId) {
     StoreScrapResponse response = storeService.removeScrap(storeId, userDetails.getId());
-    return ResponseEntity.ok(ApiResponse.from(response));
+    return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.from(response));
   }
 }
