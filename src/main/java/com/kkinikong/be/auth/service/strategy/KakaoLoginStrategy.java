@@ -4,8 +4,8 @@ import org.springframework.stereotype.Service;
 
 import lombok.RequiredArgsConstructor;
 
-import com.kkinikong.be.auth.dto.response.KakaoUserInfoResponse;
 import com.kkinikong.be.auth.dto.response.LoginResponse;
+import com.kkinikong.be.auth.dto.response.kakao.KakaoUserInfoResponse;
 import com.kkinikong.be.auth.util.JwtTokenProvider;
 import com.kkinikong.be.auth.util.kakao.KakaoApiClient;
 import com.kkinikong.be.user.domain.User;
