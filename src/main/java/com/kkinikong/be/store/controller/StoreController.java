@@ -27,15 +27,15 @@ public class StoreController {
   private final StoreService storeService;
 
   @Operation(
-      summary = "가맹점 찾기 화면 리스트 조회",
+      summary = "가맹점 찾기 화면 리스트/검색 통합 조회",
       description =
           """
-            - GPS 설정을 하지 않았을 경우 : 기본 값인 인천 서구 중심 좌표 기준 5km 반경 가맹점 조회합니다.
-            - GPS 설정을 하였을 경우 : 사용자의 위치를 기반으로 주변 반경 5km 의 가맹점 조회합니다.
-            - 가까운 순(DISTANCE), 별점 높은 순(RATING), 리뷰 많은 순(REVIEW_COUNT), 조회수 순(VIEW_COUNT) 중 선택합니다.
-            - category를 선택하지 않으면 전체 가맹점 조회합니다.
-            - 로그인한 유저는 isScrapped true/false 값을, 비로그인 시는 null을 반환합니다.
-            """)
+                   - keyword가 없으면: GPS 또는 디폴트 위치(인천 서구) 기준 전체 가맹점 조회
+                   - keyword가 주소(00동, 00구 등)일 경우: 해당 위치 기준 반경 5km 가맹점 조회
+                   - keyword가 음식명 등 일반 키워드일 경우: 현재 위치 기준 가맹점명/주소에 포함된 가맹점 조회
+                   - category 필터 선택안하면 전체 가맹점 조회
+                   - 정렬: 거리순(DISTANCE), 별점순(RATING), 리뷰순(REVIEW_COUNT), 조회수순(VIEW_COUNT)
+                    """)
   @GetMapping("/list")
   public ResponseEntity<ApiResponse<Object>> getStoresList(
       @Parameter(description = "인천 서구의 임의의 위도 값", example = "37.545472")
@@ -44,6 +44,7 @@ public class StoreController {
       @Parameter(description = "인천 서구의 임의의 경도 값", example = "126.676902")
           @RequestParam(required = false)
           Double longitude,
+      @RequestParam(required = false) String keyword,
       @RequestParam(required = false) Category category,
       @RequestParam StoreSort sort,
       @RequestParam(defaultValue = "0") int page,
@@ -117,33 +118,6 @@ public class StoreController {
       @PathVariable("storeId") Long storeId) {
     StoreExternalLinkResponse storeExternalLink = storeService.getStoreExternalLink(storeId);
     return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.from(storeExternalLink));
-  }
-
-  @Operation(
-      summary = "가맹점 찾기 화면 검색",
-      description =
-          """
-            - GPS 설정을 하지 않았을 경우 : 기본 값은 인천 서구 중심 좌표 기준 5km 반경 가맹점 조회합니다.
-            - GPS 설정을 하였을 경우 : 사용자의 위치를 기반으로 주변 반경 5km 의 가맹점 조회합니다.
-            - 검색어를 입력하지 않으면 빈 리스트를 반환합니다.
-            """)
-  @GetMapping()
-  public ResponseEntity<ApiResponse<Object>> findStoresList(
-      @Parameter(description = "인천 서구의 임의의 위도 값", example = "37.545472")
-          @RequestParam(required = false)
-          Double latitude,
-      @Parameter(description = "인천 서구의 임의의 경도 값", example = "126.676902")
-          @RequestParam(required = false)
-          Double longitude,
-      @RequestParam(required = false) String keyword,
-      @RequestParam StoreSort sort,
-      @RequestParam(defaultValue = "0") int page,
-      @RequestParam(defaultValue = "10") int size,
-      @AuthenticationPrincipal CustomUserDetails userDetails) {
-    Long userId = (userDetails != null) ? userDetails.getId() : null;
-    PageResponse<StoreListItemResponse> response =
-        storeService.searchStoresForList(latitude, longitude, keyword, sort, page, size, userId);
-    return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.from(response));
   }
 
   @Operation(
