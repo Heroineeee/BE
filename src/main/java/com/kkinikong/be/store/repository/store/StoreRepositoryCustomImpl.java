@@ -30,47 +30,30 @@ public class StoreRepositoryCustomImpl implements StoreRepositoryCustom {
   private final QStoreScrap storeScrap = QStoreScrap.storeScrap;
 
   @Override
-  public Page<Store> findStoresSorted(
+  public Page<Store> findStoresUnified(
       Double latitude,
       Double longitude,
+      Double radiusMeters,
+      String keyword,
       Category category,
       StoreSort sort,
       Pageable pageable,
       Long userId) {
 
+    double radius = (radiusMeters != null) ? radiusMeters : DEFAULT_RADIUS_METERS;
+
     BooleanBuilder whereBuilder = new BooleanBuilder();
-    whereBuilder.and(buildDistanceCondition(latitude, longitude, DEFAULT_RADIUS_METERS));
+    whereBuilder.and(buildDistanceCondition(latitude, longitude, radius));
 
     if (category != null) {
       whereBuilder.and(store.category.eq(category));
     }
 
-    List<Tuple> tuples =
-        fetchStores(whereBuilder, getSortOrder(sort, latitude, longitude), pageable, userId);
-    List<Store> storeList = convertTuplesToStores(tuples, userId);
-    long total = fetchTotalCount(whereBuilder);
-
-    return new PageImpl<>(storeList, pageable, total);
-  }
-
-  @Override
-  public Page<Store> findStoresByNearest(
-      Double latitude,
-      Double longitude,
-      double radiusMeters,
-      Category category,
-      Pageable pageable,
-      Long userId) {
-
-    BooleanBuilder whereBuilder = new BooleanBuilder();
-    whereBuilder.and(buildDistanceCondition(latitude, longitude, radiusMeters));
-
-    if (category != null) {
-      whereBuilder.and(store.category.eq(category));
+    if (keyword != null && !keyword.isBlank()) {
+      whereBuilder.and(buildKeywordCondition(keyword));
     }
 
-    OrderSpecifier<?>[] sortOrder = getDistanceOrder(latitude, longitude);
-
+    OrderSpecifier<?>[] sortOrder = getSortOrder(sort, latitude, longitude);
     List<Tuple> tuples = fetchStores(whereBuilder, sortOrder, pageable, userId);
     List<Store> storeList = convertTuplesToStores(tuples, userId);
     long total = fetchTotalCount(whereBuilder);
@@ -78,53 +61,102 @@ public class StoreRepositoryCustomImpl implements StoreRepositoryCustom {
     return new PageImpl<>(storeList, pageable, total);
   }
 
-  @Override
-  public Page<Store> searchStoresSorted(
-      Double latitude,
-      Double longitude,
-      String keyword,
-      StoreSort sort,
-      Pageable pageable,
-      Long userId) {
-
-    BooleanBuilder whereBuilder = new BooleanBuilder();
-    whereBuilder.and(buildDistanceCondition(latitude, longitude, DEFAULT_RADIUS_METERS));
-
-    if (keyword != null && !keyword.isBlank()) {
-      whereBuilder.and(buildKeywordCondition(keyword));
-    }
-
-    List<Tuple> tuples =
-        fetchStores(whereBuilder, getSortOrder(sort, latitude, longitude), pageable, userId);
-    List<Store> storeList = convertTuplesToStores(tuples, userId);
-    long total = fetchTotalCount(whereBuilder);
-
-    return new PageImpl<>(storeList, pageable, total);
-  }
-
-  @Override
-  public Page<Store> searchStoresByNearest(
-      Double latitude,
-      Double longitude,
-      double radiusMeters,
-      String keyword,
-      Pageable pageable,
-      Long userId) {
-    BooleanBuilder whereBuilder = new BooleanBuilder();
-    whereBuilder.and(buildDistanceCondition(latitude, longitude, radiusMeters));
-
-    if (keyword != null && !keyword.isBlank()) {
-      whereBuilder.and(buildKeywordCondition(keyword));
-    }
-
-    OrderSpecifier<?>[] sortOrder = getDistanceOrder(latitude, longitude);
-
-    List<Tuple> tuples = fetchStores(whereBuilder, sortOrder, pageable, userId);
-    List<Store> storeList = convertTuplesToStores(tuples, userId);
-    long total = fetchTotalCount(whereBuilder);
-
-    return new PageImpl<>(storeList, pageable, total);
-  }
+  //  @Override
+  //  public Page<Store> findStoresSorted(
+  //      Double latitude,
+  //      Double longitude,
+  //      Category category,
+  //      StoreSort sort,
+  //      Pageable pageable,
+  //      Long userId) {
+  //
+  //    BooleanBuilder whereBuilder = new BooleanBuilder();
+  //    whereBuilder.and(buildDistanceCondition(latitude, longitude, DEFAULT_RADIUS_METERS));
+  //
+  //    if (category != null) {
+  //      whereBuilder.and(store.category.eq(category));
+  //    }
+  //
+  //    List<Tuple> tuples =
+  //        fetchStores(whereBuilder, getSortOrder(sort, latitude, longitude), pageable, userId);
+  //    List<Store> storeList = convertTuplesToStores(tuples, userId);
+  //    long total = fetchTotalCount(whereBuilder);
+  //
+  //    return new PageImpl<>(storeList, pageable, total);
+  //  }
+  //
+  //  @Override
+  //  public Page<Store> findStoresByNearest(
+  //      Double latitude,
+  //      Double longitude,
+  //      double radiusMeters,
+  //      Category category,
+  //      Pageable pageable,
+  //      Long userId) {
+  //
+  //    BooleanBuilder whereBuilder = new BooleanBuilder();
+  //    whereBuilder.and(buildDistanceCondition(latitude, longitude, radiusMeters));
+  //
+  //    if (category != null) {
+  //      whereBuilder.and(store.category.eq(category));
+  //    }
+  //
+  //    OrderSpecifier<?>[] sortOrder = getDistanceOrder(latitude, longitude);
+  //
+  //    List<Tuple> tuples = fetchStores(whereBuilder, sortOrder, pageable, userId);
+  //    List<Store> storeList = convertTuplesToStores(tuples, userId);
+  //    long total = fetchTotalCount(whereBuilder);
+  //
+  //    return new PageImpl<>(storeList, pageable, total);
+  //  }
+  //
+  //  @Override
+  //  public Page<Store> searchStoresSorted(
+  //      Double latitude,
+  //      Double longitude,
+  //      String keyword,
+  //      StoreSort sort,
+  //      Pageable pageable,
+  //      Long userId) {
+  //
+  //    BooleanBuilder whereBuilder = new BooleanBuilder();
+  //    whereBuilder.and(buildDistanceCondition(latitude, longitude, DEFAULT_RADIUS_METERS));
+  //
+  //    if (keyword != null && !keyword.isBlank()) {
+  //      whereBuilder.and(buildKeywordCondition(keyword));
+  //    }
+  //
+  //    List<Tuple> tuples =
+  //        fetchStores(whereBuilder, getSortOrder(sort, latitude, longitude), pageable, userId);
+  //    List<Store> storeList = convertTuplesToStores(tuples, userId);
+  //    long total = fetchTotalCount(whereBuilder);
+  //
+  //    return new PageImpl<>(storeList, pageable, total);
+  //  }
+  //
+  //  @Override
+  //  public Page<Store> searchStoresByNearest(
+  //      Double latitude,
+  //      Double longitude,
+  //      double radiusMeters,
+  //      String keyword,
+  //      Pageable pageable,
+  //      Long userId) {
+  //    BooleanBuilder whereBuilder = new BooleanBuilder();
+  //    whereBuilder.and(buildDistanceCondition(latitude, longitude, radiusMeters));
+  //
+  //    if (keyword != null && !keyword.isBlank()) {
+  //      whereBuilder.and(buildKeywordCondition(keyword));
+  //    }
+  //
+  //    OrderSpecifier<?>[] sortOrder = getDistanceOrder(latitude, longitude);
+  //
+  //    List<Tuple> tuples = fetchStores(whereBuilder, sortOrder, pageable, userId);
+  //    List<Store> storeList = convertTuplesToStores(tuples, userId);
+  //    long total = fetchTotalCount(whereBuilder);
+  //
+  //    return new PageImpl<>(storeList, pageable, total);
+  //  }
 
   // 키워드 검색 조건 생성
   private BooleanBuilder buildKeywordCondition(String keyword) {

@@ -9,35 +9,45 @@ import com.kkinikong.be.store.domain.type.StoreSort;
 
 public interface StoreRepositoryCustom {
 
-  Page<Store> findStoresSorted(
+  Page<Store> findStoresUnified(
       Double latitude,
       Double longitude,
+      Double radiusMeters,
+      String keyword,
       Category category,
       StoreSort sort,
       Pageable pageable,
       Long userId);
 
-  Page<Store> findStoresByNearest(
-      Double latitude,
-      Double longitude,
-      double radiusMeters,
-      Category category,
-      Pageable pageable,
-      Long userId);
-
-  Page<Store> searchStoresSorted(
-      Double latitude,
-      Double longitude,
-      String keyword,
-      StoreSort sort,
-      Pageable pageable,
-      Long userId);
-
-  Page<Store> searchStoresByNearest(
-      Double latitude,
-      Double longitude,
-      double radiusMeters,
-      String keyword,
-      Pageable pageable,
-      Long userId);
+  //  Page<Store> findStoresSorted(
+  //      Double latitude,
+  //      Double longitude,
+  //      Category category,
+  //      StoreSort sort,
+  //      Pageable pageable,
+  //      Long userId);
+  //
+  //  Page<Store> findStoresByNearest(
+  //      Double latitude,
+  //      Double longitude,
+  //      double radiusMeters,
+  //      Category category,
+  //      Pageable pageable,
+  //      Long userId);
+  //
+  //  Page<Store> searchStoresSorted(
+  //      Double latitude,
+  //      Double longitude,
+  //      String keyword,
+  //      StoreSort sort,
+  //      Pageable pageable,
+  //      Long userId);
+  //
+  //  Page<Store> searchStoresByNearest(
+  //      Double latitude,
+  //      Double longitude,
+  //      double radiusMeters,
+  //      String keyword,
+  //      Pageable pageable,
+  //      Long userId);
 }
