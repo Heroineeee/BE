@@ -1,5 +1,7 @@
 package com.kkinikong.be.store.repository.store;
 
+import java.util.List;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
@@ -40,4 +42,6 @@ public interface StoreRepositoryCustom {
       String keyword,
       Pageable pageable,
       Long userId);
+
+  List<Store> findTopViewedStores(Double latitude, Double longitude);
 }

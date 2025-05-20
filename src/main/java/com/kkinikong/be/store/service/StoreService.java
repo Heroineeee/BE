@@ -196,6 +196,13 @@ public class StoreService {
     return "https://map.naver.com/v5/search/" + placeName;
   }
 
+  public List<StoreCardResponse> getTopViewedStores(Double latitude, Double longitude) {
+    latitude = getOrDefault(latitude, StoreService.DEFAULT_LATITUDE);
+    longitude = getOrDefault(longitude, StoreService.DEFAULT_LONGITUDE);
+    List<Store> stores = storeRepository.findTopViewedStores(latitude, longitude);
+    return stores.stream().map(StoreCardResponse::from).toList();
+  }
+
   @Transactional
   public StoreScrapResponse addScrap(Long storeId, Long userId) {
     User user = getUserOrThrow(userId);
