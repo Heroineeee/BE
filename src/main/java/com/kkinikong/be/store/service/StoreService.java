@@ -55,94 +55,68 @@ public class StoreService {
   public PageResponse<StoreListItemResponse> getStoreList(
       Double latitude,
       Double longitude,
+      String keyword,
       Category category,
       StoreSort sort,
       int page,
       int size,
       Long userId) {
+
     latitude = getOrDefault(latitude, StoreService.DEFAULT_LATITUDE);
     longitude = getOrDefault(longitude, StoreService.DEFAULT_LONGITUDE);
     Pageable pageable = PageRequest.of(page, size);
+
     Page<Store> storePage =
-        storeRepository.findStoresSorted(latitude, longitude, category, sort, pageable, userId);
+        storeRepository.findStoresUnified(
+            latitude, longitude, null, keyword, category, sort, pageable, userId);
+
     List<Long> storeIds = storePage.getContent().stream().map(Store::getId).toList();
-    Map<Long, Tag> representativeTagByStoreIdList =
-        storeTagCountRepository.findRepresentativeTagByStoreIdList(storeIds);
+    Map<Long, Tag> tagMap = storeTagCountRepository.findRepresentativeTagByStoreIdList(storeIds);
+
     return PageResponse.from(
-        storePage,
-        store ->
-            StoreListItemResponse.from(store, representativeTagByStoreIdList.get(store.getId())));
+        storePage, store -> StoreListItemResponse.from(store, tagMap.get(store.getId())));
   }
 
-  /// 거리순으로 가맹점 리스트 조회하여 지도 화면 표시
-  public PageResponse<StoreMapListItemResponse> getStoreListWithMap(
-      Double latitude,
-      Double longitude,
-      Double radius,
-      Category category,
-      int page,
-      int size,
-      Long userId) {
-    latitude = getOrDefault(latitude, StoreService.DEFAULT_LATITUDE);
-    longitude = getOrDefault(longitude, StoreService.DEFAULT_LONGITUDE);
-    double searchRadius = (radius != null) ? radius : DEFAULT_SEARCH_RADIUS; // 없으면 5km
-    Pageable pageable = PageRequest.of(page, size);
-    Page<Store> storePage =
-        storeRepository.findStoresByNearest(
-            latitude, longitude, searchRadius, category, pageable, userId);
-    return PageResponse.from(storePage, StoreMapListItemResponse::from);
-  }
+  //  /// 거리순으로 가맹점 리스트 조회하여 지도 화면 표시
+  //  public PageResponse<StoreMapListItemResponse> getStoreListWithMap(
+  //      Double latitude,
+  //      Double longitude,
+  //      Double radius,
+  //      Category category,
+  //      int page,
+  //      int size,
+  //      Long userId) {
+  //    latitude = getOrDefault(latitude, StoreService.DEFAULT_LATITUDE);
+  //    longitude = getOrDefault(longitude, StoreService.DEFAULT_LONGITUDE);
+  //    double searchRadius = (radius != null) ? radius : DEFAULT_SEARCH_RADIUS; // 없으면 5km
+  //    Pageable pageable = PageRequest.of(page, size);
+  //    Page<Store> storePage =
+  //        storeRepository.findStoresByNearest(
+  //            latitude, longitude, searchRadius, category, pageable, userId);
+  //    return PageResponse.from(storePage, StoreMapListItemResponse::from);
+  //  }
 
-  ///  키워드를 통해 가맹점 검색 결과 조회 (가맹점 찾기 화면)
-  public PageResponse<StoreListItemResponse> searchStoresForList(
-      Double latitude,
-      Double longitude,
-      String keyword,
-      StoreSort sort,
-      int page,
-      int size,
-      Long userId) {
-    latitude = getOrDefault(latitude, StoreService.DEFAULT_LATITUDE);
-    longitude = getOrDefault(longitude, StoreService.DEFAULT_LONGITUDE);
-    if (keyword == null || keyword.isBlank()) {
-      return PageResponse.empty(PageRequest.of(page, size));
-    }
-    Pageable pageable = PageRequest.of(page, size);
-    Page<Store> storePage =
-        storeRepository.searchStoresSorted(latitude, longitude, keyword, sort, pageable, userId);
-    List<Long> storeIds = storePage.getContent().stream().map(Store::getId).toList();
-    if (storeIds.isEmpty()) {
-      return PageResponse.from(storePage, store -> StoreListItemResponse.from(store, null));
-    }
-    Map<Long, Tag> representativeTagByStoreIdList =
-        storeTagCountRepository.findRepresentativeTagByStoreIdList(storeIds);
-    return PageResponse.from(
-        storePage,
-        store ->
-            StoreListItemResponse.from(store, representativeTagByStoreIdList.get(store.getId())));
-  }
-
-  ///  키워드를 통해 가맹점 검색 결과 조회 (가맹점 지도 화면 & 메인페이지)
-  public PageResponse<StoreMapListItemResponse> searchStoresForMapList(
-      Double latitude,
-      Double longitude,
-      Double radius,
-      String keyword,
-      int page,
-      int size,
-      Long userId) {
-    latitude = getOrDefault(latitude, StoreService.DEFAULT_LATITUDE);
-    longitude = getOrDefault(longitude, StoreService.DEFAULT_LONGITUDE);
-    double searchRadius = (radius != null) ? radius : DEFAULT_SEARCH_RADIUS; // 없으면 5km
-    if (keyword == null || keyword.isBlank()) {
-      return PageResponse.empty(PageRequest.of(page, size));
-    }
-    Pageable pageable = PageRequest.of(page, size);
-    Page<Store> storePage =
-        storeRepository.searchStoresByNearest(
-            latitude, longitude, searchRadius, keyword, pageable, userId);
-    return PageResponse.from(storePage, StoreMapListItemResponse::from);
-  }
+  //  ///  키워드를 통해 가맹점 검색 결과 조회 (가맹점 지도 화면 & 메인페이지)
+  //  public PageResponse<StoreMapListItemResponse> searchStoresForMapList(
+  //      Double latitude,
+  //      Double longitude,
+  //      Double radius,
+  //      String keyword,
+  //      int page,
+  //      int size,
+  //      Long userId) {
+  //    latitude = getOrDefault(latitude, StoreService.DEFAULT_LATITUDE);
+  //    longitude = getOrDefault(longitude, StoreService.DEFAULT_LONGITUDE);
+  //    double searchRadius = (radius != null) ? radius : DEFAULT_SEARCH_RADIUS; // 없으면 5km
+  //    if (keyword == null || keyword.isBlank()) {
+  //      return PageResponse.empty(PageRequest.of(page, size));
+  //    }
+  //    Pageable pageable = PageRequest.of(page, size);
+  //    Page<Store> storePage =
+  //        storeRepository.searchStoresByNearest(
+  //            latitude, longitude, searchRadius, keyword, pageable, userId);
+  //    return PageResponse.from(storePage, StoreMapListItemResponse::from);
+  //  }
 
   private double getOrDefault(Double value, double defaultValue) {
     return value != null ? value : defaultValue;
