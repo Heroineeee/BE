@@ -1,5 +1,7 @@
 package com.kkinikong.be.report.service;
 
+import java.time.LocalDateTime;
+
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -38,8 +40,9 @@ public class ReportService {
       Long storeId, StoreReportReason storeReportReason, ReportRequest reportRequest, Long userId) {
     User user = findUserOrThrow(userId);
 
-    if (reportRepository.existsReportByTargetIdAndUserId(storeId, user.getId())) {
-      throw new ReportException(ReportErrorCode.REPORT_ALREADY_EXISTS);
+    if (reportRepository.existsReportByTargetIdAndUserIdAndCreatedDateAfter(
+        storeId, user.getId(), LocalDateTime.now().minusDays(7))) {
+      throw new ReportException(ReportErrorCode.STORE_REPORT_ALREADY_EXISTS);
     }
 
     Report report =
@@ -67,11 +70,11 @@ public class ReportService {
     Review review = findReviewOrThrow(reviewId);
 
     if (reportRepository.existsReportByTargetIdAndUserId(reviewId, user.getId())) {
-      throw new ReportException(ReportErrorCode.REPORT_ALREADY_EXISTS);
+      throw new ReportException(ReportErrorCode.REVIEW_ALREADY_EXISTS);
     }
 
     if (review.getUser().getId().equals(userId)) {
-      throw new ReportException(ReportErrorCode.REPORT_SELF);
+      throw new ReportException(ReportErrorCode.REVIEW_REPORT_SELF);
     }
 
     Report report =
