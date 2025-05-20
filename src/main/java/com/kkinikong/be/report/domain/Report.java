@@ -9,9 +9,7 @@ import com.kkinikong.be.global.entity.BaseEntity;
 import com.kkinikong.be.report.domain.type.ReportType;
 import com.kkinikong.be.user.domain.User;
 
-@Table(
-    name = "reports",
-    uniqueConstraints = @UniqueConstraint(columnNames = {"user_id", "report_type", "target_id"}))
+@Table(name = "reports")
 @Entity
 @Getter
 @NoArgsConstructor
