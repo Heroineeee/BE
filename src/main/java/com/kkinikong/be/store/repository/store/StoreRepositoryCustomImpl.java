@@ -165,9 +165,6 @@ public class StoreRepositoryCustomImpl implements StoreRepositoryCustom {
     keywordCondition.or(
         Expressions.stringTemplate("replace({0}, ' ', '')", store.name)
             .containsIgnoreCase(normalizedKeyword));
-    keywordCondition.or(
-        Expressions.stringTemplate("replace({0}, ' ', '')", store.address)
-            .containsIgnoreCase(normalizedKeyword));
     return keywordCondition;
   }
 
