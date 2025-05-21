@@ -1,5 +1,7 @@
 package com.kkinikong.be.store.dto.response;
 
+import java.text.DecimalFormat;
+
 import jakarta.annotation.Nullable;
 
 import com.kkinikong.be.review.domain.type.Tag;
@@ -10,7 +12,7 @@ public record StoreListItemResponse(
     String name,
     String address,
     String category,
-    double ratingAvg,
+    String ratingAvg,
     long scrapCount,
     @Nullable String representativeTag,
     Boolean isScrapped) {
@@ -21,7 +23,7 @@ public record StoreListItemResponse(
         store.getName(),
         store.getAddress(),
         store.getCategory().getLabel(),
-        store.getRatingAvg(),
+        new DecimalFormat("#.##").format(store.getRatingAvg()),
         store.getScrapCount(),
         representativeTag == null ? null : representativeTag.getLabel(),
         store.getIsScrapped());
