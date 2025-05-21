@@ -12,8 +12,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Mono;
 
-import com.kkinikong.be.auth.dto.response.KakaoLoginResponse;
-import com.kkinikong.be.auth.dto.response.KakaoUserInfoResponse;
+import com.kkinikong.be.auth.dto.response.kakao.KakaoLoginResponse;
+import com.kkinikong.be.auth.dto.response.kakao.KakaoUserInfoResponse;
 import com.kkinikong.be.auth.exception.AuthException;
 
 @Slf4j
