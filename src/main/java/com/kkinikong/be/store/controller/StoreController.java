@@ -30,12 +30,12 @@ public class StoreController {
       summary = "가맹점 찾기 화면 리스트/검색 통합 조회",
       description =
           """
-               - keyword가 없으면: GPS 또는 디폴트 위치(인천 서구) 기준 전체 가맹점 조회
-               - keyword가 주소(00동, 00구 등)일 경우: 해당 위치 기준 반경 5km 가맹점 조회
-               - keyword가 음식명 등 일반 키워드일 경우: 현재 위치 기준 가맹점명/주소에 포함된 가맹점 조회
-               - category 필터 선택안하면 전체 가맹점 조회
-               - 정렬: 거리순(DISTANCE), 별점순(RATING), 리뷰순(REVIEW_COUNT), 조회수순(VIEW_COUNT)
-               """)
+             - keyword가 없으면: GPS 또는 디폴트 위치(인천 서구) 기준 전체 가맹점 조회
+             - keyword가 주소(00동, 00구 등)일 경우: 해당 위치 기준 반경 5km 가맹점 조회
+             - keyword가 음식명 등 일반 키워드일 경우: 현재 위치 기준 가맹점명/주소에 포함된 가맹점 조회
+             - category 필터 선택안하면 전체 가맹점 조회
+             - 정렬: 거리순(DISTANCE), 별점순(RATING), 리뷰순(REVIEW_COUNT), 조회수순(VIEW_COUNT)
+             """)
   @GetMapping("/list")
   public ResponseEntity<ApiResponse<Object>> getStoresList(
       @Parameter(description = "인천 서구의 임의의 위도 값", example = "37.545472")
@@ -53,6 +53,37 @@ public class StoreController {
     Long userId = (userDetails != null) ? userDetails.getId() : null;
     PageResponse<StoreListItemResponse> response =
         storeService.getStoreList(latitude, longitude, keyword, category, sort, page, size, userId);
+    return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.from(response));
+  }
+
+  @Operation(
+      summary = "가맹점 지도 화면 리스트/검색 통합 조회",
+      description =
+          """
+            - keyword가 없으면: GPS 또는 디폴트 위치(인천 서구) 기준 전체 가맹점 조회
+            - keyword가 주소(00동, 00구 등)일 경우: 해당 위치 기준 반경 5km 가맹점 조회
+            - keyword가 음식명 등 일반 키워드일 경우: 현재 위치 기준 가맹점명/주소에 포함된 가맹점 조회
+            - category 필터 선택안하면 전체 가맹점 조회
+            - radius를 통해 반경을 조절할 수 있다.
+          """)
+  @GetMapping("/map")
+  public ResponseEntity<ApiResponse<Object>> getStoreMapList(
+      @Parameter(description = "인천 서구의 임의의 위도 값", example = "37.545472")
+          @RequestParam(required = false)
+          Double latitude,
+      @Parameter(description = "인천 서구의 임의의 경도 값", example = "126.676902")
+          @RequestParam(required = false)
+          Double longitude,
+      @RequestParam(required = false) String keyword,
+      @RequestParam(required = false) Double radius,
+      @RequestParam(required = false) Category category,
+      @RequestParam(defaultValue = "0") int page,
+      @RequestParam(defaultValue = "10") int size,
+      @AuthenticationPrincipal CustomUserDetails userDetails) {
+    Long userId = (userDetails != null) ? userDetails.getId() : null;
+    PageResponse<StoreMapListItemResponse> response =
+        storeService.getStoreMapList(
+            latitude, longitude, radius, keyword, category, page, size, userId);
     return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.from(response));
   }
 

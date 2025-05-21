@@ -49,7 +49,6 @@ public class StoreService {
   private static final String NO_INFO = "NO_INFO";
   private static final double DEFAULT_LATITUDE = 37.545472;
   private static final double DEFAULT_LONGITUDE = 126.676902;
-  private static final double DEFAULT_SEARCH_RADIUS = 5000.0;
 
   ///  카테고리와 정렬 조건 기반 가맹점 리스트 조회
   public PageResponse<StoreListItemResponse> getStoreList(
@@ -75,6 +74,27 @@ public class StoreService {
 
     return PageResponse.from(
         storePage, store -> StoreListItemResponse.from(store, tagMap.get(store.getId())));
+  }
+
+  /// 가맹점 지도 조회
+  public PageResponse<StoreMapListItemResponse> getStoreMapList(
+      Double latitude,
+      Double longitude,
+      Double radius,
+      String keyword,
+      Category category,
+      int page,
+      int size,
+      Long userId) {
+
+    latitude = getOrDefault(latitude, StoreService.DEFAULT_LATITUDE);
+    longitude = getOrDefault(longitude, StoreService.DEFAULT_LONGITUDE);
+    Pageable pageable = PageRequest.of(page, size);
+
+    Page<Store> storePage =
+        storeRepository.findStoresUnified(
+            latitude, longitude, radius, keyword, category, StoreSort.DISTANCE, pageable, userId);
+    return PageResponse.from(storePage, StoreMapListItemResponse::from);
   }
 
   private double getOrDefault(Double value, double defaultValue) {
