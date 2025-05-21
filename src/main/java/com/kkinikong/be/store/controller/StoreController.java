@@ -56,38 +56,6 @@ public class StoreController {
     return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.from(response));
   }
 
-  //  @Operation(
-  //      summary = "가맹점 지도 화면 리스트 조회",
-  //      description =
-  //          """
-  //            - GPS 버튼을 눌러 현재 위치를 가져온 경우, 중심 좌표만 전달하면 되고, radius는 보내지 않아도 됩니다 (기본 5000m로 조회).
-  //            - 지도를 이동(드래그, 줌)한 경우, 새 중심 좌표와 radius(검색 반경, meter)를 함께 전달하여 가맹점을 조회할 수 있습니다.
-  //            - radius를 전달하지 않으면 기본 5000m로 조회합니다.
-  //            - 가맹점은 무조건 가까운 거리순으로 조회
-  //            - category를 선택하지 않으면 전체 가맹점 조회합니다.
-  //            - 로그인한 유저는 isScrapped true/false 값을, 비로그인 시는 null을 반환합니다.
-  //            """)
-  //  @GetMapping("/list/map")
-  //  public ResponseEntity<ApiResponse<Object>> getStoresMapList(
-  //      @Parameter(description = "인천 서구의 임의의 위도 값", example = "37.545472")
-  //          @RequestParam(required = false)
-  //          Double latitude,
-  //      @Parameter(description = "인천 서구의 임의의 경도 값", example = "126.676902")
-  //          @RequestParam(required = false)
-  //          Double longitude,
-  //      @Parameter(description = "검색 반경 (단위: meter, 기본 5000m)") @RequestParam(required = false)
-  //          Double radius,
-  //      @RequestParam(required = false) Category category,
-  //      @RequestParam(defaultValue = "0") int page,
-  //      @RequestParam(defaultValue = "10") int size,
-  //      @AuthenticationPrincipal CustomUserDetails userDetails) {
-  //    Long userId = (userDetails != null) ? userDetails.getId() : null;
-  //    PageResponse<StoreMapListItemResponse> response =
-  //        storeService.getStoreListWithMap(latitude, longitude, radius, category, page, size,
-  // userId);
-  //    return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.from(response));
-  //  }
-
   @Operation(
       summary = "가맹점 상세 정보 조회",
       description =
@@ -120,37 +88,6 @@ public class StoreController {
     StoreExternalLinkResponse storeExternalLink = storeService.getStoreExternalLink(storeId);
     return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.from(storeExternalLink));
   }
-
-  //  @Operation(
-  //      summary = "가맹점 지도 화면 & 메인페이지 검색",
-  //      description =
-  //          """
-  //            - GPS 버튼을 눌러 현재 위치를 가져온 경우, 중심 좌표만 전달하면 됩니다 (반경은 기본 5000m 적용).
-  //            - 지도를 이동(드래그, 줌 인/아웃)한 경우, 새 중심 좌표와 radius(검색 반경, 단위: meter)를 함께 전달하여 가맹점을 조회할 수
-  // 있습니다.
-  //            - radius를 전달하지 않으면 기본 5000m로 조회합니다.
-  //            - 검색어를 입력하지 않으면 빈 리스트를 반환합니다.
-  //            """)
-  //  @GetMapping("/map")
-  //  public ResponseEntity<ApiResponse<Object>> findStoresMapList(
-  //      @Parameter(description = "인천 서구의 임의의 위도 값", example = "37.545472")
-  //          @RequestParam(required = false)
-  //          Double latitude,
-  //      @Parameter(description = "인천 서구의 임의의 경도 값", example = "126.676902")
-  //          @RequestParam(required = false)
-  //          Double longitude,
-  //      @Parameter(description = "검색 반경 (단위: meter, 기본 5000m)") @RequestParam(required = false)
-  //          Double radius,
-  //      @RequestParam(required = false) String keyword,
-  //      @RequestParam(defaultValue = "0") int page,
-  //      @RequestParam(defaultValue = "10") int size,
-  //      @AuthenticationPrincipal CustomUserDetails userDetails) {
-  //    Long userId = (userDetails != null) ? userDetails.getId() : null;
-  //    PageResponse<StoreMapListItemResponse> response =
-  //        storeService.searchStoresForMapList(
-  //            latitude, longitude, radius, keyword, page, size, userId);
-  //    return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.from(response));
-  //  }
 
   @Operation(summary = "가맹점 스크랩")
   @PostMapping("/scrap/{storeId}")
