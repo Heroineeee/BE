@@ -30,12 +30,12 @@ public class StoreController {
       summary = "가맹점 찾기 화면 리스트/검색 통합 조회",
       description =
           """
-             - keyword가 없으면: GPS 또는 디폴트 위치(인천 서구) 기준 전체 가맹점 조회
-             - keyword가 주소(00동, 00구 등)일 경우: 해당 위치 기준 반경 5km 가맹점 조회
-             - keyword가 음식명 등 일반 키워드일 경우: 현재 위치 기준 가맹점명/주소에 포함된 가맹점 조회
-             - category 필터 선택안하면 전체 가맹점 조회
-             - 정렬: 거리순(DISTANCE), 별점순(RATING), 리뷰순(REVIEW_COUNT), 조회수순(VIEW_COUNT)
-             """)
+               - keyword가 없으면: GPS 또는 디폴트 위치(인천 서구) 기준 전체 가맹점 조회
+               - keyword가 주소(00동, 00구 등)일 경우: 해당 위치 기준 반경 5km 가맹점 조회
+               - keyword가 음식명 등 일반 키워드일 경우: 현재 위치 기준 가맹점명/주소에 포함된 가맹점 조회
+               - category 필터 선택안하면 전체 가맹점 조회
+               - 정렬: 거리순(DISTANCE), 별점순(RATING), 리뷰순(REVIEW_COUNT), 조회수순(VIEW_COUNT)
+               """)
   @GetMapping("/list")
   public ResponseEntity<ApiResponse<Object>> getStoresList(
       @Parameter(description = "인천 서구의 임의의 위도 값", example = "37.545472")

@@ -1,5 +1,16 @@
 spring:
+  datasource:
+    url: ${DB_URL}
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
   data:
     redis:
       host: ${REDIS_HOST}
       port: ${REDIS_PORT}
+
+springdoc:
+  swagger-ui:
+    path: /swagger-ui/index.html
+    url: https://kkinikong.store/v3/api-docs
+  api-docs:
+    path: /v3/api-docs
