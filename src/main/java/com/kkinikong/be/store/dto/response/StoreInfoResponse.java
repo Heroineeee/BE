@@ -1,5 +1,6 @@
 package com.kkinikong.be.store.dto.response;
 
+import java.text.DecimalFormat;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
@@ -21,7 +22,7 @@ public record StoreInfoResponse(
     long storeScrapCount,
     LocalDate storeUpdatedDate,
     long storeReviewCount,
-    Double storeRating) {
+    String storeRating) {
 
   public static StoreInfoResponse from(
       Store store, String representativeTag, Map<String, List<String>> storeWeeklyOpeningHours) {
@@ -37,7 +38,7 @@ public record StoreInfoResponse(
         .storeScrapCount(store.getScrapCount())
         .storeUpdatedDate(store.getUpdatedDate())
         .storeReviewCount(store.getReviewCount())
-        .storeRating(store.getRatingAvg())
+        .storeRating(new DecimalFormat("#.##").format(store.getRatingAvg()))
         .build();
   }
 }
