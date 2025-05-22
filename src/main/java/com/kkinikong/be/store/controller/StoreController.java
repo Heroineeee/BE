@@ -1,5 +1,7 @@
 package com.kkinikong.be.store.controller;
 
+import java.util.List;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -25,6 +27,19 @@ import com.kkinikong.be.user.utils.CustomUserDetails;
 public class StoreController {
 
   private final StoreService storeService;
+
+  @Operation(summary = "메인페이지 조회수 높은 가맹점 8개 조회")
+  @GetMapping("/top")
+  public ResponseEntity<ApiResponse<Object>> getTopStore(
+      @Parameter(description = "인천 서구의 임의의 위도 값", example = "37.545472")
+          @RequestParam(required = false)
+          Double latitude,
+      @Parameter(description = "인천 서구의 임의의 경도 값", example = "126.676902")
+          @RequestParam(required = false)
+          Double longitude) {
+    List<StoreCardResponse> response = storeService.getTopStores(latitude, longitude);
+    return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.from(response));
+  }
 
   @Operation(
       summary = "가맹점 찾기 화면 리스트/검색 통합 조회",
