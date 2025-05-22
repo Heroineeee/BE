@@ -37,7 +37,7 @@ public class StoreController {
       @Parameter(description = "인천 서구의 임의의 경도 값", example = "126.676902")
           @RequestParam(required = false)
           Double longitude) {
-    List<StoreCardResponse> response = storeService.getTopStores(latitude, longitude);
+    List<StoreCardResponse> response = storeService.getTopViewedStores(latitude, longitude);
     return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.from(response));
   }
 
