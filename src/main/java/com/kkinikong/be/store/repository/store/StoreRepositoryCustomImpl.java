@@ -61,6 +61,14 @@ public class StoreRepositoryCustomImpl implements StoreRepositoryCustom {
     return new PageImpl<>(storeList, pageable, total);
   }
 
+  @Override
+  public List<Store> findTopViewedStores(Double latitude, Double longitude) {
+    BooleanBuilder whereBuilder = buildDistanceCondition(latitude, longitude, 3000.0);
+    OrderSpecifier<?>[] orderBy = getSortOrder(StoreSort.VIEW_COUNT, latitude, longitude);
+
+    return queryFactory.selectFrom(store).where(whereBuilder).orderBy(orderBy).limit(8).fetch();
+  }
+
   // 키워드 검색 조건 생성
   private BooleanBuilder buildKeywordCondition(String keyword) {
     String normalizedKeyword = keyword.replaceAll("\\s+", "");
