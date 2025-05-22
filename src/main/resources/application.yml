@@ -7,9 +7,6 @@ spring:
     active: ${SPRING_PROFILES_ACTIVE:local}
 
   datasource:
-    url: ${DB_URL}
-    username: ${DB_USERNAME}
-    password: ${DB_PASSWORD}
     driver-class-name: com.mysql.cj.jdbc.Driver
 
   jpa:
@@ -37,13 +34,6 @@ cloud:
     region:
       static: ${AWS_REGION}
     s3:
-        bucket: ${AWS_S3_BUCKET_NAME}
+      bucket: ${AWS_S3_BUCKET_NAME}
     stack:
       auto: false
-
-springdoc:
-  swagger-ui:
-    path: /swagger-ui/index.html
-    url: https://kkinikong.store/v3/api-docs
-  api-docs:
-    path: /v3/api-docs
