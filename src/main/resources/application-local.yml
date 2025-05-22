@@ -11,6 +11,6 @@ spring:
 springdoc:
   swagger-ui:
     path: /swagger-ui/index.html
-    url: http://localhost:8080/v3/api-docs
+    url: ${LOCAL_SWAGGER_URL}
   api-docs:
     path: /v3/api-docs
