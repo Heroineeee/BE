@@ -101,7 +101,7 @@ public class StoreService {
     return value != null ? value : defaultValue;
   }
 
-  public StoreInfoResponse getStoreInfo(Long storeId) {
+  public StoreInfoResponse getStoreInfo(Long storeId, Long userId) {
     Store store = getStoreOrThrow(storeId);
 
     storeCacheService.increaseViewCounts(storeId);
@@ -111,6 +111,13 @@ public class StoreService {
             .findRepresentativeTagByStoreId(storeId)
             .map(Tag::getLabel)
             .orElse(null);
+
+    if (userId != null) {
+      User user = getUserOrThrow(userId);
+      store.setIsScrapped(storeScrapRepository.existsByStoreIdAndUserId(storeId, user.getId()));
+    } else {
+      store.setIsScrapped(null);
+    }
 
     return StoreInfoResponse.from(
         store, representativeTag, storeGoogleApiClient.getStoreOpeningHours(store));

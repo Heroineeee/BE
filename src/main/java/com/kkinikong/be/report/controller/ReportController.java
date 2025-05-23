@@ -40,7 +40,7 @@ public class ReportController {
       - ETC를 선택한 경우, description을 입력해주세요.
       - description은 500자 이내로 작성해주세요.
       - ETC를 선택하지 않은 경우, description은 내용이 있더라도 null로 전달되며 requestBody를 비워서 보내도 됩니다.
-      - 이미 신고한 가게인 경우, REPORT_ALREAY_EXISTS 400 에러를 반환합니다.
+      - STORE_REPORT_ALREAY_EXISTS : 이미 신고한 가게는 7일 이내에 다시 신고할 수 없습니다.
       """)
   @PostMapping("store/{storeId}")
   public ResponseEntity<ApiResponse<Object>> reportStore(
@@ -62,7 +62,8 @@ public class ReportController {
       - ETC를 선택한 경우, description을 입력해주세요.
       - description은 500자 이내로 작성해주세요.
       - ETC를 선택하지 않은 경우, description은 내용이 있더라도 null로 전달되며 requestBody를 비워서 보내도 됩니다.
-      - 이미 신고한 가게인 경우, REPORT_ALREADY_EXISTS 400 에러를 반환합니다.
+      - REVIEW_ALREADY_EXIST : 이미 신고한 리뷰입니다.
+      - REVIEW_REPORT_SELF : 자기 자신을 신고할 수 없습니다.
       """)
   @PostMapping("review/{reviewId}")
   public ResponseEntity<ApiResponse<Object>> reportReview(
