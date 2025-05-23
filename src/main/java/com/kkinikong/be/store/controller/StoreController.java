@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.*;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.annotation.Nullable;
 import lombok.RequiredArgsConstructor;
 
 import com.kkinikong.be.global.response.ApiResponse;
@@ -92,14 +93,18 @@ public class StoreController {
       description =
           """
             - 가맹점 ID를 통해 가맹점 정보를 조회합니다.
-            - 가맹점 ID, 가맹점 카테고리, 가맹점 이름, 가맹점 주소, 영업시간, 스크랩 수, 업데이트 일자, 리뷰 수, 별점을 포함합니다.
+            - 가맹점 ID, 가맹점 카테고리, 가맹점 이름, 가맹점 주소, 영업시간, 스크랩 수, 업데이트 일자, 리뷰 수, 별점, 스크랩 여부를 포함합니다.
+            - 로그인 한 경우에는 스크랩 여부가 true/false로 반환되고 로그인 하지 않은 경우에는 null로 반환됩니다.
             - 가맹점 영업시간 정보는 구글 API 호출을 통해 조회하고 캐싱되어 30일간 유지됩니다.
             - 영업시간 정보가 없는 경우, 영업시간 리스트에서 휴무일인 경우에 null로 반환됩니다.
             - 가맹점이 ID로 조회되지 않는 경우에는 STORE_NOT_FOUND 400 에러를 반환합니다.
             """)
   @GetMapping("/{storeId}")
-  public ResponseEntity<ApiResponse<Object>> getStoreInfo(@PathVariable("storeId") Long storeId) {
-    StoreInfoResponse storeInfo = storeService.getStoreInfo(storeId);
+  public ResponseEntity<ApiResponse<Object>> getStoreInfo(
+      @PathVariable("storeId") Long storeId,
+      @Nullable @AuthenticationPrincipal CustomUserDetails userDetails) {
+    Long userId = (userDetails != null) ? userDetails.getId() : null;
+    StoreInfoResponse storeInfo = storeService.getStoreInfo(storeId, userId);
     return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.from(storeInfo));
   }
 

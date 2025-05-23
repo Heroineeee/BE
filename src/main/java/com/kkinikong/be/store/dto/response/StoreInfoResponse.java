@@ -22,7 +22,8 @@ public record StoreInfoResponse(
     long storeScrapCount,
     LocalDate storeUpdatedDate,
     long storeReviewCount,
-    String storeRating) {
+    String storeRating,
+    Boolean isScrapped) {
 
   public static StoreInfoResponse from(
       Store store, String representativeTag, Map<String, List<String>> storeWeeklyOpeningHours) {
@@ -39,6 +40,7 @@ public record StoreInfoResponse(
         .storeUpdatedDate(store.getUpdatedDate())
         .storeReviewCount(store.getReviewCount())
         .storeRating(new DecimalFormat("#.##").format(store.getRatingAvg()))
+        .isScrapped(store.getIsScrapped())
         .build();
   }
 }
