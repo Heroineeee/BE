@@ -40,4 +40,4 @@ cloud:
 
 openai:
     api:
-        key: ${OPENAI_API_KEY}
+        key: ${OPEN_API_KEY}

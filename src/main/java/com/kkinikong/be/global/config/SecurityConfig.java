@@ -63,9 +63,12 @@ public class SecurityConfig {
                     .authenticated()
                     .requestMatchers(HttpMethod.POST, "/api/v1/*/review")
                     .authenticated()
+                    .requestMatchers(HttpMethod.POST, "/api/v1/convenience/post")
+                    .authenticated()
                     .requestMatchers(HttpMethod.POST, "/api/v1/*/review/*/photo")
                     .authenticated()
-                    .requestMatchers(HttpMethod.DELETE, "/api/v1/*/review/*")
+                    .requestMatchers(
+                        HttpMethod.DELETE, "/api/v1/*/review/*", "/api/v1/convenience/post/**")
                     .authenticated()
                     .anyRequest() // 그 외 모든 요청 허용
                     .permitAll())

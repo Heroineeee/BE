@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import jakarta.persistence.*;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -34,8 +35,8 @@ public class ConveniencePost extends BaseEntity {
   @Column(name = "name", nullable = false)
   private String name;
 
-  @Column(name = "decription", nullable = false)
-  private String decription;
+  @Column(name = "description", nullable = false)
+  private String description;
 
   @Column(name = "is_available", nullable = false)
   private Boolean isAvailable;
@@ -52,4 +53,20 @@ public class ConveniencePost extends BaseEntity {
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "user_id", nullable = false)
   private User user;
+
+  @Builder
+  public ConveniencePost(
+      String name,
+      Brand brand,
+      Category category,
+      String description,
+      Boolean isAvailable,
+      User user) {
+    this.name = name;
+    this.brand = brand;
+    this.category = category;
+    this.description = description;
+    this.isAvailable = isAvailable;
+    this.user = user;
+  }
 }
