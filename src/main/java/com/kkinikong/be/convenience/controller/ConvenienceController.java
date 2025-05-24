@@ -65,7 +65,14 @@ public class ConvenienceController {
     return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.EMPTY_RESPONSE);
   }
 
-  @Operation(summary = "편의점 정보 게시글에 '올바른/잘못된 정보' 표시")
+  @Operation(
+      summary = "편의점 정보 게시글에 '올바른/잘못된 정보' 표시",
+      description =
+          """
+          - `true` : 올바른 정보예요
+          - `false` : 잘못된 정보예요
+          - 사용자는 게시글당 한 번만 평가할 수 있으며, 기존 평가가 있는 경우 수정됩니다.
+          """)
   @PostMapping("/post/{postId}/info")
   public ResponseEntity<ApiResponse<Object>> addConveniencePostInfo(
       @PathVariable("postId") Long postId,
