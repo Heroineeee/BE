@@ -11,6 +11,7 @@ import lombok.extern.slf4j.Slf4j;
 import com.kkinikong.be.convenience.domain.ConvenienceHelpful;
 import com.kkinikong.be.convenience.domain.ConveniencePost;
 import com.kkinikong.be.convenience.dto.request.ConvenienceRequest;
+import com.kkinikong.be.convenience.dto.response.ConveniencePostInfoResponse;
 import com.kkinikong.be.convenience.dto.response.ConveniencePostResponse;
 import com.kkinikong.be.convenience.dto.response.ConvenienceRecommendationResponse;
 import com.kkinikong.be.convenience.exception.ConvenienceException;
@@ -64,7 +65,8 @@ public class ConvenienceService {
   }
 
   @Transactional
-  public void addConveniencePostInfo(Long postId, Boolean isCorrect, Long userId) {
+  public ConveniencePostInfoResponse addConveniencePostInfo(
+      Long postId, Boolean isCorrect, Long userId) {
     ConveniencePost conveniencePost = getConveniencePostOrThrow(postId);
     User user = getUserOrThrow(userId);
 
@@ -73,7 +75,10 @@ public class ConvenienceService {
 
     if (optionalHelpful.isPresent()) {
       ConvenienceHelpful existing = optionalHelpful.get();
-      if (existing.getIsCorrect().equals(isCorrect)) return;
+      if (existing.getIsCorrect().equals(isCorrect)) {
+        return new ConveniencePostInfoResponse(
+            conveniencePost.getCorrectCount(), conveniencePost.getIncorrectCount(), isCorrect);
+      }
 
       conveniencePost.decreaseCount(existing.getIsCorrect());
       existing.updateIsCorrect(isCorrect);
@@ -86,7 +91,11 @@ public class ConvenienceService {
               .build();
       helpfulRepository.save(newHelpful);
     }
+
     conveniencePost.increaseCount(isCorrect);
+
+    return new ConveniencePostInfoResponse(
+        conveniencePost.getCorrectCount(), conveniencePost.getIncorrectCount(), isCorrect);
   }
 
   private User getUserOrThrow(Long userId) {

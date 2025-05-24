@@ -16,6 +16,7 @@ import lombok.RequiredArgsConstructor;
 
 import com.kkinikong.be.convenience.dto.request.ConveniencePostInfoRequest;
 import com.kkinikong.be.convenience.dto.request.ConvenienceRequest;
+import com.kkinikong.be.convenience.dto.response.ConveniencePostInfoResponse;
 import com.kkinikong.be.convenience.dto.response.ConveniencePostResponse;
 import com.kkinikong.be.convenience.service.ConvenienceService;
 import com.kkinikong.be.global.response.ApiResponse;
@@ -78,7 +79,8 @@ public class ConvenienceController {
       @PathVariable("postId") Long postId,
       @RequestBody @Valid ConveniencePostInfoRequest request,
       @AuthenticationPrincipal CustomUserDetails userDetails) {
-    convenienceService.addConveniencePostInfo(postId, request.isCorrect(), userDetails.getId());
-    return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.EMPTY_RESPONSE);
+    ConveniencePostInfoResponse response =
+        convenienceService.addConveniencePostInfo(postId, request.isCorrect(), userDetails.getId());
+    return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.from(response));
   }
 }
