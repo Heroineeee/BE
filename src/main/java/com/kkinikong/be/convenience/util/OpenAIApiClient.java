@@ -2,44 +2,83 @@ package com.kkinikong.be.convenience.util;
 
 import java.util.List;
 
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
+import org.springframework.web.reactive.function.client.WebClient;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-import lombok.AllArgsConstructor;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import reactor.core.publisher.Mono;
+
+import com.kkinikong.be.convenience.dto.response.ConvenienceRecommendationResponse;
+import com.kkinikong.be.convenience.exception.ConvenienceException;
+import com.kkinikong.be.convenience.exception.errorcode.ConvenienceErrorCode;
+import com.kkinikong.be.convenience.util.dto.OpenAIRequest;
+import com.kkinikong.be.convenience.util.dto.OpenAIResponse;
 
 @Slf4j
-@RequiredArgsConstructor
 @Component
-@AllArgsConstructor
+@RequiredArgsConstructor
 public class OpenAIApiClient {
 
-  private static final String MODEL = "gpt-3.5-turbo";
-  private static final int MAX_TOKENS = 300;
+  private final WebClient webClient;
 
-  @JsonProperty("model")
-  private String model;
+  private static final String OPENAI_API_URL = "https://api.openai.com/v1/chat/completions";
 
-  @JsonProperty("max_tokens")
-  private int maxTokens;
+  @Value("${openai.api.key}")
+  private String apiKey;
 
-  @JsonProperty("messages")
-  private List<Message> messages;
+  public ConvenienceRecommendationResponse getProductNameRecommendation(
+      OpenAIRequest openAIRequest) {
+    return webClient
+        .post()
+        .uri(OPENAI_API_URL)
+        .header("Authorization", "Bearer " + apiKey)
+        .contentType(MediaType.APPLICATION_JSON)
+        .bodyValue(openAIRequest)
+        .exchangeToMono(
+            response -> {
+              if (response.statusCode().is2xxSuccessful()) {
+                return response
+                    .bodyToMono(OpenAIResponse.class)
+                    .<ConvenienceRecommendationResponse>handle(
+                        (openAIResponse, sink) -> {
+                          List<OpenAIResponse.Choice> choices = openAIResponse.getChoices();
+                          if (choices != null && !choices.isEmpty()) {
+                            String rawContent = choices.get(0).getMessage().getContent();
+                            try {
+                              List<String> parsed = parseChoices(rawContent);
+                              sink.next(new ConvenienceRecommendationResponse(parsed));
+                            } catch (JsonProcessingException e) {
+                              sink.error(
+                                  new ConvenienceException(
+                                      ConvenienceErrorCode.PARSE_CHOICES_ERROR));
+                            }
+                          } else {
+                            sink.error(
+                                new ConvenienceException(ConvenienceErrorCode.OPEN_AI_API_ERROR));
+                          }
+                        });
+              } else {
+                return response
+                    .bodyToMono(String.class)
+                    .flatMap(
+                        errorBody -> {
+                          log.error("❌ OpenAI API Error Response: {}", errorBody);
+                          return Mono.error(
+                              new ConvenienceException(ConvenienceErrorCode.OPEN_AI_API_ERROR));
+                        });
+              }
+            })
+        .block();
+  }
 
-  public static OpenAIApiClient createOpenAIRequest(String productName) {
-    return new OpenAIApiClient(
-        MODEL,
-        MAX_TOKENS,
-        List.of(
-            new Message(
-                "system",
-                "You are an AI assistant that suggests accurate product names sold at convenience stores in Korea (e.g., CU, GS25, 7-Eleven). "
-                    + "The user may input a vague or abbreviated product name. "
-                    + "Your task is to recommend up to 3 actual product names that are most relevant and likely to match what the user intended. "
-                    + "Respond only with a JSON array of product names, and make sure the product names are written in natural Korean, including the brand name and volume"
-                    + "If the input does not relate to any product or is too vague to match, respond with [\"관련 제품 없음\"] instead. "
-                    + "Do not add any explanation, code block, or formatting around the result. Respond strictly in Korean."),
-            new Message("user", productName)));
+  private List<String> parseChoices(String rawChoices) throws JsonProcessingException {
+    ObjectMapper objectMapper = new ObjectMapper();
+    return objectMapper.readValue(rawChoices, new TypeReference<>() {});
   }
 }

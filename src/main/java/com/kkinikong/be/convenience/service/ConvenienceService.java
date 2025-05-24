@@ -6,7 +6,9 @@ import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
-import com.kkinikong.be.convenience.repository.ConvenienceRepository;
+import com.kkinikong.be.convenience.dto.response.ConvenienceRecommendationResponse;
+import com.kkinikong.be.convenience.util.OpenAIApiClient;
+import com.kkinikong.be.convenience.util.dto.OpenAIRequest;
 
 @Service
 @RequiredArgsConstructor
@@ -14,10 +16,10 @@ import com.kkinikong.be.convenience.repository.ConvenienceRepository;
 @Slf4j
 public class ConvenienceService {
 
-  private final ConvenienceRepository convenienceRepository;
+  private final OpenAIApiClient openAIApiClient;
 
-  public String getProductNameRecommendation(String productName) {
-
-    return "string";
+  public ConvenienceRecommendationResponse getProductNameRecommendation(String productName) {
+    OpenAIRequest openAIRequest = new OpenAIRequest(productName);
+    return openAIApiClient.getProductNameRecommendation(openAIRequest);
   }
 }
