@@ -8,6 +8,8 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import com.kkinikong.be.convenience.domain.ConvenienceHelpful;
+import com.kkinikong.be.convenience.domain.ConveniencePost;
 import com.kkinikong.be.global.entity.BaseEntity;
 import com.kkinikong.be.report.domain.Report;
 import com.kkinikong.be.review.domain.Review;
@@ -70,4 +72,10 @@ public class User extends BaseEntity {
 
   @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
   private List<Report> reportList = new ArrayList<>();
+
+  @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+  private List<ConveniencePost> conveniencePostList = new ArrayList<>();
+
+  @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+  private List<ConvenienceHelpful> helpfulList = new ArrayList<>();
 }
