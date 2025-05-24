@@ -71,7 +71,7 @@ public class ConvenienceController {
       @PathVariable("postId") Long postId,
       @RequestBody @Valid ConveniencePostInfoRequest request,
       @AuthenticationPrincipal CustomUserDetails userDetails) {
-    convenienceService.addConveniencePostInfo(postId, request.getIsCorrect(), userDetails.getId());
+    convenienceService.addConveniencePostInfo(postId, request.isCorrect(), userDetails.getId());
     return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.EMPTY_RESPONSE);
   }
 }
