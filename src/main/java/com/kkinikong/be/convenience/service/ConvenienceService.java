@@ -8,6 +8,8 @@ import lombok.RequiredArgsConstructor;
 import com.kkinikong.be.convenience.domain.ConveniencePost;
 import com.kkinikong.be.convenience.dto.request.ConvenienceRequest;
 import com.kkinikong.be.convenience.dto.response.ConveniencePostResponse;
+import com.kkinikong.be.convenience.exception.ConvenienceException;
+import com.kkinikong.be.convenience.exception.errorcode.ConvenienceErrorCode;
 import com.kkinikong.be.convenience.repository.ConvenienceRepository;
 import com.kkinikong.be.user.domain.User;
 import com.kkinikong.be.user.exception.UserException;
@@ -38,9 +40,29 @@ public class ConvenienceService {
     return new ConveniencePostResponse(conveniencePost.getId());
   }
 
+  @Transactional
+  public void deleteConveniencePost(Long conveniencePostId, Long userId) {
+    ConveniencePost conveniencePost = getConveniencePostOrThrow(conveniencePostId);
+    validateConveniencePostOwner(conveniencePost, userId);
+    convenienceRepository.delete(conveniencePost);
+  }
+
   private User getUserOrThrow(Long userId) {
     return userRepository
         .findById(userId)
         .orElseThrow(() -> new UserException(UserErrorCode.USER_NOT_FOUND));
+  }
+
+  private ConveniencePost getConveniencePostOrThrow(Long conveniencePostId) {
+    return convenienceRepository
+        .findById(conveniencePostId)
+        .orElseThrow(
+            () -> new ConvenienceException(ConvenienceErrorCode.CONVENIENCE_POST_NOT_FOUND));
+  }
+
+  private void validateConveniencePostOwner(ConveniencePost conveniencePost, Long userId) {
+    if (!conveniencePost.getUser().getId().equals(userId)) {
+      throw new ConvenienceException(ConvenienceErrorCode.CONVENIENCE_POST_NOT_FOUND);
+    }
   }
 }
