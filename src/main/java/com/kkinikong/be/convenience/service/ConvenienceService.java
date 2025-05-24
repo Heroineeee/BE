@@ -62,7 +62,7 @@ public class ConvenienceService {
 
   private void validateConveniencePostOwner(ConveniencePost conveniencePost, Long userId) {
     if (!conveniencePost.getUser().getId().equals(userId)) {
-      throw new ConvenienceException(ConvenienceErrorCode.CONVENIENCE_POST_NOT_FOUND);
+      throw new ConvenienceException(ConvenienceErrorCode.CONVENIENCE_POST_NOT_AUTHORIZED);
     }
   }
 }
