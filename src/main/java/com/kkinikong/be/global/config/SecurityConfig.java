@@ -63,6 +63,8 @@ public class SecurityConfig {
                     .authenticated()
                     .requestMatchers(HttpMethod.POST, "/api/v1/*/review")
                     .authenticated()
+                    .requestMatchers(HttpMethod.POST, "/api/v1/convenience/post")
+                    .authenticated()
                     .requestMatchers(HttpMethod.POST, "/api/v1/*/review/*/photo")
                     .authenticated()
                     .requestMatchers(HttpMethod.DELETE, "/api/v1/*/review/*")
