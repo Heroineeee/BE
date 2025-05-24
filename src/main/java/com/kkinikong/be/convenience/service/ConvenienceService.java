@@ -70,9 +70,16 @@ public class ConvenienceService {
     ConveniencePost conveniencePost = getConveniencePostOrThrow(postId);
     User user = getUserOrThrow(userId);
 
+    // 본인이 작성한 게시글에 대해서는 선택 불가능
+    if (conveniencePost.getUser().getId().equals(user.getId())) {
+      throw new ConvenienceException(ConvenienceErrorCode.NOT_ALLOWED_TO_SELECT_OWN_POST);
+    }
+
+    // 이전에 해당 게시글에 대해 사용자의 선택이 있는지 확인
     Optional<ConvenienceHelpful> optionalHelpful =
         helpfulRepository.findByConveniencePostAndUser(conveniencePost, user);
 
+    // 기존 선택과 동일한 값이면 아무 변화 없이 현재 상태 반환
     if (optionalHelpful.isPresent()) {
       ConvenienceHelpful existing = optionalHelpful.get();
       if (existing.getIsCorrect().equals(isCorrect)) {
@@ -80,9 +87,11 @@ public class ConvenienceService {
             conveniencePost.getCorrectCount(), conveniencePost.getIncorrectCount(), isCorrect);
       }
 
+      // 이전 선택을 취소하고 새로 선택
       conveniencePost.decreaseCount(existing.getIsCorrect());
       existing.updateIsCorrect(isCorrect);
     } else {
+      // 첫 선택일 경우
       ConvenienceHelpful newHelpful =
           ConvenienceHelpful.builder()
               .user(user)

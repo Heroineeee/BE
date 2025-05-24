@@ -14,6 +14,7 @@ public enum ConvenienceErrorCode implements ErrorCode {
   PARSE_CHOICES_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "OpenAI API 응답 파싱에 실패했습니다."),
   CONVENIENCE_POST_NOT_FOUND(HttpStatus.NOT_FOUND, "편의점 정보 게시글을 찾을 수 없습니다."),
   CONVENIENCE_POST_NOT_AUTHORIZED(HttpStatus.UNAUTHORIZED, "편의점 정보 게시글의 작성자가 아닙니다."),
+  NOT_ALLOWED_TO_SELECT_OWN_POST(HttpStatus.FORBIDDEN, "본인이 작성한 편의점 정보 게시글에서는 선택할 수 없습니다."),
   ;
 
   private final HttpStatus httpStatus;
