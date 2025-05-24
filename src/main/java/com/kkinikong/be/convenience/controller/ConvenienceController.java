@@ -12,6 +12,7 @@ import lombok.RequiredArgsConstructor;
 
 import com.kkinikong.be.convenience.dto.request.ConvenienceRequest;
 import com.kkinikong.be.convenience.dto.response.ConveniencePostResponse;
+import com.kkinikong.be.convenience.service.ConvenienceService;
 import com.kkinikong.be.global.response.ApiResponse;
 import com.kkinikong.be.user.utils.CustomUserDetails;
 
