@@ -63,4 +63,14 @@ public class ConvenienceController {
     convenienceService.deleteConveniencePost(postId, userDetails.getId());
     return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.EMPTY_RESPONSE);
   }
+
+  @Operation(summary = "편의점 정보 게시글에 '올바른/잘못된 정보' 표시")
+  @PostMapping("/post/{postId}/info")
+  public ResponseEntity<ApiResponse<Object>> addConveniencePostInfo(
+      @PathVariable("postId") Long postId,
+      @RequestBody @Valid ConveniencePostInfoRequet request,
+      @AuthenticationPrincipal CustomUserDetails userDetails) {
+    convenienceService.addConveniencePostInfo(postId, request.getIsCorrect(), userDetails.getId());
+    return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.EMPTY_RESPONSE);
+  }
 }
