@@ -10,6 +10,7 @@ import lombok.NoArgsConstructor;
 import com.kkinikong.be.convenience.domain.type.Brand;
 import com.kkinikong.be.convenience.domain.type.Category;
 import com.kkinikong.be.global.entity.BaseEntity;
+import com.kkinikong.be.user.domain.User;
 
 @Table(name = "convenience_post")
 @Entity
@@ -47,4 +48,8 @@ public class ConveniencePost extends BaseEntity {
 
   @OneToMany(mappedBy = "conveniencePost", cascade = CascadeType.ALL)
   private List<ConvenienceHelpful> helpfulList = new ArrayList<>();
+
+  @ManyToOne(fetch = FetchType.LAZY)
+  @JoinColumn(name = "user_id", nullable = false)
+  private User user;
 }
