@@ -32,7 +32,8 @@ public class WebClientConfig {
     Function<HttpClient, HttpClient> mapper =
         client ->
             HttpClient.create()
-                .option(ChannelOption.CONNECT_TIMEOUT_MILLIS, 1000) // 연결 시간 초과 1초로 설정
+                .responseTimeout(Duration.ofSeconds(10))
+                .option(ChannelOption.CONNECT_TIMEOUT_MILLIS, 5000)
                 .doOnConnected(
                     connection ->
                         connection
