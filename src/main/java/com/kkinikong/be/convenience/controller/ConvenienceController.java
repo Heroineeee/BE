@@ -33,11 +33,20 @@ public class ConvenienceController {
           - 상세 설명은 선택입니다. 공백 포함 최대 300자까지 입력 가능합니다.
           """)
   @PostMapping("/post")
-  public ResponseEntity<ApiResponse<Object>> postConvenience(
+  public ResponseEntity<ApiResponse<Object>> postConveniencePost(
       @RequestBody @Valid ConvenienceRequest convenienceRequest,
       @AuthenticationPrincipal CustomUserDetails userDetails) {
     ConveniencePostResponse conveniencePostResponse =
         convenienceService.postConvenience(convenienceRequest, userDetails.getId());
     return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.from(conveniencePostResponse));
+  }
+
+  @Operation(summary = "편의점 정보 게시글 삭제", description = "편의점 정보 게시글은 작성자만 삭제할 수 있습니다.")
+  @DeleteMapping("/post/{conveniencePostId}")
+  public ResponseEntity<ApiResponse<Object>> deleteConveniencePost(
+      @PathVariable("conveniencePostId") Long conveniencePostId,
+      @AuthenticationPrincipal CustomUserDetails userDetails) {
+    convenienceService.deleteConveniencePost(conveniencePostId, userDetails.getId());
+    return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.EMPTY_RESPONSE);
   }
 }
