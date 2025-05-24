@@ -20,9 +20,6 @@ public class ConvenienceHelpful extends BaseEntity {
   @Column(name = "is_correct", nullable = false)
   private Boolean isCorrect;
 
-  @Column(name = "user_id", nullable = false)
-  private Long userId;
-
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "convenience_post_id", nullable = false)
   private ConveniencePost conveniencePost;
