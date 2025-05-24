@@ -57,11 +57,10 @@ public class ConvenienceController {
   }
 
   @Operation(summary = "편의점 정보 게시글 삭제", description = "편의점 정보 게시글은 작성자만 삭제할 수 있습니다.")
-  @DeleteMapping("/post/{conveniencePostId}")
+  @DeleteMapping("/post/{postId}")
   public ResponseEntity<ApiResponse<Object>> deleteConveniencePost(
-      @PathVariable("conveniencePostId") Long conveniencePostId,
-      @AuthenticationPrincipal CustomUserDetails userDetails) {
-    convenienceService.deleteConveniencePost(conveniencePostId, userDetails.getId());
+      @PathVariable("postId") Long postId, @AuthenticationPrincipal CustomUserDetails userDetails) {
+    convenienceService.deleteConveniencePost(postId, userDetails.getId());
     return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.EMPTY_RESPONSE);
   }
 }

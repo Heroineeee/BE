@@ -53,8 +53,8 @@ public class ConvenienceService {
   }
 
   @Transactional
-  public void deleteConveniencePost(Long conveniencePostId, Long userId) {
-    ConveniencePost conveniencePost = getConveniencePostOrThrow(conveniencePostId);
+  public void deleteConveniencePost(Long postId, Long userId) {
+    ConveniencePost conveniencePost = getConveniencePostOrThrow(postId);
     validateConveniencePostOwner(conveniencePost, userId);
     convenienceRepository.delete(conveniencePost);
   }
