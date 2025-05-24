@@ -24,7 +24,14 @@ public class ConvenienceController {
 
   private final ConvenienceService convenienceService;
 
-  @Operation(summary = "편의점 정보 게시글 작성")
+  @Operation(
+      summary = "편의점 정보 게시글 작성",
+      description =
+          """
+          - brand 는 GS25, CU, SEVENELEVEN, EMART24, MINISTOP 중 하나를 선택합니다.
+          - 카테고리는 MEAL, SNACK, DRINK, FRUIT, ETC 중에 하나를 선택합니다.
+          - 상세 설명은 선택입니다. 공백 포함 최대 300자까지 입력 가능합니다.
+          """)
   @PostMapping("/post")
   public ResponseEntity<ApiResponse<Object>> postConvenience(
       @RequestBody @Valid ConvenienceRequest convenienceRequest,
