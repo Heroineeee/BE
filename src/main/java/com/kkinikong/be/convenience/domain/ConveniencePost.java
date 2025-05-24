@@ -69,4 +69,14 @@ public class ConveniencePost extends BaseEntity {
     this.isAvailable = isAvailable;
     this.user = user;
   }
+
+  public void increaseCount(boolean isCorrect) {
+    if (isCorrect) this.correctCount++;
+    else this.incorrectCount++;
+  }
+
+  public void decreaseCount(boolean isCorrect) {
+    if (isCorrect && correctCount > 0) this.correctCount--;
+    else if (!isCorrect && incorrectCount > 0) this.incorrectCount--;
+  }
 }

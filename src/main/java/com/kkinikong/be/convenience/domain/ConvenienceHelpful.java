@@ -1,6 +1,7 @@
 package com.kkinikong.be.convenience.domain;
 
 import jakarta.persistence.*;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -27,4 +28,15 @@ public class ConvenienceHelpful extends BaseEntity {
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "user_id", nullable = false)
   private User user;
+
+  @Builder
+  public ConvenienceHelpful(User user, ConveniencePost conveniencePost, Boolean isCorrect) {
+    this.user = user;
+    this.conveniencePost = conveniencePost;
+    this.isCorrect = isCorrect;
+  }
+
+  public void updateIsCorrect(Boolean isCorrect) {
+    this.isCorrect = isCorrect;
+  }
 }
