@@ -1,17 +1,22 @@
 package com.kkinikong.be.convenience.service;
 
+import java.util.Optional;
+
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
+import com.kkinikong.be.convenience.domain.ConvenienceHelpful;
 import com.kkinikong.be.convenience.domain.ConveniencePost;
 import com.kkinikong.be.convenience.dto.request.ConvenienceRequest;
+import com.kkinikong.be.convenience.dto.response.ConveniencePostInfoResponse;
 import com.kkinikong.be.convenience.dto.response.ConveniencePostResponse;
 import com.kkinikong.be.convenience.dto.response.ConvenienceRecommendationResponse;
 import com.kkinikong.be.convenience.exception.ConvenienceException;
 import com.kkinikong.be.convenience.exception.errorcode.ConvenienceErrorCode;
+import com.kkinikong.be.convenience.repository.ConvenienceHelpfulRepository;
 import com.kkinikong.be.convenience.repository.ConvenienceRepository;
 import com.kkinikong.be.convenience.util.OpenAIApiClient;
 import com.kkinikong.be.convenience.util.dto.OpenAIRequest;
@@ -28,7 +33,7 @@ public class ConvenienceService {
 
   private final ConvenienceRepository convenienceRepository;
   private final UserRepository userRepository;
-
+  private final ConvenienceHelpfulRepository helpfulRepository;
   private final OpenAIApiClient openAIApiClient;
 
   public ConvenienceRecommendationResponse getProductNameRecommendation(String productName) {
@@ -57,6 +62,49 @@ public class ConvenienceService {
     ConveniencePost conveniencePost = getConveniencePostOrThrow(postId);
     validateConveniencePostOwner(conveniencePost, userId);
     convenienceRepository.delete(conveniencePost);
+  }
+
+  @Transactional
+  public ConveniencePostInfoResponse addConveniencePostInfo(
+      Long postId, Boolean isCorrect, Long userId) {
+    ConveniencePost conveniencePost = getConveniencePostOrThrow(postId);
+    User user = getUserOrThrow(userId);
+
+    // 본인이 작성한 게시글에 대해서는 선택 불가능
+    if (conveniencePost.getUser().getId().equals(user.getId())) {
+      throw new ConvenienceException(ConvenienceErrorCode.NOT_ALLOWED_TO_SELECT_OWN_POST);
+    }
+
+    // 이전에 해당 게시글에 대해 사용자의 선택이 있는지 확인
+    Optional<ConvenienceHelpful> optionalHelpful =
+        helpfulRepository.findByConveniencePostAndUser(conveniencePost, user);
+
+    // 기존 선택과 동일한 값이면 아무 변화 없이 현재 상태 반환
+    if (optionalHelpful.isPresent()) {
+      ConvenienceHelpful existing = optionalHelpful.get();
+      if (existing.getIsCorrect().equals(isCorrect)) {
+        return new ConveniencePostInfoResponse(
+            conveniencePost.getCorrectCount(), conveniencePost.getIncorrectCount(), isCorrect);
+      }
+
+      // 이전 선택을 취소하고 새로 선택
+      conveniencePost.decreaseCount(existing.getIsCorrect());
+      existing.updateIsCorrect(isCorrect);
+    } else {
+      // 첫 선택일 경우
+      ConvenienceHelpful newHelpful =
+          ConvenienceHelpful.builder()
+              .user(user)
+              .conveniencePost(conveniencePost)
+              .isCorrect(isCorrect)
+              .build();
+      helpfulRepository.save(newHelpful);
+    }
+
+    conveniencePost.increaseCount(isCorrect);
+
+    return new ConveniencePostInfoResponse(
+        conveniencePost.getCorrectCount(), conveniencePost.getIncorrectCount(), isCorrect);
   }
 
   private User getUserOrThrow(Long userId) {

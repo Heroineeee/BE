@@ -14,7 +14,9 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
+import com.kkinikong.be.convenience.dto.request.ConveniencePostInfoRequest;
 import com.kkinikong.be.convenience.dto.request.ConvenienceRequest;
+import com.kkinikong.be.convenience.dto.response.ConveniencePostInfoResponse;
 import com.kkinikong.be.convenience.dto.response.ConveniencePostResponse;
 import com.kkinikong.be.convenience.service.ConvenienceService;
 import com.kkinikong.be.global.response.ApiResponse;
@@ -62,5 +64,23 @@ public class ConvenienceController {
       @PathVariable("postId") Long postId, @AuthenticationPrincipal CustomUserDetails userDetails) {
     convenienceService.deleteConveniencePost(postId, userDetails.getId());
     return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.EMPTY_RESPONSE);
+  }
+
+  @Operation(
+      summary = "편의점 정보 게시글에 '올바른/잘못된 정보' 표시",
+      description =
+          """
+          - `true` : 올바른 정보예요
+          - `false` : 잘못된 정보예요
+          - 사용자는 게시글당 한 번만 평가할 수 있으며, 기존 평가가 있는 경우 수정됩니다.
+          """)
+  @PostMapping("/post/{postId}/info")
+  public ResponseEntity<ApiResponse<Object>> addConveniencePostInfo(
+      @PathVariable("postId") Long postId,
+      @RequestBody @Valid ConveniencePostInfoRequest request,
+      @AuthenticationPrincipal CustomUserDetails userDetails) {
+    ConveniencePostInfoResponse response =
+        convenienceService.addConveniencePostInfo(postId, request.isCorrect(), userDetails.getId());
+    return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.from(response));
   }
 }

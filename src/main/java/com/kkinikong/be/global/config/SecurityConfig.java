@@ -65,6 +65,8 @@ public class SecurityConfig {
                     .authenticated()
                     .requestMatchers(HttpMethod.POST, "/api/v1/convenience/post")
                     .authenticated()
+                    .requestMatchers(HttpMethod.POST, "/api/v1/convenience/post/**")
+                    .authenticated()
                     .requestMatchers(HttpMethod.POST, "/api/v1/*/review/*/photo")
                     .authenticated()
                     .requestMatchers(
