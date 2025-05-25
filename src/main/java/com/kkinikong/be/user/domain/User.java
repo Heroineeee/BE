@@ -45,6 +45,12 @@ public class User extends BaseEntity {
   @Enumerated(EnumType.STRING)
   private Role role;
 
+  @Column(name = "place_latitude")
+  private Double placeLatitude;
+
+  @Column(name = "place_longitude")
+  private Double placeLongitude;
+
   @Builder(builderMethodName = "socialLoginBuilder", buildMethodName = "buildSocialLogin")
   public User(String email, LoginType loginType) {
     this.email = email;
