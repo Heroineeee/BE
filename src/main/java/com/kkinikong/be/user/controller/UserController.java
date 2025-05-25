@@ -47,6 +47,7 @@ public class UserController {
   public ResponseEntity<ApiResponse<Object>> userPlace(
       @RequestBody @Valid UserPlaceRequest request,
       @AuthenticationPrincipal CustomUserDetails userDetails) {
+    userService.setUserPlace(userDetails.getId(), request.latitude(), request.longitude());
     return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.EMPTY_RESPONSE);
   }
 }

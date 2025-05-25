@@ -70,6 +70,11 @@ public class User extends BaseEntity {
     this.nickname = nickname;
   }
 
+  public void updatePlace(Double latitude, Double longitude) {
+    this.placeLatitude = latitude;
+    this.placeLongitude = longitude;
+  }
+
   @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
   private List<Review> reviewList = new ArrayList<>();
 
