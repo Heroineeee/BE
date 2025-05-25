@@ -12,6 +12,7 @@ import lombok.RequiredArgsConstructor;
 
 import com.kkinikong.be.global.response.ApiResponse;
 import com.kkinikong.be.user.dto.request.NicknameRequest;
+import com.kkinikong.be.user.dto.request.UserPlaceRequest;
 import com.kkinikong.be.user.dto.response.NicknameResponse;
 import com.kkinikong.be.user.service.UserService;
 import com.kkinikong.be.user.utils.CustomUserDetails;
