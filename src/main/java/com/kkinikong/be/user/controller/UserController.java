@@ -12,6 +12,7 @@ import lombok.RequiredArgsConstructor;
 
 import com.kkinikong.be.global.response.ApiResponse;
 import com.kkinikong.be.user.dto.request.NicknameRequest;
+import com.kkinikong.be.user.dto.request.UserPlaceRequest;
 import com.kkinikong.be.user.dto.response.NicknameResponse;
 import com.kkinikong.be.user.service.UserService;
 import com.kkinikong.be.user.utils.CustomUserDetails;
@@ -39,5 +40,14 @@ public class UserController {
 
     boolean isDuplicated = userService.checkNickname(nickname);
     return ResponseEntity.ok(ApiResponse.from(isDuplicated));
+  }
+
+  @Operation(summary = "유저가 자주 가는 지역 설정")
+  @PostMapping("/place")
+  public ResponseEntity<ApiResponse<Object>> userPlace(
+      @RequestBody @Valid UserPlaceRequest request,
+      @AuthenticationPrincipal CustomUserDetails userDetails) {
+    userService.setUserPlace(userDetails.getId(), request.latitude(), request.longitude());
+    return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.EMPTY_RESPONSE);
   }
 }
