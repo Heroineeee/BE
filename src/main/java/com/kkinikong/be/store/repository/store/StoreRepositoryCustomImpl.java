@@ -20,6 +20,7 @@ import com.kkinikong.be.store.domain.Store;
 import com.kkinikong.be.store.domain.type.Category;
 import com.kkinikong.be.store.domain.type.StoreSort;
 
+// 💬 코드 리뷰용 주석 시작
 @RequiredArgsConstructor
 public class StoreRepositoryCustomImpl implements StoreRepositoryCustom {
 
@@ -153,3 +154,4 @@ public class StoreRepositoryCustomImpl implements StoreRepositoryCustom {
     };
   }
 }
+// 💬 코드 리뷰용 주석 종료
