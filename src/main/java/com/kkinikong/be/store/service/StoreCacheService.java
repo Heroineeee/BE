@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 
 import lombok.extern.slf4j.Slf4j;
 
+// 💬 코드 리뷰용 주석 시작
 @Service
 @Slf4j
 public class StoreCacheService {
@@ -37,3 +38,4 @@ public class StoreCacheService {
     redisTemplate.delete(STORE_VIEWS_KEY);
   }
 }
+// 💬 코드 리뷰용 주석 종료

@@ -11,6 +11,7 @@ import lombok.extern.slf4j.Slf4j;
 
 import com.kkinikong.be.store.repository.store.StoreRepository;
 
+// 💬 코드 리뷰용 주석 시작
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -37,3 +38,4 @@ public class StoreScheduledService {
     storeCacheService.clearStoresViewCounts();
   }
 }
+// 💬 코드 리뷰용 주석 종료
