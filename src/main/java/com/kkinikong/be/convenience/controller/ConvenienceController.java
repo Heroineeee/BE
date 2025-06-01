@@ -83,4 +83,12 @@ public class ConvenienceController {
         convenienceService.addConveniencePostInfo(postId, request.isCorrect(), userDetails.getId());
     return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.from(response));
   }
+
+  @Operation(summary = "편의점 정보 게시글 상세조회", description = "편의점 정보 게시글 상세조회 API입니다.")
+  @GetMapping("/post/{postId}")
+  public ResponseEntity<ApiResponse<Object>> getConvenienceDetail(
+      @PathVariable("postId") Long postId, @AuthenticationPrincipal CustomUserDetails userDetails) {
+
+    return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.EMPTY_RESPONSE);
+  }
 }
