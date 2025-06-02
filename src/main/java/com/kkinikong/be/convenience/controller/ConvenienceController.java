@@ -14,12 +14,16 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
+import com.kkinikong.be.convenience.domain.type.Brand;
+import com.kkinikong.be.convenience.domain.type.Category;
 import com.kkinikong.be.convenience.dto.request.ConveniencePostInfoRequest;
 import com.kkinikong.be.convenience.dto.request.ConvenienceRequest;
 import com.kkinikong.be.convenience.dto.response.ConveniencePostInfoResponse;
+import com.kkinikong.be.convenience.dto.response.ConveniencePostListResponse;
 import com.kkinikong.be.convenience.dto.response.ConveniencePostResponse;
 import com.kkinikong.be.convenience.service.ConvenienceService;
 import com.kkinikong.be.global.response.ApiResponse;
+import com.kkinikong.be.global.response.PageResponse;
 import com.kkinikong.be.user.utils.CustomUserDetails;
 
 @RestController
@@ -82,5 +86,30 @@ public class ConvenienceController {
     ConveniencePostInfoResponse response =
         convenienceService.addConveniencePostInfo(postId, request.isCorrect(), userDetails.getId());
     return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.from(response));
+  }
+
+  @Operation(
+      summary = "편의점 정보 게시판 리스트 조회",
+      description =
+          """
+          - 검색어(keyword), 카테고리(category), 브랜드(brand), 사용 가능 여부(isAvailable)로 필터링할 수 있습니다.
+          - 모든 파라미터는 선택 사항이며, 기본값은 null입니다.
+          - keyword : 제품이름으로 검색가능하며 글자수 제한 없습니다. 결과가 없을 경우 ~~ 반환합니다.
+          - 카테고리와 브랜드는 최신순으로 정렬됩니다.
+          - isAvailable : true인 경우 사용 가능한 제품만, false인 경우 사용 불가능한 제품만 조회합니다.
+          """)
+  @GetMapping("/list")
+  public ResponseEntity<ApiResponse<Object>> getConveniencePostList(
+      @RequestParam(required = false) String keyword,
+      @RequestParam(required = false) Category category,
+      @RequestParam(required = false) Brand brand,
+      @RequestParam(required = false) boolean isAvailable,
+      @RequestParam(defaultValue = "0") int page,
+      @RequestParam(defaultValue = "10") int size) {
+
+    PageResponse<ConveniencePostListResponse> conveniencePostList =
+        convenienceService.getConveniencePostList(
+            keyword, category, brand, isAvailable, page, size);
+    return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.from(conveniencePostList));
   }
 }
