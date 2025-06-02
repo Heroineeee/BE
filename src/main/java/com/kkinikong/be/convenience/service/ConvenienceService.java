@@ -115,10 +115,16 @@ public class ConvenienceService {
   }
 
   public PageResponse<ConveniencePostListResponse> getConveniencePostList(
-      String keyword, Category category, Brand brand, boolean isAvailable, int page, int size) {
+      String keyword,
+      Category category,
+      Brand brand,
+      boolean isAvailableCheck,
+      int page,
+      int size) {
     Pageable pageable = PageRequest.of(page, size);
 
-    Page<ConveniencePost> allByBrand = convenienceRepository.findAllByBrand(brand, pageable);
+    Page<ConveniencePost> allByBrand =
+        convenienceRepository.findByCondition(keyword, brand, category, isAvailableCheck, pageable);
 
     return PageResponse.from(allByBrand, ConveniencePostListResponse::from);
   }

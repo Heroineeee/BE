@@ -92,24 +92,25 @@ public class ConvenienceController {
       summary = "편의점 정보 게시판 리스트 조회",
       description =
           """
-          - 검색어(keyword), 카테고리(category), 브랜드(brand), 사용 가능 여부(isAvailable)로 필터링할 수 있습니다.
-          - 모든 파라미터는 선택 사항이며, 기본값은 null입니다.
-          - keyword : 제품이름으로 검색가능하며 글자수 제한 없습니다. 결과가 없을 경우 ~~ 반환합니다.
-          - 카테고리와 브랜드는 최신순으로 정렬됩니다.
-          - isAvailable : true인 경우 사용 가능한 제품만, false인 경우 사용 불가능한 제품만 조회합니다.
+          - 검색어(keyword), 카테고리(category), 브랜드(brand), 사용 가능 여부(isAvailableCheck)로 필터링 및 정렬 할 수 있습니다.
+          - 아무것도 선택하지 않을시 기본 정렬은 최신순입니다.
+          - 검색어, 카테고리, 브랜드는 선택 사항이며, 기본값은 null입니다.
+          - keyword : 제품이름으로 검색가능하며 글자수 제한 없습니다. 결과가 없을 경우 ~~를 반환합니다.
+          - isAvailableCheck : true인 경우 사용 가능한 제품만 조회하며, 기본값은 false입니다.
+
           """)
   @GetMapping("/list")
   public ResponseEntity<ApiResponse<Object>> getConveniencePostList(
       @RequestParam(required = false) String keyword,
       @RequestParam(required = false) Category category,
       @RequestParam(required = false) Brand brand,
-      @RequestParam(required = false) boolean isAvailable,
+      @RequestParam(defaultValue = "false") boolean isAvailableCheck,
       @RequestParam(defaultValue = "0") int page,
       @RequestParam(defaultValue = "10") int size) {
 
     PageResponse<ConveniencePostListResponse> conveniencePostList =
         convenienceService.getConveniencePostList(
-            keyword, category, brand, isAvailable, page, size);
+            keyword, category, brand, isAvailableCheck, page, size);
     return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.from(conveniencePostList));
   }
 }
