@@ -34,6 +34,9 @@ public class ConvenienceController {
 
   private final ConvenienceService convenienceService;
 
+  private static final String NO_RESULT_WITH_KEYWORD = "NO_RESULT_WITH_KEYWORD";
+  private static final String NO_RESULT = "NO_RESULT";
+
   @GetMapping("/recommendation")
   @Operation(
       summary = "정확한 제품명 추천",
@@ -95,9 +98,8 @@ public class ConvenienceController {
           - 검색어(keyword), 카테고리(category), 브랜드(brand), 사용 가능 여부(isAvailableCheck)로 필터링 및 정렬 할 수 있습니다.
           - 아무것도 선택하지 않을시 기본 정렬은 최신순입니다.
           - 검색어, 카테고리, 브랜드는 선택 사항이며, 기본값은 null입니다.
-          - keyword : 제품이름으로 검색가능하며 글자수 제한 없습니다. 결과가 없을 경우 ~~를 반환합니다.
-          - isAvailableCheck : true인 경우 사용 가능한 제품만 조회하며, 기본값은 false입니다.
-
+          - isAvailableCheck : true인 경우 사용 가능한 제품만 조회하며, 기본값은 false입니다. → 체크안한경우엔 null로 보내셔도 됩니다.
+          - 키워드와 체크박스 여부에 따라 정렬이 달라지며 브랜드는 필터링 역할만 제공합니다.
           """)
   @GetMapping("/list")
   public ResponseEntity<ApiResponse<Object>> getConveniencePostList(
@@ -111,6 +113,14 @@ public class ConvenienceController {
     PageResponse<ConveniencePostListResponse> conveniencePostList =
         convenienceService.getConveniencePostList(
             keyword, category, brand, isAvailableCheck, page, size);
+
+    if (conveniencePostList.content().isEmpty()) {
+      if (keyword != null && !keyword.isBlank()) {
+        return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.from(NO_RESULT_WITH_KEYWORD));
+      }
+      return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.from(NO_RESULT));
+    }
+
     return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.from(conveniencePostList));
   }
 }
