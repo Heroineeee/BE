@@ -11,6 +11,7 @@ import lombok.extern.slf4j.Slf4j;
 import com.kkinikong.be.convenience.domain.ConvenienceHelpful;
 import com.kkinikong.be.convenience.domain.ConveniencePost;
 import com.kkinikong.be.convenience.dto.request.ConvenienceRequest;
+import com.kkinikong.be.convenience.dto.response.ConveniencePostDetailResponse;
 import com.kkinikong.be.convenience.dto.response.ConveniencePostInfoResponse;
 import com.kkinikong.be.convenience.dto.response.ConveniencePostResponse;
 import com.kkinikong.be.convenience.dto.response.ConvenienceRecommendationResponse;
@@ -105,6 +106,12 @@ public class ConvenienceService {
 
     return new ConveniencePostInfoResponse(
         conveniencePost.getCorrectCount(), conveniencePost.getIncorrectCount(), isCorrect);
+  }
+
+  public ConveniencePostDetailResponse getConveniencePostDetail(Long postId, Long userId) {
+    ConveniencePost conveniencePost = getConveniencePostOrThrow(postId);
+    User user = getUserOrThrow(userId);
+    return ConveniencePostDetailResponse.from(user, conveniencePost);
   }
 
   private User getUserOrThrow(Long userId) {

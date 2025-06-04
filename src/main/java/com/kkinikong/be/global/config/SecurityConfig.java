@@ -45,6 +45,7 @@ public class SecurityConfig {
         .authorizeHttpRequests(
             authorize ->
                 authorize
+                    // Swagger 관련 전체 허용
                     .requestMatchers(
                         "/swagger-ui/**",
                         "/v3/api-docs/**",
@@ -52,8 +53,10 @@ public class SecurityConfig {
                         "/swagger-ui.html",
                         "/v3/api-docs/swagger-config")
                     .permitAll()
+                    // 관리자만 허용
                     .requestMatchers("/api/v1/store/upload/**")
                     .hasAuthority("ROLE_ADMIN")
+                    // 인증 필요
                     .requestMatchers(
                         "/api/v1/user/**",
                         "/api/v1/store/scrap/**",
@@ -61,18 +64,23 @@ public class SecurityConfig {
                         "/api/v1/cache/**",
                         "/api/v1/batch/**")
                     .authenticated()
-                    .requestMatchers(HttpMethod.POST, "/api/v1/*/review")
+                    // 리뷰,편의점 관련 POST 인증 필요
+                    .requestMatchers(
+                        HttpMethod.POST,
+                        "/api/v1/*/review",
+                        "/api/v1/*/review/*/photo",
+                        "/api/v1/convenience/post",
+                        "/api/v1/convenience/post/**")
                     .authenticated()
-                    .requestMatchers(HttpMethod.POST, "/api/v1/convenience/post")
-                    .authenticated()
-                    .requestMatchers(HttpMethod.POST, "/api/v1/convenience/post/**")
-                    .authenticated()
-                    .requestMatchers(HttpMethod.POST, "/api/v1/*/review/*/photo")
-                    .authenticated()
+                    // 리뷰,편의점 관련 DELETE 인증 필요
                     .requestMatchers(
                         HttpMethod.DELETE, "/api/v1/*/review/*", "/api/v1/convenience/post/**")
                     .authenticated()
-                    .anyRequest() // 그 외 모든 요청 허용
+                    // 편의점 추천 GET 요청 인증 필요
+                    .requestMatchers(HttpMethod.GET, "/api/v1/convenience/recommendation")
+                    .authenticated()
+                    // 그 외 모든 요청 허용
+                    .anyRequest()
                     .permitAll())
         .addFilterBefore(
             new JwtAuthFilter(jwtTokenProvider),
