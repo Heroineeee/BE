@@ -16,6 +16,7 @@ import com.kkinikong.be.convenience.domain.ConveniencePost;
 import com.kkinikong.be.convenience.domain.type.Brand;
 import com.kkinikong.be.convenience.domain.type.Category;
 import com.kkinikong.be.convenience.dto.request.ConvenienceRequest;
+import com.kkinikong.be.convenience.dto.response.ConveniencePostDetailResponse;
 import com.kkinikong.be.convenience.dto.response.ConveniencePostInfoResponse;
 import com.kkinikong.be.convenience.dto.response.ConveniencePostListResponse;
 import com.kkinikong.be.convenience.dto.response.ConveniencePostResponse;
@@ -127,6 +128,12 @@ public class ConvenienceService {
         convenienceRepository.findByCondition(keyword, brand, category, isAvailableCheck, pageable);
 
     return PageResponse.from(allByBrand, ConveniencePostListResponse::from);
+  }
+  
+  public ConveniencePostDetailResponse getConveniencePostDetail(Long postId, Long userId) {
+    ConveniencePost conveniencePost = getConveniencePostOrThrow(postId);
+    User user = getUserOrThrow(userId);
+    return ConveniencePostDetailResponse.from(user, conveniencePost);
   }
 
   private User getUserOrThrow(Long userId) {
