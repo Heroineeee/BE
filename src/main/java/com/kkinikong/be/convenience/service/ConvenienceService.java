@@ -2,6 +2,9 @@ package com.kkinikong.be.convenience.service;
 
 import java.util.Optional;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -10,9 +13,12 @@ import lombok.extern.slf4j.Slf4j;
 
 import com.kkinikong.be.convenience.domain.ConvenienceHelpful;
 import com.kkinikong.be.convenience.domain.ConveniencePost;
+import com.kkinikong.be.convenience.domain.type.Brand;
+import com.kkinikong.be.convenience.domain.type.Category;
 import com.kkinikong.be.convenience.dto.request.ConvenienceRequest;
 import com.kkinikong.be.convenience.dto.response.ConveniencePostDetailResponse;
 import com.kkinikong.be.convenience.dto.response.ConveniencePostInfoResponse;
+import com.kkinikong.be.convenience.dto.response.ConveniencePostListResponse;
 import com.kkinikong.be.convenience.dto.response.ConveniencePostResponse;
 import com.kkinikong.be.convenience.dto.response.ConvenienceRecommendationResponse;
 import com.kkinikong.be.convenience.exception.ConvenienceException;
@@ -21,6 +27,7 @@ import com.kkinikong.be.convenience.repository.ConvenienceHelpfulRepository;
 import com.kkinikong.be.convenience.repository.ConvenienceRepository;
 import com.kkinikong.be.convenience.util.OpenAIApiClient;
 import com.kkinikong.be.convenience.util.dto.OpenAIRequest;
+import com.kkinikong.be.global.response.PageResponse;
 import com.kkinikong.be.user.domain.User;
 import com.kkinikong.be.user.exception.UserException;
 import com.kkinikong.be.user.exception.errorcode.UserErrorCode;
@@ -108,6 +115,21 @@ public class ConvenienceService {
         conveniencePost.getCorrectCount(), conveniencePost.getIncorrectCount(), isCorrect);
   }
 
+  public PageResponse<ConveniencePostListResponse> getConveniencePostList(
+      String keyword,
+      Category category,
+      Brand brand,
+      boolean isAvailableCheck,
+      int page,
+      int size) {
+    Pageable pageable = PageRequest.of(page, size);
+
+    Page<ConveniencePost> allByBrand =
+        convenienceRepository.findByCondition(keyword, brand, category, isAvailableCheck, pageable);
+
+    return PageResponse.from(allByBrand, ConveniencePostListResponse::from);
+  }
+  
   public ConveniencePostDetailResponse getConveniencePostDetail(Long postId, Long userId) {
     ConveniencePost conveniencePost = getConveniencePostOrThrow(postId);
     User user = getUserOrThrow(userId);
