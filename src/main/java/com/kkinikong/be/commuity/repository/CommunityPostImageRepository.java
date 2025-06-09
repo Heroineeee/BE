@@ -3,7 +3,7 @@ package com.kkinikong.be.commuity.repository;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
-import com.kkinikong.be.commuity.domain.CommunityPost;
+import com.kkinikong.be.commuity.domain.CommunityPostImage;
 
 @Repository
-public interface CommunityRepository extends JpaRepository<CommunityPost, Long> {}
+public interface CommunityPostImageRepository extends JpaRepository<CommunityPostImage, Long> {}
