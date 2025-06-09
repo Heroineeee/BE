@@ -18,6 +18,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import com.kkinikong.be.commuity.domain.type.Category;
 import com.kkinikong.be.global.entity.BaseEntity;
 import com.kkinikong.be.user.domain.User;
 
@@ -38,6 +39,9 @@ public class CommunityPost extends BaseEntity {
   @Column(name = "content", nullable = false)
   private String content;
 
+  @Column(name = "category", nullable = false)
+  private Category category;
+
   @Column(name = "view_count", nullable = false)
   private long viewCount = 0L;
 
@@ -56,6 +60,9 @@ public class CommunityPost extends BaseEntity {
 
   @OneToMany(mappedBy = "communityPost", cascade = CascadeType.ALL, orphanRemoval = true)
   private List<CommunityPostLike> communityPostLikeList = new ArrayList<>();
+
+  @OneToMany(mappedBy = "communityPost", cascade = CascadeType.ALL, orphanRemoval = true)
+  private List<Comment> commentList = new ArrayList<>();
 
   @Builder
   public CommunityPost(String title, String content, User user) {

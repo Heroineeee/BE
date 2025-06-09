@@ -6,9 +6,12 @@ import java.util.List;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import lombok.Builder;
@@ -16,6 +19,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import com.kkinikong.be.global.entity.BaseEntity;
+import com.kkinikong.be.user.domain.User;
 
 @Table(name = "comments")
 @Entity
@@ -28,17 +32,11 @@ public class Comment extends BaseEntity {
   @Column(name = "id")
   private Long id;
 
-  @Column(name = "content", nullable = false)
+  @Column(name = "content", nullable = false, length = 4000)
   private String content;
 
   @Column(name = "like_count", nullable = false)
   private long likeCount = 0L;
-
-  @Column(name = "user_id", nullable = false)
-  private Long userId;
-
-  @Column(name = "community_post_id", nullable = false)
-  private Long communityPostId;
 
   @Column(name = "is_deleted", nullable = false)
   private boolean isDeleted = false;
@@ -46,14 +44,22 @@ public class Comment extends BaseEntity {
   @Column(name = "parent_comment_id")
   private Long parentCommentId;
 
+  @ManyToOne(fetch = FetchType.LAZY)
+  @JoinColumn(name = "user_id", nullable = false)
+  private User user;
+
+  @ManyToOne(fetch = FetchType.LAZY)
+  @JoinColumn(name = "community_post_id", nullable = false)
+  private CommunityPost communityPost;
+
   @OneToMany(mappedBy = "comment", cascade = CascadeType.ALL, orphanRemoval = true)
   private List<CommentLike> commentLikeList = new ArrayList<>();
 
   @Builder
-  public Comment(String content, Long userId, Long communityPostId, Long parentCommentId) {
+  public Comment(String content, User user, CommunityPost communityPost, Long parentCommentId) {
     this.content = content;
-    this.userId = userId;
-    this.communityPostId = communityPostId;
+    this.user = user;
+    this.communityPost = communityPost;
     this.parentCommentId = parentCommentId;
   }
 }
