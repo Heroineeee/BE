@@ -119,7 +119,6 @@ public class ConvenienceController {
         return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.from(NO_RESULT_WITH_KEYWORD));
       }
       return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.from(NO_RESULT));
-    
     }
     return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.from(conveniencePostList));
   }

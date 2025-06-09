@@ -129,7 +129,7 @@ public class ConvenienceService {
 
     return PageResponse.from(allByBrand, ConveniencePostListResponse::from);
   }
-  
+
   public ConveniencePostDetailResponse getConveniencePostDetail(Long postId, Long userId) {
     ConveniencePost conveniencePost = getConveniencePostOrThrow(postId);
     User user = getUserOrThrow(userId);
