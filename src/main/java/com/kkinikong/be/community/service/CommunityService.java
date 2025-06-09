@@ -1,4 +1,4 @@
-package com.kkinikong.be.commuity.service;
+package com.kkinikong.be.community.service;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

@@ -1,4 +1,4 @@
-package com.kkinikong.be.commuity.domain.type;
+package com.kkinikong.be.community.domain.type;
 
 import lombok.Getter;
 

@@ -1,9 +1,9 @@
-package com.kkinikong.be.commuity.exception;
+package com.kkinikong.be.community.exception;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
-import com.kkinikong.be.commuity.exception.errorcode.CommunityErrorCode;
+import com.kkinikong.be.community.exception.errorcode.CommunityErrorCode;
 
 @Getter
 @RequiredArgsConstructor

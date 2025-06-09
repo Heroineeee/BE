@@ -1,4 +1,4 @@
-package com.kkinikong.be.commuity.domain;
+package com.kkinikong.be.community.domain;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -18,7 +18,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-import com.kkinikong.be.commuity.domain.type.Category;
+import com.kkinikong.be.community.domain.type.Category;
 import com.kkinikong.be.global.entity.BaseEntity;
 import com.kkinikong.be.user.domain.User;
 
@@ -65,9 +65,10 @@ public class CommunityPost extends BaseEntity {
   private List<Comment> commentList = new ArrayList<>();
 
   @Builder
-  public CommunityPost(String title, String content, User user) {
+  public CommunityPost(String title, String content, User user, Category category) {
     this.title = title;
     this.content = content;
     this.user = user;
+    this.category = category;
   }
 }

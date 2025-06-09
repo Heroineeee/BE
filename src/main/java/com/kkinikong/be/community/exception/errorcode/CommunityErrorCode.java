@@ -1,4 +1,4 @@
-package com.kkinikong.be.commuity.exception.errorcode;
+package com.kkinikong.be.community.exception.errorcode;
 
 import org.springframework.http.HttpStatus;
 

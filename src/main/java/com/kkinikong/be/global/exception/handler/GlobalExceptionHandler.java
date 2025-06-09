@@ -18,7 +18,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.kkinikong.be.auth.exception.AuthException;
-import com.kkinikong.be.commuity.exception.CommunityException;
+import com.kkinikong.be.community.exception.CommunityException;
 import com.kkinikong.be.convenience.exception.ConvenienceException;
 import com.kkinikong.be.global.exception.errorcode.ErrorCode;
 import com.kkinikong.be.global.exception.errorcode.GlobalErrorCode;

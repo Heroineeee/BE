@@ -1,4 +1,4 @@
-package com.kkinikong.be.commuity.domain;
+package com.kkinikong.be.community.domain;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -14,28 +14,30 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import com.kkinikong.be.global.entity.BaseEntity;
+import com.kkinikong.be.user.domain.User;
 
-@Table(name = "community_post_images")
+@Table(name = "comment_likes")
 @Entity
 @Getter
 @NoArgsConstructor
-public class CommunityPostImage extends BaseEntity {
+public class CommentLike extends BaseEntity {
 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   @Column(name = "id")
   private Long id;
 
-  @Column(name = "image_url", nullable = false)
-  private String imageUrl;
+  @ManyToOne(fetch = FetchType.LAZY)
+  @JoinColumn(name = "user_id", nullable = false)
+  private User user;
 
   @ManyToOne(fetch = FetchType.LAZY)
-  @JoinColumn(name = "community_post_id", nullable = false)
-  private CommunityPost communityPost;
+  @JoinColumn(name = "comment_id", nullable = false)
+  private Comment comment;
 
   @Builder
-  public CommunityPostImage(String imageUrl, CommunityPost communityPost) {
-    this.imageUrl = imageUrl;
-    this.communityPost = communityPost;
+  public CommentLike(User user, Comment comment) {
+    this.user = user;
+    this.comment = comment;
   }
 }
