@@ -25,7 +25,7 @@ import com.kkinikong.be.user.utils.CustomUserDetails;
 @RequestMapping("/api/v1/community")
 public class CommunityController {
 
-  CommunityService communityService;
+  private final CommunityService communityService;
 
   @PostMapping("/post")
   @Operation(summary = "커뮤니티 게시글 작성", description = "커뮤니티 게시글을 작성하는 API입니다. 모든 필드는 필수입니다")
