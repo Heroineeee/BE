@@ -91,7 +91,6 @@ public class ReviewController {
            """)
   @PostMapping(path = "/{reviewId}/photo", consumes = "multipart/form-data")
   public ResponseEntity<ApiResponse<Object>> postReviewImage(
-      @PathVariable("storeId") Long storeId,
       @PathVariable("reviewId") Long reviewId,
       @Parameter(
               description = "업로드할 파일 리스트",
