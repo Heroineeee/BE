@@ -7,7 +7,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
-import jakarta.validation.constraints.Null;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -79,7 +78,7 @@ public class CommunityService {
 
   @Transactional
   public void postCommentAndReply(
-      Long postId, @Null Long commentId, CommunityCommentRequest request, Long userId) {
+      Long postId, Long commentId, CommunityCommentRequest request, Long userId) {
     CommunityPost communityPost = getCommunityPostOrThrow(postId);
 
     Comment parent = null;

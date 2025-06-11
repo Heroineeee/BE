@@ -12,6 +12,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.amazonaws.AmazonServiceException;
 import com.amazonaws.services.s3.AmazonS3;
+import com.amazonaws.services.s3.model.ObjectMetadata;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -50,7 +51,11 @@ public class ImageService {
       String uuid = UUID.randomUUID().toString();
       String fileName = datePrefix + "/" + uuid + "_" + file.getOriginalFilename();
 
-      s3Client.putObject(s3Bucket.getBucketName(), fileName, file.getInputStream(), null);
+      ObjectMetadata metadata = new ObjectMetadata();
+      metadata.setContentType(file.getContentType());
+      metadata.setContentLength(file.getSize());
+      s3Client.putObject(s3Bucket.getBucketName(), fileName, file.getInputStream(), metadata);
+
       return s3Client.getUrl(s3Bucket.getBucketName(), fileName).toString();
     } catch (AmazonServiceException | IOException e) {
       throw new S3Exception(S3ErrorCode.S3_UPLOAD_FAIL);
