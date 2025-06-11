@@ -15,7 +15,7 @@ import com.kkinikong.be.store.domain.Store;
 public interface StoreRepository extends JpaRepository<Store, Long>, StoreRepositoryCustom {
   Optional<Store> findStoreById(Long id);
 
-  @Modifying
+  @Modifying(clearAutomatically = true)
   @Query("UPDATE Store s SET s.viewCount = s.viewCount + :count WHERE s.id = :storeId")
   void incrementViews(@Param("storeId") Long storeId, @Param("count") Long count);
 }

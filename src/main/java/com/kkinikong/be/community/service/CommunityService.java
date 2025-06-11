@@ -1,11 +1,13 @@
 package com.kkinikong.be.community.service;
 
 import java.util.List;
+import java.util.Objects;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import jakarta.validation.constraints.Null;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -19,7 +21,7 @@ import com.kkinikong.be.community.exception.CommunityException;
 import com.kkinikong.be.community.exception.errorcode.CommunityErrorCode;
 import com.kkinikong.be.community.repository.CommentRepository;
 import com.kkinikong.be.community.repository.CommunityPostImageRepository;
-import com.kkinikong.be.community.repository.CommunityRepository;
+import com.kkinikong.be.community.repository.CommunityPostRepository;
 import com.kkinikong.be.user.domain.User;
 import com.kkinikong.be.user.exception.UserException;
 import com.kkinikong.be.user.exception.errorcode.UserErrorCode;
@@ -33,7 +35,7 @@ import com.kkinikong.be.util.s3.type.S3Bucket;
 @Slf4j
 public class CommunityService {
 
-  private final CommunityRepository communityRepository;
+  private final CommunityPostRepository communityPostRepository;
   private final UserRepository userRepository;
   private final CommunityPostImageRepository communityPostImageRepository;
   private final CommentRepository commentRepository;
@@ -43,7 +45,7 @@ public class CommunityService {
   @Transactional
   public CommunityPostResponse postCommunityPost(CommunityPostRequest request, Long userId) {
     CommunityPost communityPost =
-        communityRepository.save(
+        communityPostRepository.save(
             CommunityPost.builder()
                 .title(request.title())
                 .content(request.content())
@@ -76,18 +78,40 @@ public class CommunityService {
   }
 
   @Transactional
-  public void postCommunityComment(Long postId, CommunityCommentRequest request, Long userId) {
+  public void postCommentAndReply(
+      Long postId, @Null Long commentId, CommunityCommentRequest request, Long userId) {
     CommunityPost communityPost = getCommunityPostOrThrow(postId);
-    User user = getUserOrThrow(userId);
+
+    Comment parent = null;
+    // 답글 작성 시
+    if (commentId != null) {
+      parent = getCommentOrThrow(commentId);
+      // 댓글이 작성된 게시글과 일치하는지 확인
+      if (!Objects.equals(parent.getCommunityPost().getId(), postId)) {
+        throw new CommunityException(CommunityErrorCode.COMMUNITY_POST_NOT_FOUND);
+      }
+      // 답글의 답글은 허용하지 않음
+      if (parent.getParentComment() != null) {
+        throw new CommunityException(CommunityErrorCode.NOT_TOP_COMMENT);
+      }
+    }
 
     commentRepository.save(
         Comment.builder()
             .content(request.content())
             .communityPost(communityPost)
-            .user(user)
-            .parentCommentId(null)
+            .user(getUserOrThrow(userId))
+            .parentComment(parent)
             .isAuthor(communityPost.getUser().getId().equals(userId))
             .build());
+
+    communityPost.incrementCommentCount();
+  }
+
+  private void validatePostOwner(CommunityPost communityPost, Long userId) {
+    if (!communityPost.getUser().getId().equals(userId)) {
+      throw new CommunityException(CommunityErrorCode.COMMUNITY_NOT_OWNER);
+    }
   }
 
   private User getUserOrThrow(Long userId) {
@@ -97,14 +121,14 @@ public class CommunityService {
   }
 
   private CommunityPost getCommunityPostOrThrow(Long reviewId) {
-    return communityRepository
+    return communityPostRepository
         .findById(reviewId)
         .orElseThrow(() -> new CommunityException(CommunityErrorCode.COMMUNITY_POST_NOT_FOUND));
   }
 
-  private void validatePostOwner(CommunityPost communityPost, Long userId) {
-    if (!communityPost.getUser().getId().equals(userId)) {
-      throw new CommunityException(CommunityErrorCode.COMMUNITY_NOT_OWNER);
-    }
+  private Comment getCommentOrThrow(Long commentId) {
+    return commentRepository
+        .findById(commentId)
+        .orElseThrow(() -> new CommunityException(CommunityErrorCode.COMMENT_NOT_FOUND));
   }
 }

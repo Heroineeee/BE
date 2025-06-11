@@ -88,7 +88,7 @@ public class CommunityController {
     if (request.content().length() > MAX_COMMENT_SIZE) {
       throw new CommunityException(CommunityErrorCode.COMMENT_SIZE_LIMIT);
     }
-    communityService.postCommunityComment(postId, request, userDetails.getId());
+    communityService.postCommentAndReply(postId, null, request, userDetails.getId());
 
     return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.from(ApiResponse.EMPTY_RESPONSE));
   }
@@ -106,6 +106,8 @@ public class CommunityController {
     if (request.content().length() > MAX_REPLY_SIZE) {
       throw new CommunityException(CommunityErrorCode.REPLY_SIZE_LIMIT);
     }
+
+    communityService.postCommentAndReply(postId, commentId, request, userDetails.getId());
 
     return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.from(ApiResponse.EMPTY_RESPONSE));
   }
