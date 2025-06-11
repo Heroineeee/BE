@@ -88,6 +88,7 @@ public class CommunityController {
     if (request.content().length() > MAX_COMMENT_SIZE) {
       throw new CommunityException(CommunityErrorCode.COMMENT_SIZE_LIMIT);
     }
+    communityService.postCommunityComment(postId, request, userDetails.getId());
 
     return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.from(ApiResponse.EMPTY_RESPONSE));
   }

@@ -41,6 +41,9 @@ public class Comment extends BaseEntity {
   @Column(name = "is_deleted", nullable = false)
   private boolean isDeleted = false;
 
+  @Column(name = "is_author", nullable = false)
+  private boolean isAuthor = false;
+
   @Column(name = "parent_comment_id")
   private Long parentCommentId;
 
@@ -56,10 +59,16 @@ public class Comment extends BaseEntity {
   private List<CommentLike> commentLikeList = new ArrayList<>();
 
   @Builder
-  public Comment(String content, User user, CommunityPost communityPost, Long parentCommentId) {
+  public Comment(
+      String content,
+      User user,
+      CommunityPost communityPost,
+      Long parentCommentId,
+      boolean isAuthor) {
     this.content = content;
     this.user = user;
     this.communityPost = communityPost;
     this.parentCommentId = parentCommentId;
+    this.isAuthor = isAuthor;
   }
 }

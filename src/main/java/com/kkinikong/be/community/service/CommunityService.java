@@ -9,12 +9,15 @@ import org.springframework.web.multipart.MultipartFile;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
+import com.kkinikong.be.community.domain.Comment;
 import com.kkinikong.be.community.domain.CommunityPost;
 import com.kkinikong.be.community.domain.CommunityPostImage;
+import com.kkinikong.be.community.dto.request.CommunityCommentRequest;
 import com.kkinikong.be.community.dto.request.CommunityPostRequest;
 import com.kkinikong.be.community.dto.response.CommunityPostResponse;
 import com.kkinikong.be.community.exception.CommunityException;
 import com.kkinikong.be.community.exception.errorcode.CommunityErrorCode;
+import com.kkinikong.be.community.repository.CommentRepository;
 import com.kkinikong.be.community.repository.CommunityPostImageRepository;
 import com.kkinikong.be.community.repository.CommunityRepository;
 import com.kkinikong.be.user.domain.User;
@@ -33,6 +36,7 @@ public class CommunityService {
   private final CommunityRepository communityRepository;
   private final UserRepository userRepository;
   private final CommunityPostImageRepository communityPostImageRepository;
+  private final CommentRepository commentRepository;
 
   private final ImageService imageService;
 
@@ -69,6 +73,21 @@ public class CommunityService {
       communityPostImageRepository.save(
           CommunityPostImage.builder().communityPost(communityPost).imageUrl(url).build());
     }
+  }
+
+  @Transactional
+  public void postCommunityComment(Long postId, CommunityCommentRequest request, Long userId) {
+    CommunityPost communityPost = getCommunityPostOrThrow(postId);
+    User user = getUserOrThrow(userId);
+
+    commentRepository.save(
+        Comment.builder()
+            .content(request.content())
+            .communityPost(communityPost)
+            .user(user)
+            .parentCommentId(null)
+            .isAuthor(communityPost.getUser().getId().equals(userId))
+            .build());
   }
 
   private User getUserOrThrow(Long userId) {
