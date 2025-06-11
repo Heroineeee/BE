@@ -96,7 +96,9 @@ public class CommunityController {
   @PostMapping("{postId}/comment/{commentId}/reply")
   @Operation(
       summary = "커뮤니티 게시글 댓글에 답글 작성",
-      description = "커뮤니티 게시글 댓글의 답글을 작성하는 API입니다. 답글 내용은 공백일 수 없으며, 2000자 이하여야 합니다.")
+      description =
+          "커뮤니티 게시글 댓글의 답글을 작성하는 API입니다. 답글 내용은 공백일 수 없으며, 2000자 이하여야 합니다."
+              + "답글은 최상위 댓글에만 작성할 수 있습니다.")
   public ResponseEntity<ApiResponse<Object>> postCommunityReply(
       @PathVariable("postId") Long postId,
       @PathVariable("commentId") Long commentId,
