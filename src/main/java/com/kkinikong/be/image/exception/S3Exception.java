@@ -1,4 +1,4 @@
-package com.kkinikong.be.util.exception;
+package com.kkinikong.be.image.exception;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;

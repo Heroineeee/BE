@@ -6,4 +6,6 @@ import org.springframework.stereotype.Repository;
 import com.kkinikong.be.community.domain.CommunityPostImage;
 
 @Repository
-public interface CommunityPostImageRepository extends JpaRepository<CommunityPostImage, Long> {}
+public interface CommunityPostImageRepository extends JpaRepository<CommunityPostImage, Long> {
+  boolean existsByCommunityPostId(Long postId);
+}

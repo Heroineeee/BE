@@ -1,14 +1,21 @@
 package com.kkinikong.be.community.controller;
 
+import java.util.List;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -39,5 +46,27 @@ public class CommunityController {
         communityService.postCommunityPost(request, userDetails.getId());
 
     return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.from(communityPostResponse));
+  }
+
+  @Operation(
+      summary = "커뮤니티 게시물 작성 시 사진 추가",
+      description =
+          """
+           - 커뮤니티 게시글 작성 api를 통해 id를 받은 후, 해당 id로 사진을 추가합니다.
+           - 사진이 없는 경우 file 비워서 보내셔도 되고 아예 호출 안하셔도 됩니다.
+           - 사진은 최대 3장까지 전송 가능하며 각 10MB, 총 30MB 이하로 제한됩니다.
+           - 가능한 파일 확장자는 .jpg, .jpeg, .png, .heic 입니다.
+           """)
+  @PostMapping(path = "/{postId}/photo", consumes = "multipart/form-data")
+  public ResponseEntity<ApiResponse<Object>> postCommunityPostImage(
+      @PathVariable("postId") Long postId,
+      @Parameter(
+              description = "업로드할 파일 리스트",
+              content = @Content(mediaType = "application/octet-stream"))
+          @RequestParam(value = "files", required = false)
+          List<MultipartFile> files,
+      @AuthenticationPrincipal CustomUserDetails userDetails) {
+    communityService.postCommunityPostImage(postId, files, userDetails.getId());
+    return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.EMPTY_RESPONSE);
   }
 }

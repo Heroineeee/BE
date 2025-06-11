@@ -12,4 +12,6 @@ public interface ReviewImageRepository
     extends JpaRepository<ReviewImage, Long>, ReviewImageCustomRepository {
 
   Optional<ReviewImage> findByReviewId(long reviewId);
+
+  boolean existsByReviewId(long reviewId);
 }
