@@ -63,7 +63,7 @@ public class CommunityController {
            - 사진은 최대 3장까지 전송 가능하며 각 10MB, 총 30MB 이하로 제한됩니다.
            - 가능한 파일 확장자는 .jpg, .jpeg, .png, .heic 입니다.
            """)
-  @PostMapping(path = "/{postId}/photo", consumes = "multipart/form-data")
+  @PostMapping(path = "/post/{postId}/photo", consumes = "multipart/form-data")
   public ResponseEntity<ApiResponse<Object>> postCommunityPostImage(
       @PathVariable("postId") Long postId,
       @Parameter(
