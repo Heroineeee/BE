@@ -28,7 +28,9 @@ public class CommunityController {
   private final CommunityService communityService;
 
   @PostMapping("/post")
-  @Operation(summary = "커뮤니티 게시글 작성", description = "커뮤니티 게시글을 작성하는 API입니다. 모든 필드는 필수입니다")
+  @Operation(
+      summary = "커뮤니티 게시글 작성",
+      description = "커뮤니티 게시글을 작성하는 API입니다. 제목은 5자 이상, 내용은 10자 이상이어야 하며, 카테고리는 필수입니다.")
   public ResponseEntity<ApiResponse<Object>> postCommunityPost(
       @RequestBody @Valid CommunityPostRequest request,
       @AuthenticationPrincipal CustomUserDetails userDetails) {
