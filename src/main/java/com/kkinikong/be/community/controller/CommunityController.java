@@ -20,8 +20,11 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
+import com.kkinikong.be.community.dto.request.CommunityCommentRequest;
 import com.kkinikong.be.community.dto.request.CommunityPostRequest;
 import com.kkinikong.be.community.dto.response.CommunityPostResponse;
+import com.kkinikong.be.community.exception.CommunityException;
+import com.kkinikong.be.community.exception.errorcode.CommunityErrorCode;
 import com.kkinikong.be.community.service.CommunityService;
 import com.kkinikong.be.global.response.ApiResponse;
 import com.kkinikong.be.user.utils.CustomUserDetails;
@@ -31,6 +34,9 @@ import com.kkinikong.be.user.utils.CustomUserDetails;
 @Tag(name = "Community", description = "커뮤니티 관련 API")
 @RequestMapping("/api/v1/community")
 public class CommunityController {
+
+  private final int MAX_COMMENT_SIZE = 4000;
+  private final int MAX_REPLY_SIZE = 2000;
 
   private final CommunityService communityService;
 
@@ -68,5 +74,38 @@ public class CommunityController {
       @AuthenticationPrincipal CustomUserDetails userDetails) {
     communityService.postCommunityPostImage(postId, files, userDetails.getId());
     return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.EMPTY_RESPONSE);
+  }
+
+  @PostMapping("{postId}/comment")
+  @Operation(
+      summary = "커뮤니티 게시글에 댓글 작성",
+      description = "커뮤니티 게시글에 댓글을 작성하는 API입니다. 댓글 내용은 공백일 수 없으며, 4000자 이하여야 합니다.")
+  public ResponseEntity<ApiResponse<Object>> postCommunityComment(
+      @PathVariable("postId") Long postId,
+      @RequestBody @Valid CommunityCommentRequest request,
+      @AuthenticationPrincipal CustomUserDetails userDetails) {
+
+    if (request.content().length() > MAX_COMMENT_SIZE) {
+      throw new CommunityException(CommunityErrorCode.COMMENT_SIZE_LIMIT);
+    }
+
+    return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.from(ApiResponse.EMPTY_RESPONSE));
+  }
+
+  @PostMapping("{postId}/comment/{commentId}/reply")
+  @Operation(
+      summary = "커뮤니티 게시글 댓글에 답글 작성",
+      description = "커뮤니티 게시글 댓글의 답글을 작성하는 API입니다. 답글 내용은 공백일 수 없으며, 2000자 이하여야 합니다.")
+  public ResponseEntity<ApiResponse<Object>> postCommunityReply(
+      @PathVariable("postId") Long postId,
+      @PathVariable("commentId") Long commentId,
+      @RequestBody @Valid CommunityCommentRequest request,
+      @AuthenticationPrincipal CustomUserDetails userDetails) {
+
+    if (request.content().length() > MAX_REPLY_SIZE) {
+      throw new CommunityException(CommunityErrorCode.REPLY_SIZE_LIMIT);
+    }
+
+    return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.from(ApiResponse.EMPTY_RESPONSE));
   }
 }
