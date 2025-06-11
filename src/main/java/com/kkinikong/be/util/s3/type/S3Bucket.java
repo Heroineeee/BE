@@ -1,4 +1,4 @@
-package com.kkinikong.be.image.type;
+package com.kkinikong.be.util.s3.type;
 
 import lombok.Getter;
 

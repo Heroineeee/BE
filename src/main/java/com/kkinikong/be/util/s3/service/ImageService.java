@@ -1,4 +1,4 @@
-package com.kkinikong.be.image.service;
+package com.kkinikong.be.util.s3.service;
 
 import java.io.IOException;
 import java.time.LocalDate;
@@ -15,9 +15,9 @@ import com.amazonaws.services.s3.AmazonS3;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
-import com.kkinikong.be.image.exception.S3Exception;
-import com.kkinikong.be.image.exception.errorcode.S3ErrorCode;
-import com.kkinikong.be.image.type.S3Bucket;
+import com.kkinikong.be.util.s3.exception.S3Exception;
+import com.kkinikong.be.util.s3.exception.errorcode.S3ErrorCode;
+import com.kkinikong.be.util.s3.type.S3Bucket;
 
 @Slf4j
 @Service

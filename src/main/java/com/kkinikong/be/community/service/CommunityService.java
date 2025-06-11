@@ -17,12 +17,12 @@ import com.kkinikong.be.community.exception.CommunityException;
 import com.kkinikong.be.community.exception.errorcode.CommunityErrorCode;
 import com.kkinikong.be.community.repository.CommunityPostImageRepository;
 import com.kkinikong.be.community.repository.CommunityRepository;
-import com.kkinikong.be.image.service.ImageService;
-import com.kkinikong.be.image.type.S3Bucket;
 import com.kkinikong.be.user.domain.User;
 import com.kkinikong.be.user.exception.UserException;
 import com.kkinikong.be.user.exception.errorcode.UserErrorCode;
 import com.kkinikong.be.user.repository.UserRepository;
+import com.kkinikong.be.util.s3.service.ImageService;
+import com.kkinikong.be.util.s3.type.S3Bucket;
 
 @Service
 @RequiredArgsConstructor

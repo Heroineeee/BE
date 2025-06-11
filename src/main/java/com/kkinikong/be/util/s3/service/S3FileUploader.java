@@ -1,12 +1,12 @@
-package com.kkinikong.be.image.service;
+package com.kkinikong.be.util.s3.service;
 
 import java.util.List;
 
 import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
-import com.kkinikong.be.image.exception.S3Exception;
-import com.kkinikong.be.image.exception.errorcode.S3ErrorCode;
+import com.kkinikong.be.util.s3.exception.S3Exception;
+import com.kkinikong.be.util.s3.exception.errorcode.S3ErrorCode;
 
 public interface S3FileUploader {
   List<String> ALLOWED_CONTENT_TYPES =

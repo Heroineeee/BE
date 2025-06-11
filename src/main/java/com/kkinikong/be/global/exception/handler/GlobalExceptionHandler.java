@@ -25,11 +25,11 @@ import com.kkinikong.be.global.exception.errorcode.GlobalErrorCode;
 import com.kkinikong.be.global.exception.response.ErrorResponse;
 import com.kkinikong.be.global.exception.response.ErrorResponse.ValidationError;
 import com.kkinikong.be.global.exception.response.ErrorResponse.ValidationErrors;
-import com.kkinikong.be.image.exception.S3Exception;
 import com.kkinikong.be.report.exception.ReportException;
 import com.kkinikong.be.review.exception.ReviewException;
 import com.kkinikong.be.store.exception.StoreException;
 import com.kkinikong.be.user.exception.UserException;
+import com.kkinikong.be.util.s3.exception.S3Exception;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
