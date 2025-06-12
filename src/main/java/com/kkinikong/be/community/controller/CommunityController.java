@@ -63,7 +63,7 @@ public class CommunityController {
            - 사진은 최대 3장까지 전송 가능하며 각 10MB, 총 30MB 이하로 제한됩니다.
            - 가능한 파일 확장자는 .jpg, .jpeg, .png, .heic 입니다.
            """)
-  @PostMapping(path = "/post/{postId}/photo", consumes = "multipart/form-data")
+  @PostMapping(path = "/post/{postId}/image", consumes = "multipart/form-data")
   public ResponseEntity<ApiResponse<Object>> postCommunityPostImage(
       @PathVariable("postId") Long postId,
       @Parameter(
@@ -76,7 +76,7 @@ public class CommunityController {
     return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.EMPTY_RESPONSE);
   }
 
-  @PostMapping("{postId}/comment")
+  @PostMapping("/post/{postId}/comment")
   @Operation(
       summary = "커뮤니티 게시글에 댓글 작성",
       description = "커뮤니티 게시글에 댓글을 작성하는 API입니다. 댓글 내용은 공백일 수 없으며, 4000자 이하여야 합니다.")
@@ -93,7 +93,7 @@ public class CommunityController {
     return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.from(ApiResponse.EMPTY_RESPONSE));
   }
 
-  @PostMapping("{postId}/comment/{commentId}/reply")
+  @PostMapping("/post/{postId}/comment/{commentId}/reply")
   @Operation(
       summary = "커뮤니티 게시글 댓글에 답글 작성",
       description =
