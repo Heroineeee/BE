@@ -41,6 +41,9 @@ public class CommunityService {
 
   private final ImageService imageService;
 
+  private final int MAX_COMMENT_SIZE = 4000;
+  private final int MAX_REPLY_SIZE = 2000;
+
   @Transactional
   public CommunityPostResponse postCommunityPost(CommunityPostRequest request, Long userId) {
     CommunityPost communityPost =
@@ -82,17 +85,11 @@ public class CommunityService {
     CommunityPost communityPost = getCommunityPostOrThrow(postId);
 
     Comment parent = null;
-    // 답글 작성 시
-    if (commentId != null) {
-      parent = getCommentOrThrow(commentId);
-      // 댓글이 작성된 게시글과 일치하는지 확인
-      if (!Objects.equals(parent.getCommunityPost().getId(), postId)) {
-        throw new CommunityException(CommunityErrorCode.COMMUNITY_POST_NOT_FOUND);
-      }
-      // 답글의 답글은 허용하지 않음
-      if (parent.getParentComment() != null) {
-        throw new CommunityException(CommunityErrorCode.NOT_TOP_COMMENT);
-      }
+
+    if (commentId != null) { // 답글 작성인 경우
+      parent = validateReply(postId, commentId, request.content());
+    } else { // 댓글 작성인 경우
+      validateCommentContentLength(request.content());
     }
 
     commentRepository.save(
@@ -105,6 +102,32 @@ public class CommunityService {
             .build());
 
     communityPost.incrementCommentCount();
+  }
+
+  private void validateCommentContentLength(String content) {
+    if (content.length() > MAX_COMMENT_SIZE) {
+      throw new CommunityException(CommunityErrorCode.COMMENT_SIZE_LIMIT);
+    }
+  }
+
+  private Comment validateReply(Long postId, Long commentId, String content) {
+    if (content.length() > MAX_REPLY_SIZE) {
+      throw new CommunityException(CommunityErrorCode.REPLY_SIZE_LIMIT);
+    }
+
+    Comment parent = getCommentOrThrow(commentId);
+
+    // 댓글이 작성된 게시글과 일치하는지 확인
+    if (!Objects.equals(parent.getCommunityPost().getId(), postId)) {
+      throw new CommunityException(CommunityErrorCode.COMMUNITY_POST_NOT_FOUND);
+    }
+
+    // 답글의 답글은 허용하지 않음
+    if (parent.getParentComment() != null) {
+      throw new CommunityException(CommunityErrorCode.NOT_TOP_COMMENT);
+    }
+
+    return parent;
   }
 
   private void validatePostOwner(CommunityPost communityPost, Long userId) {
