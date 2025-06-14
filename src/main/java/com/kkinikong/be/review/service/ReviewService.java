@@ -39,6 +39,8 @@ import com.kkinikong.be.user.domain.User;
 import com.kkinikong.be.user.exception.UserException;
 import com.kkinikong.be.user.exception.errorcode.UserErrorCode;
 import com.kkinikong.be.user.repository.UserRepository;
+import com.kkinikong.be.util.s3.service.ImageService;
+import com.kkinikong.be.util.s3.type.S3Bucket;
 
 @Service
 @RequiredArgsConstructor
@@ -53,7 +55,7 @@ public class ReviewService {
   private final ReviewImageRepository reviewImageRepository;
   private final ReviewTagRepository reviewTagRepository;
 
-  private final ReviewImageService reviewImageService;
+  private final ImageService imageService;
 
   @Transactional
   public ReviewPostResponse postReview(Long storeId, ReviewRequest request, Long userId) {
@@ -87,14 +89,16 @@ public class ReviewService {
 
   @Transactional
   public void postReviewImage(Long reviewId, MultipartFile file, Long userId) {
-    if (file == null || file.isEmpty()) {
-      return;
+    if (file == null || file.isEmpty()) return;
+
+    if (reviewImageRepository.existsByReviewId(reviewId)) {
+      throw new ReviewException(ReviewErrorCode.REVIEW_IMAGE_ALREADY_EXISTS);
     }
 
     Review review = getReviewOrThrow(reviewId);
     validateReviewOwner(review, userId);
 
-    String imageUrl = reviewImageService.uploadFile(file);
+    String imageUrl = imageService.uploadSingleFile(file, S3Bucket.STORE_REVIEW_IMAGE);
 
     reviewImageRepository.save(ReviewImage.builder().review(review).imageUrl(imageUrl).build());
   }
@@ -153,7 +157,7 @@ public class ReviewService {
         .findByReviewId(reviewId)
         .ifPresent(
             image -> {
-              reviewImageService.deleteFile(image.getImageUrl());
+              imageService.deleteFile(image.getImageUrl(), S3Bucket.STORE_REVIEW_IMAGE);
               reviewImageRepository.delete(image);
             });
 

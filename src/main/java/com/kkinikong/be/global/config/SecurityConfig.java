@@ -64,13 +64,14 @@ public class SecurityConfig {
                         "/api/v1/cache/**",
                         "/api/v1/batch/**")
                     .authenticated()
-                    // 리뷰,편의점 관련 POST 인증 필요
+                    // 리뷰,편의점,커뮤니티 관련 POST 인증 필요
                     .requestMatchers(
                         HttpMethod.POST,
                         "/api/v1/*/review",
                         "/api/v1/*/review/*/photo",
                         "/api/v1/convenience/post",
-                        "/api/v1/convenience/post/**")
+                        "/api/v1/convenience/post/**",
+                        "/api/v1/community/post/**")
                     .authenticated()
                     // 리뷰,편의점 관련 DELETE 인증 필요
                     .requestMatchers(

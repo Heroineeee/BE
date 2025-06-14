@@ -6,4 +6,4 @@ import org.springframework.stereotype.Repository;
 import com.kkinikong.be.community.domain.CommunityPost;
 
 @Repository
-public interface CommunityRepository extends JpaRepository<CommunityPost, Long> {}
+public interface CommunityPostRepository extends JpaRepository<CommunityPost, Long> {}

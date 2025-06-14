@@ -41,8 +41,12 @@ public class Comment extends BaseEntity {
   @Column(name = "is_deleted", nullable = false)
   private boolean isDeleted = false;
 
-  @Column(name = "parent_comment_id")
-  private Long parentCommentId;
+  @Column(name = "is_author", nullable = false)
+  private boolean isAuthor = false;
+
+  @ManyToOne(fetch = FetchType.LAZY)
+  @JoinColumn(name = "parent_comment_id")
+  private Comment parentComment;
 
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "user_id", nullable = false)
@@ -55,11 +59,20 @@ public class Comment extends BaseEntity {
   @OneToMany(mappedBy = "comment", cascade = CascadeType.ALL, orphanRemoval = true)
   private List<CommentLike> commentLikeList = new ArrayList<>();
 
+  @OneToMany(mappedBy = "parentComment", cascade = CascadeType.ALL, orphanRemoval = true)
+  private List<Comment> childComments = new ArrayList<>();
+
   @Builder
-  public Comment(String content, User user, CommunityPost communityPost, Long parentCommentId) {
+  public Comment(
+      String content,
+      User user,
+      CommunityPost communityPost,
+      Comment parentComment,
+      boolean isAuthor) {
     this.content = content;
     this.user = user;
     this.communityPost = communityPost;
-    this.parentCommentId = parentCommentId;
+    this.parentComment = parentComment;
+    this.isAuthor = isAuthor;
   }
 }

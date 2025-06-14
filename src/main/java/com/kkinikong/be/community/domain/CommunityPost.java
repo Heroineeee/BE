@@ -71,4 +71,8 @@ public class CommunityPost extends BaseEntity {
     this.user = user;
     this.category = category;
   }
+
+  public void incrementCommentCount() {
+    this.commentCount++;
+  }
 }

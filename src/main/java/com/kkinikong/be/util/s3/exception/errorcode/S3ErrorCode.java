@@ -1,4 +1,4 @@
-package com.kkinikong.be.util.exception.errorcode;
+package com.kkinikong.be.util.s3.exception.errorcode;
 
 import org.springframework.http.HttpStatus;
 
