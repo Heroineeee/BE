@@ -2,6 +2,7 @@ package com.kkinikong.be.community.service;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -11,15 +12,19 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 import com.kkinikong.be.community.domain.Comment;
+import com.kkinikong.be.community.domain.CommentLike;
 import com.kkinikong.be.community.domain.CommunityPost;
 import com.kkinikong.be.community.domain.CommunityPostImage;
+import com.kkinikong.be.community.domain.CommunityPostLike;
 import com.kkinikong.be.community.dto.request.CommunityCommentRequest;
 import com.kkinikong.be.community.dto.request.CommunityPostRequest;
 import com.kkinikong.be.community.dto.response.CommunityPostResponse;
 import com.kkinikong.be.community.exception.CommunityException;
 import com.kkinikong.be.community.exception.errorcode.CommunityErrorCode;
+import com.kkinikong.be.community.repository.CommentLikeRepository;
 import com.kkinikong.be.community.repository.CommentRepository;
 import com.kkinikong.be.community.repository.CommunityPostImageRepository;
+import com.kkinikong.be.community.repository.CommunityPostLikeRepository;
 import com.kkinikong.be.community.repository.CommunityPostRepository;
 import com.kkinikong.be.user.domain.User;
 import com.kkinikong.be.user.exception.UserException;
@@ -38,6 +43,8 @@ public class CommunityService {
   private final UserRepository userRepository;
   private final CommunityPostImageRepository communityPostImageRepository;
   private final CommentRepository commentRepository;
+  private final CommunityPostLikeRepository communityPostLikeRepository;
+  private final CommentLikeRepository commentLikeRepository;
 
   private final ImageService imageService;
 
@@ -102,6 +109,42 @@ public class CommunityService {
             .build());
 
     communityPost.incrementCommentCount();
+  }
+
+  @Transactional
+  public void postCommunityPostLike(Long postId, Long userId) {
+    CommunityPost communityPost = getCommunityPostOrThrow(postId);
+    User user = getUserOrThrow(userId);
+
+    Optional<CommunityPostLike> postLike =
+        communityPostLikeRepository.findByCommunityPostIdAndUserId(postId, user.getId());
+
+    if (postLike.isPresent()) {
+      communityPostLikeRepository.delete(postLike.get());
+      communityPost.decrementLikeCount();
+    } else {
+      communityPostLikeRepository.save(
+          CommunityPostLike.builder().communityPost(communityPost).user(user).build());
+      communityPost.incrementLikeCount();
+    }
+  }
+
+  @Transactional
+  public void postCommunityCommentLike(Long commentId, Long userId) {
+    Comment comment = getCommentOrThrow(commentId);
+    User user = getUserOrThrow(userId);
+
+    Optional<CommentLike> commentLike =
+        commentLikeRepository.findByCommentIdAndUserId(commentId, user.getId());
+
+    if (commentLike.isPresent()) {
+      commentLikeRepository.delete(commentLike.get());
+      comment.decrementLikeCount();
+    } else {
+      // 좋아요를 누르지 않은 경우 좋아요 추가
+      commentLikeRepository.save(CommentLike.builder().comment(comment).user(user).build());
+      comment.incrementLikeCount();
+    }
   }
 
   private void validateCommentContentLength(String content) {

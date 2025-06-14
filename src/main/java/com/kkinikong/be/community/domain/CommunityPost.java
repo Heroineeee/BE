@@ -75,4 +75,12 @@ public class CommunityPost extends BaseEntity {
   public void incrementCommentCount() {
     this.commentCount++;
   }
+
+  public void incrementLikeCount() {
+    this.likeCount++;
+  }
+
+  public void decrementLikeCount() {
+    this.likeCount--;
+  }
 }

@@ -111,7 +111,7 @@ public class CommunityController {
   public ResponseEntity<ApiResponse<Object>> postCommunityPostLike(
       @PathVariable("postId") Long postId, @AuthenticationPrincipal CustomUserDetails userDetails) {
 
-    // communityService.postCommunityPostLike(postId, userDetails.getId());
+    communityService.postCommunityPostLike(postId, userDetails.getId());
 
     return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.from(ApiResponse.EMPTY_RESPONSE));
   }
@@ -124,7 +124,7 @@ public class CommunityController {
       @PathVariable("commentId") Long commentId,
       @AuthenticationPrincipal CustomUserDetails userDetails) {
 
-    // communityService.postCommunityCommentLike(postId, commentId, userDetails.getId());
+    communityService.postCommunityCommentLike(commentId, userDetails.getId());
 
     return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.from(ApiResponse.EMPTY_RESPONSE));
   }
