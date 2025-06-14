@@ -103,4 +103,29 @@ public class CommunityController {
 
     return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.from(ApiResponse.EMPTY_RESPONSE));
   }
+
+  @PostMapping("/post/{postId}/like")
+  @Operation(
+      summary = "커뮤니티 게시글 좋아요, 좋아요 취소",
+      description = "커뮤니티 게시글에 좋아요를 누르는 API입니다. 이미 좋아요를 누른 경우, 좋아요가 취소됩니다.")
+  public ResponseEntity<ApiResponse<Object>> postCommunityPostLike(
+      @PathVariable("postId") Long postId, @AuthenticationPrincipal CustomUserDetails userDetails) {
+
+    // communityService.postCommunityPostLike(postId, userDetails.getId());
+
+    return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.from(ApiResponse.EMPTY_RESPONSE));
+  }
+
+  @PostMapping("/comment/{commentId}/like")
+  @Operation(
+      summary = "커뮤니티 게시글 댓글 좋아요, 좋아요 취소",
+      description = "커뮤니티 게시글 댓글에 좋아요를 누르는 API입니다. 이미 좋아요를 누른 경우, 좋아요가 취소됩니다.")
+  public ResponseEntity<ApiResponse<Object>> postCommunityCommentLike(
+      @PathVariable("commentId") Long commentId,
+      @AuthenticationPrincipal CustomUserDetails userDetails) {
+
+    // communityService.postCommunityCommentLike(postId, commentId, userDetails.getId());
+
+    return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.from(ApiResponse.EMPTY_RESPONSE));
+  }
 }
