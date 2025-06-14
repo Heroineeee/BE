@@ -19,6 +19,7 @@ import com.kkinikong.be.community.domain.CommunityPostLike;
 import com.kkinikong.be.community.dto.request.CommunityCommentRequest;
 import com.kkinikong.be.community.dto.request.CommunityPostRequest;
 import com.kkinikong.be.community.dto.response.CommunityPostResponse;
+import com.kkinikong.be.community.dto.response.LikeToggleResponse;
 import com.kkinikong.be.community.exception.CommunityException;
 import com.kkinikong.be.community.exception.errorcode.CommunityErrorCode;
 import com.kkinikong.be.community.repository.CommentLikeRepository;
@@ -112,39 +113,48 @@ public class CommunityService {
   }
 
   @Transactional
-  public void postCommunityPostLike(Long postId, Long userId) {
+  public LikeToggleResponse postCommunityPostLike(Long postId, Long userId) {
     CommunityPost communityPost = getCommunityPostOrThrow(postId);
     User user = getUserOrThrow(userId);
 
     Optional<CommunityPostLike> postLike =
-        communityPostLikeRepository.findByCommunityPostIdAndUserId(postId, user.getId());
+        communityPostLikeRepository.findByCommunityPostIdAndUserId(postId, userId);
 
+    boolean isLiked;
     if (postLike.isPresent()) {
       communityPostLikeRepository.delete(postLike.get());
       communityPost.decrementLikeCount();
+      isLiked = false;
     } else {
       communityPostLikeRepository.save(
           CommunityPostLike.builder().communityPost(communityPost).user(user).build());
       communityPost.incrementLikeCount();
+      isLiked = true;
     }
+
+    return LikeToggleResponse.from(isLiked, communityPost.getLikeCount());
   }
 
   @Transactional
-  public void postCommunityCommentLike(Long commentId, Long userId) {
+  public LikeToggleResponse postCommunityCommentLike(Long commentId, Long userId) {
     Comment comment = getCommentOrThrow(commentId);
     User user = getUserOrThrow(userId);
 
     Optional<CommentLike> commentLike =
-        commentLikeRepository.findByCommentIdAndUserId(commentId, user.getId());
+        commentLikeRepository.findByCommentIdAndUserId(commentId, userId);
 
+    boolean isLiked;
     if (commentLike.isPresent()) {
       commentLikeRepository.delete(commentLike.get());
       comment.decrementLikeCount();
+      isLiked = false;
     } else {
-      // 좋아요를 누르지 않은 경우 좋아요 추가
       commentLikeRepository.save(CommentLike.builder().comment(comment).user(user).build());
       comment.incrementLikeCount();
+      isLiked = true;
     }
+
+    return LikeToggleResponse.from(isLiked, comment.getLikeCount());
   }
 
   private void validateCommentContentLength(String content) {

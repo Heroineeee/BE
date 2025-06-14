@@ -23,6 +23,7 @@ import lombok.RequiredArgsConstructor;
 import com.kkinikong.be.community.dto.request.CommunityCommentRequest;
 import com.kkinikong.be.community.dto.request.CommunityPostRequest;
 import com.kkinikong.be.community.dto.response.CommunityPostResponse;
+import com.kkinikong.be.community.dto.response.LikeToggleResponse;
 import com.kkinikong.be.community.service.CommunityService;
 import com.kkinikong.be.global.response.ApiResponse;
 import com.kkinikong.be.user.utils.CustomUserDetails;
@@ -111,9 +112,10 @@ public class CommunityController {
   public ResponseEntity<ApiResponse<Object>> postCommunityPostLike(
       @PathVariable("postId") Long postId, @AuthenticationPrincipal CustomUserDetails userDetails) {
 
-    communityService.postCommunityPostLike(postId, userDetails.getId());
+    LikeToggleResponse likeToggleResponse =
+        communityService.postCommunityPostLike(postId, userDetails.getId());
 
-    return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.from(ApiResponse.EMPTY_RESPONSE));
+    return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.from(likeToggleResponse));
   }
 
   @PostMapping("/comment/{commentId}/like")
@@ -124,8 +126,9 @@ public class CommunityController {
       @PathVariable("commentId") Long commentId,
       @AuthenticationPrincipal CustomUserDetails userDetails) {
 
-    communityService.postCommunityCommentLike(commentId, userDetails.getId());
+    LikeToggleResponse likeToggleResponse =
+        communityService.postCommunityCommentLike(commentId, userDetails.getId());
 
-    return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.from(ApiResponse.EMPTY_RESPONSE));
+    return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.from(likeToggleResponse));
   }
 }
