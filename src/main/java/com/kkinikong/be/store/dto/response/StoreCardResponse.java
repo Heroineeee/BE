@@ -8,7 +8,7 @@ public record StoreCardResponse(
     return new StoreCardResponse(
         store.getId(),
         store.getName(),
-        store.getAddress(),
+        store.getAddress().split("서구 ")[1],
         store.getViewCount(),
         store.getCategory().getLabel());
   }
