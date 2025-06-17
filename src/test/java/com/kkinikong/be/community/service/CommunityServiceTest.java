@@ -34,8 +34,6 @@ class CommunityServiceTest {
 
   @Autowired private UserRepository userRepository;
 
-  @Autowired private OptimisticLockLikeFacade optimisticLockLikeFacade;
-
   private final int THREAD_COUNT = 100;
   private final List<Long> userIds = new ArrayList<>();
 
