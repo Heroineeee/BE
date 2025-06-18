@@ -141,7 +141,10 @@ public class CommunityService {
 
   @Transactional
   public LikeToggleResponse postCommunityCommentLike(Long commentId, Long userId) {
-    Comment comment = getCommentOrThrow(commentId);
+    Comment comment =
+        commentRepository
+            .findByIdForUpdate(commentId)
+            .orElseThrow(() -> new CommunityException(CommunityErrorCode.COMMENT_NOT_FOUND));
     User user = getUserOrThrow(userId);
 
     Optional<CommentLike> commentLike =
