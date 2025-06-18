@@ -8,7 +8,7 @@ import lombok.NoArgsConstructor;
 import com.kkinikong.be.global.entity.BaseEntity;
 import com.kkinikong.be.user.domain.User;
 
-@Table(name = "feeabacks")
+@Table(name = "feedbacks")
 @Entity
 @Getter
 @NoArgsConstructor

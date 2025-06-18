@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 
 import com.kkinikong.be.feedback.dto.request.FeedbackRequest;
@@ -19,6 +20,7 @@ import com.kkinikong.be.user.utils.CustomUserDetails;
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/feedback")
 @RestController
+@Tag(name = "Feedback", description = "피드백 관련 API")
 public class FeedbackController {
 
   private final FeedbackService feedbackService;
