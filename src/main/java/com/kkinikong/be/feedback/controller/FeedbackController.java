@@ -26,7 +26,7 @@ public class FeedbackController {
   private final FeedbackService feedbackService;
 
   @Operation(summary = "의견 남기기")
-  @PostMapping("/")
+  @PostMapping("")
   public ResponseEntity<ApiResponse<Object>> addFeedback(
       @RequestBody FeedbackRequest request,
       @AuthenticationPrincipal CustomUserDetails userDetails) {
