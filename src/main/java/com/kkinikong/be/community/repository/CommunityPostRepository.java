@@ -1,9 +1,14 @@
 package com.kkinikong.be.community.repository;
 
+import java.util.List;
+
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 import com.kkinikong.be.community.domain.CommunityPost;
 
 @Repository
-public interface CommunityPostRepository extends JpaRepository<CommunityPost, Long> {}
+public interface CommunityPostRepository extends JpaRepository<CommunityPost, Long> {
+
+  List<CommunityPost> findTop5ByOrderByLikeCountDescViewCountDesc();
+}

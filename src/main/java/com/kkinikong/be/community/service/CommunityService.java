@@ -15,6 +15,7 @@ import com.kkinikong.be.community.domain.CommunityPost;
 import com.kkinikong.be.community.domain.CommunityPostImage;
 import com.kkinikong.be.community.dto.request.CommunityCommentRequest;
 import com.kkinikong.be.community.dto.request.CommunityPostRequest;
+import com.kkinikong.be.community.dto.response.CommunityPostPopularResponse;
 import com.kkinikong.be.community.dto.response.CommunityPostResponse;
 import com.kkinikong.be.community.exception.CommunityException;
 import com.kkinikong.be.community.exception.errorcode.CommunityErrorCode;
@@ -102,6 +103,13 @@ public class CommunityService {
             .build());
 
     communityPost.incrementCommentCount();
+  }
+
+  public List<CommunityPostPopularResponse> getPopularCommunityPosts() {
+    List<CommunityPost> popularPosts =
+        communityPostRepository.findTop5ByOrderByLikeCountDescViewCountDesc();
+
+    return popularPosts.stream().map(CommunityPostPopularResponse::from).toList();
   }
 
   private void validateCommentContentLength(String content) {

@@ -139,9 +139,9 @@ public class CommunityController {
   @GetMapping("/post/popular")
   @Operation(
       summary = "인기 커뮤니티 게시글 조회",
-      description = "인기 커뮤니티 게시글을 조회하는 API입니다. 인기 게시글은 조회수가 높은 순으로 정렬됩니다.")
+      description = "인기 커뮤니티 게시글을 조회하는 API입니다. 인기 게시글은 좋아요 수 기준, 같을 시 조회수 순으로 정렬됩니다.")
   public ResponseEntity<ApiResponse<Object>> getPopularCommunityPosts() {
-    // communityService.getPopularCommunityPosts();
-    return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.from(ApiResponse.EMPTY_RESPONSE));
+    return ResponseEntity.status(HttpStatus.OK)
+        .body(ApiResponse.from(communityService.getPopularCommunityPosts()));
   }
 }
