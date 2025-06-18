@@ -1,7 +1,6 @@
 package com.kkinikong.be.community.service;
 
 import static org.assertj.core.api.AssertionsForClassTypes.*;
-import static org.junit.jupiter.api.Assertions.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -55,13 +54,12 @@ class CommunityServiceTest {
   @DisplayName("서로 다른 유저들이 동시에 좋아요 누르는 경우")
   void testConcurrentLikeToggleWithDifferentUsers() throws InterruptedException {
     // given
-    final long postId = 21; // 테스트용 게시글 ID
-    final int threadCount = 100;
-    ExecutorService executorService = Executors.newFixedThreadPool(threadCount);
-    CountDownLatch countDownLatch = new CountDownLatch(threadCount);
+    final long postId = 24; // 테스트용 게시글 ID
+    ExecutorService executorService = Executors.newFixedThreadPool(THREAD_COUNT);
+    CountDownLatch countDownLatch = new CountDownLatch(THREAD_COUNT);
 
     // when
-    for (int i = 0; i < threadCount; i++) {
+    for (int i = 0; i < THREAD_COUNT; i++) {
       Long userId = userIds.get(i);
       executorService.execute(
           () -> {
@@ -71,14 +69,14 @@ class CommunityServiceTest {
               countDownLatch.countDown();
             }
           });
-
-      countDownLatch.await(); // 모든 스레드 작업 끝날 때까지 대기
-
-      // then
-      CommunityPost post = communityPostRepository.findById(postId).orElseThrow();
-      System.out.println("최종 좋아요 수: " + post.getLikeCount());
-
-      assertThat(post.getLikeCount()).isEqualTo(threadCount); // 좋아요 100개가 되어야 함
     }
+
+    countDownLatch.await(); // 모든 스레드 작업 끝날 때까지 대기
+
+    // then
+    CommunityPost post = communityPostRepository.findById(postId).orElseThrow();
+    System.out.println("최종 좋아요 수: " + post.getLikeCount());
+
+    assertThat(post.getLikeCount()).isEqualTo(THREAD_COUNT); // 좋아요 100개가 되어야 함
   }
 }

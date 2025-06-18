@@ -114,7 +114,11 @@ public class CommunityService {
 
   @Transactional
   public LikeToggleResponse postCommunityPostLike(Long postId, Long userId) {
-    CommunityPost communityPost = getCommunityPostOrThrow(postId);
+    CommunityPost communityPost =
+        communityPostRepository
+            .findByIdForUpdate(postId)
+            .orElseThrow(() -> new CommunityException(CommunityErrorCode.COMMUNITY_POST_NOT_FOUND));
+
     User user = getUserOrThrow(userId);
 
     Optional<CommunityPostLike> postLike =
