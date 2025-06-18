@@ -5,6 +5,7 @@ import java.util.List;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -111,6 +112,36 @@ public class CommunityController {
 
     communityService.postCommentAndReply(postId, commentId, request, userDetails.getId());
 
+    return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.from(ApiResponse.EMPTY_RESPONSE));
+  }
+
+  @GetMapping("/post/{postId}")
+  @Operation(
+      summary = "커뮤니티 게시글 상세 조회",
+      description = "커뮤니티 게시글을 상세 조회하는 API입니다. 게시글 ID를 통해 해당 게시글과 댓글, 답글을 조회합니다.")
+  public ResponseEntity<ApiResponse<Object>> getCommunityPost(@PathVariable("postId") Long postId) {
+
+    // CommunityPostDetailResponse communityPostResponse =
+    //     communityService.getCommunityPost(postId, userDetails.getId());
+
+    return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.from(ApiResponse.EMPTY_RESPONSE));
+  }
+
+  @GetMapping("/post")
+  @Operation(
+      summary = "커뮤니티 게시글 목록 조회 및 필터링",
+      description = "커뮤니티 게시글 목록을 조회하는 API입니다. 카테고리와 페이지 정보를 통해 게시글을 조회합니다.")
+  public ResponseEntity<ApiResponse<Object>> getCommunityPostList() {
+    // communityService.getCommunityPostList();
+    return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.from(ApiResponse.EMPTY_RESPONSE));
+  }
+
+  @GetMapping("/post/popular")
+  @Operation(
+      summary = "인기 커뮤니티 게시글 조회",
+      description = "인기 커뮤니티 게시글을 조회하는 API입니다. 인기 게시글은 조회수가 높은 순으로 정렬됩니다.")
+  public ResponseEntity<ApiResponse<Object>> getPopularCommunityPosts() {
+    // communityService.getPopularCommunityPosts();
     return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.from(ApiResponse.EMPTY_RESPONSE));
   }
 }
