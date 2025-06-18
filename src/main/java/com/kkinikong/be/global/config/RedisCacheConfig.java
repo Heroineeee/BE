@@ -1,6 +1,8 @@
 package com.kkinikong.be.global.config;
 
 import java.time.Duration;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.springframework.cache.CacheManager;
 import org.springframework.cache.annotation.EnableCaching;
@@ -19,6 +21,8 @@ public class RedisCacheConfig {
 
   @Bean
   public CacheManager contentCacheManager(RedisConnectionFactory cf) {
+    Map<String, RedisCacheConfiguration> cacheConfigurations = new HashMap<>();
+
     RedisCacheConfiguration redisCacheConfiguration =
         RedisCacheConfiguration.defaultCacheConfig()
             .serializeKeysWith(
@@ -29,8 +33,13 @@ public class RedisCacheConfig {
                     new GenericJackson2JsonRedisSerializer()))
             .entryTtl(Duration.ofDays(30)); // 캐시 수명 30일
 
+    // 인기 검색어: TTL 30분
+    cacheConfigurations.put(
+        "community-popular-posts", redisCacheConfiguration.entryTtl(Duration.ofMinutes(30)));
+
     return RedisCacheManager.RedisCacheManagerBuilder.fromConnectionFactory(cf)
         .cacheDefaults(redisCacheConfiguration)
+        .withInitialCacheConfigurations(cacheConfigurations)
         .build();
   }
 }

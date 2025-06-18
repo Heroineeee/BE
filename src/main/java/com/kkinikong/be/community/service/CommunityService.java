@@ -3,6 +3,7 @@ package com.kkinikong.be.community.service;
 import java.util.List;
 import java.util.Objects;
 
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -16,6 +17,7 @@ import com.kkinikong.be.community.domain.CommunityPostImage;
 import com.kkinikong.be.community.dto.request.CommunityCommentRequest;
 import com.kkinikong.be.community.dto.request.CommunityPostRequest;
 import com.kkinikong.be.community.dto.response.CommunityPostPopularResponse;
+import com.kkinikong.be.community.dto.response.CommunityPostPopularWrappingResponse;
 import com.kkinikong.be.community.dto.response.CommunityPostResponse;
 import com.kkinikong.be.community.exception.CommunityException;
 import com.kkinikong.be.community.exception.errorcode.CommunityErrorCode;
@@ -105,11 +107,13 @@ public class CommunityService {
     communityPost.incrementCommentCount();
   }
 
-  public List<CommunityPostPopularResponse> getPopularCommunityPosts() {
-    List<CommunityPost> popularPosts =
-        communityPostRepository.findTop5ByOrderByLikeCountDescViewCountDesc();
-
-    return popularPosts.stream().map(CommunityPostPopularResponse::from).toList();
+  @Cacheable(value = "community-popular-posts", unless = "#result == null")
+  public CommunityPostPopularWrappingResponse getPopularCommunityPosts() {
+    List<CommunityPostPopularResponse> list =
+        communityPostRepository.findTop5ByOrderByLikeCountDescViewCountDesc().stream()
+            .map(CommunityPostPopularResponse::from)
+            .toList();
+    return new CommunityPostPopularWrappingResponse(List.copyOf(list));
   }
 
   private void validateCommentContentLength(String content) {
