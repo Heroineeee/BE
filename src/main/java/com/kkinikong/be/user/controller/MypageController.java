@@ -14,6 +14,7 @@ import lombok.RequiredArgsConstructor;
 
 import com.kkinikong.be.global.response.ApiResponse;
 import com.kkinikong.be.global.response.PageResponse;
+import com.kkinikong.be.user.dto.response.MypageReviewResponse;
 import com.kkinikong.be.user.dto.response.MypageStoreResponse;
 import com.kkinikong.be.user.service.MypageService;
 import com.kkinikong.be.user.utils.CustomUserDetails;
@@ -33,6 +34,17 @@ public class MypageController {
       @RequestParam(defaultValue = "10") int size) {
     PageResponse<MypageStoreResponse> response =
         mypageService.getScrapStore(userDetails.getId(), page, size);
+    return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.from(response));
+  }
+
+  @Operation(summary = "내가 작성한 리뷰 조회")
+  @GetMapping("/review")
+  public ResponseEntity<ApiResponse<Object>> getReviewList(
+      @AuthenticationPrincipal CustomUserDetails userDetails,
+      @RequestParam(defaultValue = "0") int page,
+      @RequestParam(defaultValue = "10") int size) {
+    PageResponse<MypageReviewResponse> response =
+        mypageService.getReview(userDetails.getId(), page, size);
     return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.from(response));
   }
 }
