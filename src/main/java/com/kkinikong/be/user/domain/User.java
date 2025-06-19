@@ -82,6 +82,13 @@ public class User extends BaseEntity {
     this.placeLongitude = longitude;
   }
 
+  public void withdraw() {
+    this.email = null;
+    this.nickname = "Deleted User";
+    this.isDeleted = true;
+    this.deletedAt = LocalDateTime.now();
+  }
+
   @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
   private List<Review> reviewList = new ArrayList<>();
 
