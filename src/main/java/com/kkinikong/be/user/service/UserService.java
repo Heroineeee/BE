@@ -59,7 +59,7 @@ public class UserService {
   public void deleteUser(Long userId) {
     User user = getUserOrThrow(userId);
     if (user.isDeleted()) {
-      throw new UserException(USER_NOT_FOUND);
+      throw new UserException(USER_ALREADY_DELETED);
     }
     user.withdraw();
   }
