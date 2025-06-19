@@ -14,7 +14,7 @@ public interface StoreScrapRepository
     extends JpaRepository<StoreScrap, Long>, StoreScrapRepositoryCustom {
   List<StoreScrap> store(Store store);
 
-  Page<StoreScrap> findAllByUserId(Long userId, Pageable pageable);
+  Page<StoreScrap> findAllByUserIdOrderByCreatedDateDesc(Long userId, Pageable pageable);
 
   Optional<StoreScrap> findByStoreIdAndUserId(Long storeId, Long userId);
 

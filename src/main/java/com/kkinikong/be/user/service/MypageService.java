@@ -19,7 +19,8 @@ public class MypageService {
 
   public PageResponse<MypageStoreResponse> getScrapStore(Long userId, int page, int size) {
     Pageable pageable = PageRequest.of(page, size);
-    Page<StoreScrap> storeScrapPage = storeScrapRepository.findAllByUserId(userId, pageable);
+    Page<StoreScrap> storeScrapPage =
+        storeScrapRepository.findAllByUserIdOrderByCreatedDateDesc(userId, pageable);
     return PageResponse.from(storeScrapPage, scrap -> MypageStoreResponse.from(scrap.getStore()));
   }
 }
