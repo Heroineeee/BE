@@ -55,6 +55,15 @@ public class UserService {
     user.updatePlace(latitude, longitude);
   }
 
+  @Transactional
+  public void deleteUser(Long userId) {
+    User user = getUserOrThrow(userId);
+    if (user.isDeleted()) {
+      throw new UserException(USER_NOT_FOUND);
+    }
+    user.withdraw();
+  }
+
   private User getUserOrThrow(Long userId) {
     return userRepository
         .findById(userId)
