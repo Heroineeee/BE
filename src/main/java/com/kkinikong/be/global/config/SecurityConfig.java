@@ -60,6 +60,7 @@ public class SecurityConfig {
                     .requestMatchers(
                         "/api/v1/user/**",
                         "/api/v1/store/scrap/**",
+                        "/api/v1/mypage/**",
                         "/api/v1/report/**",
                         "/api/v1/cache/**",
                         "/api/v1/batch/**")
