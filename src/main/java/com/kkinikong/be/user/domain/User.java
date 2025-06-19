@@ -1,5 +1,6 @@
 package com.kkinikong.be.user.domain;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -50,6 +51,12 @@ public class User extends BaseEntity {
 
   @Column(name = "place_longitude")
   private Double placeLongitude;
+
+  @Column(name = "is_deleted", nullable = false)
+  private boolean isDeleted;
+
+  @Column(name = "deleted_at")
+  private LocalDateTime deletedAt;
 
   @Builder(builderMethodName = "socialLoginBuilder", buildMethodName = "buildSocialLogin")
   public User(String email, LoginType loginType) {
