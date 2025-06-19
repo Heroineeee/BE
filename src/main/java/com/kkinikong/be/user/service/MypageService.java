@@ -9,18 +9,17 @@ import lombok.RequiredArgsConstructor;
 
 import com.kkinikong.be.global.response.PageResponse;
 import com.kkinikong.be.store.domain.StoreScrap;
-import com.kkinikong.be.store.dto.response.StoreMapListItemResponse;
 import com.kkinikong.be.store.repository.storescrap.StoreScrapRepository;
+import com.kkinikong.be.user.dto.response.MypageStoreResponse;
 
 @Service
 @RequiredArgsConstructor
 public class MypageService {
   private final StoreScrapRepository storeScrapRepository;
 
-  public PageResponse<StoreMapListItemResponse> getScrapStore(Long userId, int page, int size) {
+  public PageResponse<MypageStoreResponse> getScrapStore(Long userId, int page, int size) {
     Pageable pageable = PageRequest.of(page, size);
     Page<StoreScrap> storeScrapPage = storeScrapRepository.findAllByUserId(userId, pageable);
-    return PageResponse.from(
-        storeScrapPage, scrap -> StoreMapListItemResponse.from(scrap.getStore()));
+    return PageResponse.from(storeScrapPage, scrap -> MypageStoreResponse.from(scrap.getStore()));
   }
 }

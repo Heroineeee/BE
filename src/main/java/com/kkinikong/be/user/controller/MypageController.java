@@ -14,7 +14,7 @@ import lombok.RequiredArgsConstructor;
 
 import com.kkinikong.be.global.response.ApiResponse;
 import com.kkinikong.be.global.response.PageResponse;
-import com.kkinikong.be.store.dto.response.StoreMapListItemResponse;
+import com.kkinikong.be.user.dto.response.MypageStoreResponse;
 import com.kkinikong.be.user.service.MypageService;
 import com.kkinikong.be.user.utils.CustomUserDetails;
 
@@ -31,7 +31,7 @@ public class MypageController {
       @AuthenticationPrincipal CustomUserDetails userDetails,
       @RequestParam(defaultValue = "0") int page,
       @RequestParam(defaultValue = "10") int size) {
-    PageResponse<StoreMapListItemResponse> response =
+    PageResponse<MypageStoreResponse> response =
         mypageService.getScrapStore(userDetails.getId(), page, size);
     return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.from(response));
   }
