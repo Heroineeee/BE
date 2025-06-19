@@ -12,6 +12,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 
+import com.kkinikong.be.convenience.dto.response.ConveniencePostListResponse;
 import com.kkinikong.be.global.response.ApiResponse;
 import com.kkinikong.be.global.response.PageResponse;
 import com.kkinikong.be.user.dto.response.MypageReviewResponse;
@@ -45,6 +46,17 @@ public class MypageController {
       @RequestParam(defaultValue = "10") int size) {
     PageResponse<MypageReviewResponse> response =
         mypageService.getReview(userDetails.getId(), page, size);
+    return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.from(response));
+  }
+
+  @Operation(summary = "내가 작성한 편의점 정보 게시판 게시글 조회")
+  @GetMapping("/convenience")
+  public ResponseEntity<ApiResponse<Object>> getConvenienceList(
+      @AuthenticationPrincipal CustomUserDetails userDetails,
+      @RequestParam(defaultValue = "0") int page,
+      @RequestParam(defaultValue = "10") int size) {
+    PageResponse<ConveniencePostListResponse> response =
+        mypageService.getConveniencePost(userDetails.getId(), page, size);
     return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.from(response));
   }
 }

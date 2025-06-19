@@ -7,9 +7,13 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import lombok.RequiredArgsConstructor;
 
+import com.kkinikong.be.convenience.domain.ConveniencePost;
+import com.kkinikong.be.convenience.dto.response.ConveniencePostListResponse;
+import com.kkinikong.be.convenience.repository.ConvenienceRepository;
 import com.kkinikong.be.global.response.PageResponse;
 import com.kkinikong.be.review.domain.Review;
 import com.kkinikong.be.review.domain.type.Tag;
@@ -23,11 +27,13 @@ import com.kkinikong.be.user.dto.response.MypageStoreResponse;
 
 @Service
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class MypageService {
   private final StoreScrapRepository storeScrapRepository;
   private final ReviewRepository reviewRepository;
   private final ReviewImageRepository reviewImageRepository;
   private final ReviewTagRepository reviewTagRepository;
+  private final ConvenienceRepository convenienceRepository;
 
   public PageResponse<MypageStoreResponse> getScrapStore(Long userId, int page, int size) {
     Pageable pageable = PageRequest.of(page, size);
@@ -51,5 +57,13 @@ public class MypageService {
         review ->
             MypageReviewResponse.from(
                 review, reviewTagMap.get(review.getId()), reviewImageMap.get(review.getId())));
+  }
+
+  public PageResponse<ConveniencePostListResponse> getConveniencePost(
+      Long userId, int page, int size) {
+    Pageable pageable = PageRequest.of(page, size);
+    Page<ConveniencePost> conveniencePostPage =
+        convenienceRepository.findAllByUserIdOrderByCreatedDateDesc(userId, pageable);
+    return PageResponse.from(conveniencePostPage, ConveniencePostListResponse::from);
   }
 }
