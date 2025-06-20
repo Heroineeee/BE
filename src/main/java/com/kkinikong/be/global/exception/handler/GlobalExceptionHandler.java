@@ -20,6 +20,7 @@ import org.slf4j.LoggerFactory;
 import com.kkinikong.be.auth.exception.AuthException;
 import com.kkinikong.be.community.exception.CommunityException;
 import com.kkinikong.be.convenience.exception.ConvenienceException;
+import com.kkinikong.be.feedback.exception.FeedbackException;
 import com.kkinikong.be.global.exception.errorcode.ErrorCode;
 import com.kkinikong.be.global.exception.errorcode.GlobalErrorCode;
 import com.kkinikong.be.global.exception.response.ErrorResponse;
@@ -94,6 +95,13 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
   @ExceptionHandler(CommunityException.class)
   public ResponseEntity<Object> handleCommunityException(
       final CommunityException e, HttpServletRequest request) {
+    logInfo(e.getErrorCode(), e, request);
+    return handleExceptionInternal(e.getErrorCode());
+  }
+
+  @ExceptionHandler(FeedbackException.class)
+  public ResponseEntity<Object> handleCommunityException(
+      final FeedbackException e, HttpServletRequest request) {
     logInfo(e.getErrorCode(), e, request);
     return handleExceptionInternal(e.getErrorCode());
   }

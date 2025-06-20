@@ -75,4 +75,12 @@ public class Comment extends BaseEntity {
     this.parentComment = parentComment;
     this.isAuthor = isAuthor;
   }
+
+  public void incrementLikeCount() {
+    this.likeCount++;
+  }
+
+  public void decrementLikeCount() {
+    this.likeCount--;
+  }
 }

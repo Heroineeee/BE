@@ -9,6 +9,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import jakarta.persistence.UniqueConstraint;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -16,7 +17,9 @@ import lombok.NoArgsConstructor;
 import com.kkinikong.be.global.entity.BaseEntity;
 import com.kkinikong.be.user.domain.User;
 
-@Table(name = "comment_likes")
+@Table(
+    name = "comment_likes",
+    uniqueConstraints = {@UniqueConstraint(columnNames = {"user_id", "comment_id"})})
 @Entity
 @Getter
 @NoArgsConstructor
