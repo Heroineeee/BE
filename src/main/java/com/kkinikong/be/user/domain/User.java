@@ -3,6 +3,7 @@ package com.kkinikong.be.user.domain;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 import jakarta.persistence.*;
 import lombok.Builder;
@@ -83,7 +84,7 @@ public class User extends BaseEntity {
   }
 
   public void withdraw() {
-    this.email = null;
+    this.email = "deleted_" + UUID.randomUUID() + "@deleted.com";
     this.nickname = "Deleted User";
     this.isDeleted = true;
     this.deletedAt = LocalDateTime.now();
