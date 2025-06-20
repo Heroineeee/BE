@@ -80,6 +80,7 @@ public class CommunityService {
       communityPostImageRepository.save(
           CommunityPostImage.builder().communityPost(communityPost).imageUrl(url).build());
     }
+    communityPost.updateThumbnailUrl(imageUrl.get(0));
   }
 
   @Transactional

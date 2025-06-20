@@ -51,6 +51,9 @@ public class CommunityPost extends BaseEntity {
   @Column(name = "comment_count", nullable = false)
   private long commentCount = 0L;
 
+  @Column(name = "thumbnail_url")
+  private String thumbnailUrl;
+
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "user_id", nullable = false)
   private User user;
@@ -74,5 +77,9 @@ public class CommunityPost extends BaseEntity {
 
   public void incrementCommentCount() {
     this.commentCount++;
+  }
+
+  public void updateThumbnailUrl(String thumbnailUrl) {
+    this.thumbnailUrl = thumbnailUrl;
   }
 }
