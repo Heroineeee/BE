@@ -6,7 +6,7 @@ import java.time.temporal.ChronoUnit;
 
 public class TimeUtil {
 
-  public static String relativeTimeFomatter(LocalDateTime past) {
+  public static String relativeTimeFormatter(LocalDateTime past) {
     LocalDateTime now = LocalDateTime.now();
 
     Duration duration = Duration.between(past, now);

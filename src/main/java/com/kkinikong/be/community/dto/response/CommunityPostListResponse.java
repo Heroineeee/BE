@@ -23,7 +23,7 @@ public record CommunityPostListResponse(
         shortContent(communityPost.getContent(), 50),
         communityPost.getThumbnailUrl(),
         communityPost.getCommunityPostImageList().size(),
-        TimeUtil.relativeTimeFomatter(communityPost.getCreatedDate()),
+        TimeUtil.relativeTimeFormatter(communityPost.getCreatedDate()),
         communityPost.getCommentCount(),
         communityPost.getLikeCount(),
         communityPost.getViewCount(),

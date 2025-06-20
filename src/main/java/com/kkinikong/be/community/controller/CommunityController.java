@@ -112,9 +112,7 @@ public class CommunityController {
       @PathVariable("postId") Long postId, @AuthenticationPrincipal CustomUserDetails userDetails) {
 
     return ResponseEntity.status(HttpStatus.OK)
-        .body(
-            ApiResponse.from(
-                ApiResponse.from(communityService.getCommunityPost(postId, userDetails.getId()))));
+        .body(ApiResponse.from(communityService.getCommunityPost(postId, userDetails.getId())));
   }
 
   @GetMapping("/post")
