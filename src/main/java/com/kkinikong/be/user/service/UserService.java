@@ -1,7 +1,6 @@
 package com.kkinikong.be.user.service;
 
-import static com.kkinikong.be.user.exception.errorcode.UserErrorCode.DUPLICATE_NICKNAME;
-import static com.kkinikong.be.user.exception.errorcode.UserErrorCode.USER_NOT_FOUND;
+import static com.kkinikong.be.user.exception.errorcode.UserErrorCode.*;
 
 import org.springframework.stereotype.Service;
 
