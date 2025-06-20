@@ -21,11 +21,10 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
+import com.kkinikong.be.community.domain.type.Category;
 import com.kkinikong.be.community.dto.request.CommunityCommentRequest;
 import com.kkinikong.be.community.dto.request.CommunityPostRequest;
 import com.kkinikong.be.community.dto.response.CommunityPostResponse;
-import com.kkinikong.be.community.exception.CommunityException;
-import com.kkinikong.be.community.exception.errorcode.CommunityErrorCode;
 import com.kkinikong.be.community.service.CommunityService;
 import com.kkinikong.be.global.response.ApiResponse;
 import com.kkinikong.be.user.utils.CustomUserDetails;
@@ -35,9 +34,6 @@ import com.kkinikong.be.user.utils.CustomUserDetails;
 @Tag(name = "Community", description = "커뮤니티 관련 API")
 @RequestMapping("/api/v1/community")
 public class CommunityController {
-
-  private final int MAX_COMMENT_SIZE = 4000;
-  private final int MAX_REPLY_SIZE = 2000;
 
   private final CommunityService communityService;
 
@@ -86,9 +82,6 @@ public class CommunityController {
       @RequestBody @Valid CommunityCommentRequest request,
       @AuthenticationPrincipal CustomUserDetails userDetails) {
 
-    if (request.content().length() > MAX_COMMENT_SIZE) {
-      throw new CommunityException(CommunityErrorCode.COMMENT_SIZE_LIMIT);
-    }
     communityService.postCommentAndReply(postId, null, request, userDetails.getId());
 
     return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.from(ApiResponse.EMPTY_RESPONSE));
@@ -105,10 +98,6 @@ public class CommunityController {
       @PathVariable("commentId") Long commentId,
       @RequestBody @Valid CommunityCommentRequest request,
       @AuthenticationPrincipal CustomUserDetails userDetails) {
-
-    if (request.content().length() > MAX_REPLY_SIZE) {
-      throw new CommunityException(CommunityErrorCode.REPLY_SIZE_LIMIT);
-    }
 
     communityService.postCommentAndReply(postId, commentId, request, userDetails.getId());
 
@@ -129,11 +118,22 @@ public class CommunityController {
 
   @GetMapping("/post")
   @Operation(
-      summary = "커뮤니티 게시글 목록 조회 및 필터링",
-      description = "커뮤니티 게시글 목록을 조회하는 API입니다. 카테고리와 페이지 정보를 통해 게시글을 조회합니다.")
-  public ResponseEntity<ApiResponse<Object>> getCommunityPostList() {
-    // communityService.getCommunityPostList();
-    return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.from(ApiResponse.EMPTY_RESPONSE));
+      summary = "커뮤니티 게시글 목록 조회 및 카테고리 필터링",
+      description =
+          """
+           - 커뮤니티 게시글 목록을 조회하는 API입니다.
+           - 카테고리로 필터링할 수 있으며, 전체 조회 시 category 파라미터를 생략하거나 null로 설정합니다.
+           - 최신순으로 정렬되며, 페이지네이션을 지원합니다.
+           - 페이지는 0부터 시작하며, 개수는 10개로 기본 설정되어 있습니다.
+           """)
+  public ResponseEntity<ApiResponse<Object>> getCommunityPostList(
+      @RequestParam(value = "category", required = false) Category category,
+      @RequestParam(value = "page", defaultValue = "0") int page,
+      @RequestParam(value = "size", defaultValue = "10") int size) {
+    return ResponseEntity.status(HttpStatus.OK)
+        .body(
+            ApiResponse.from(
+                ApiResponse.from(communityService.getCommunityPostList(category, page, size))));
   }
 
   @GetMapping("/post/popular")

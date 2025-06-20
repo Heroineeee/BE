@@ -32,7 +32,7 @@ public class Comment extends BaseEntity {
   @Column(name = "id")
   private Long id;
 
-  @Column(name = "content", nullable = false, length = 4000)
+  @Column(name = "content", columnDefinition = "TEXT", nullable = false, length = 4000)
   private String content;
 
   @Column(name = "like_count", nullable = false)

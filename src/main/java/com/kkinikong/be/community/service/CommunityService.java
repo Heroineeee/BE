@@ -4,6 +4,10 @@ import java.util.List;
 import java.util.Objects;
 
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -14,8 +18,10 @@ import lombok.extern.slf4j.Slf4j;
 import com.kkinikong.be.community.domain.Comment;
 import com.kkinikong.be.community.domain.CommunityPost;
 import com.kkinikong.be.community.domain.CommunityPostImage;
+import com.kkinikong.be.community.domain.type.Category;
 import com.kkinikong.be.community.dto.request.CommunityCommentRequest;
 import com.kkinikong.be.community.dto.request.CommunityPostRequest;
+import com.kkinikong.be.community.dto.response.CommunityPostListResponse;
 import com.kkinikong.be.community.dto.response.CommunityPostPopularResponse;
 import com.kkinikong.be.community.dto.response.CommunityPostPopularWrappingResponse;
 import com.kkinikong.be.community.dto.response.CommunityPostResponse;
@@ -44,7 +50,6 @@ public class CommunityService {
 
   private final ImageService imageService;
 
-  private final int MAX_COMMENT_SIZE = 4000;
   private final int MAX_REPLY_SIZE = 2000;
 
   @Transactional
@@ -92,8 +97,6 @@ public class CommunityService {
 
     if (commentId != null) { // 답글 작성인 경우
       parent = validateReply(postId, commentId, request.content());
-    } else { // 댓글 작성인 경우
-      validateCommentContentLength(request.content());
     }
 
     commentRepository.save(
@@ -117,10 +120,18 @@ public class CommunityService {
     return new CommunityPostPopularWrappingResponse(List.copyOf(list));
   }
 
-  private void validateCommentContentLength(String content) {
-    if (content.length() > MAX_COMMENT_SIZE) {
-      throw new CommunityException(CommunityErrorCode.COMMENT_SIZE_LIMIT);
+  public Page<CommunityPostListResponse> getCommunityPostList(
+      Category category, int page, int size) {
+    Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdDate"));
+
+    Page<CommunityPost> communityPosts;
+    if (category == null) {
+      communityPosts = communityPostRepository.findAll(pageable);
+    } else {
+      communityPosts = communityPostRepository.findAllByCategory(category, pageable);
     }
+
+    return communityPosts.map(CommunityPostListResponse::from);
   }
 
   private Comment validateReply(Long postId, Long commentId, String content) {
