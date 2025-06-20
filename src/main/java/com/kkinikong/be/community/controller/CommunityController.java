@@ -108,12 +108,13 @@ public class CommunityController {
   @Operation(
       summary = "커뮤니티 게시글 상세 조회",
       description = "커뮤니티 게시글을 상세 조회하는 API입니다. 게시글 ID를 통해 해당 게시글과 댓글, 답글을 조회합니다.")
-  public ResponseEntity<ApiResponse<Object>> getCommunityPost(@PathVariable("postId") Long postId) {
+  public ResponseEntity<ApiResponse<Object>> getCommunityPost(
+      @PathVariable("postId") Long postId, @AuthenticationPrincipal CustomUserDetails userDetails) {
 
-    // CommunityPostDetailResponse communityPostResponse =
-    //     communityService.getCommunityPost(postId, userDetails.getId());
-
-    return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.from(ApiResponse.EMPTY_RESPONSE));
+    return ResponseEntity.status(HttpStatus.OK)
+        .body(
+            ApiResponse.from(
+                ApiResponse.from(communityService.getCommunityPost(postId, userDetails.getId()))));
   }
 
   @GetMapping("/post")

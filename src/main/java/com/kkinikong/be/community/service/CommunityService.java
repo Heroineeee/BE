@@ -1,7 +1,9 @@
 package com.kkinikong.be.community.service;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
@@ -21,6 +23,8 @@ import com.kkinikong.be.community.domain.CommunityPostImage;
 import com.kkinikong.be.community.domain.type.Category;
 import com.kkinikong.be.community.dto.request.CommunityCommentRequest;
 import com.kkinikong.be.community.dto.request.CommunityPostRequest;
+import com.kkinikong.be.community.dto.response.CommentListResponse;
+import com.kkinikong.be.community.dto.response.CommunityPostInfoResponse;
 import com.kkinikong.be.community.dto.response.CommunityPostListResponse;
 import com.kkinikong.be.community.dto.response.CommunityPostPopularResponse;
 import com.kkinikong.be.community.dto.response.CommunityPostPopularWrappingResponse;
@@ -132,6 +136,57 @@ public class CommunityService {
     }
 
     return communityPosts.map(CommunityPostListResponse::from);
+  }
+
+  public CommunityPostInfoResponse getCommunityPost(Long postId, Long userId) {
+    CommunityPost communityPost = getCommunityPostOrThrow(postId);
+
+    List<Comment> allComments = commentRepository.findAllByCommunityPostId(postId);
+
+    List<CommentListResponse> commentListResponses = mapToCommentTreeResponse(userId, allComments);
+
+    return CommunityPostInfoResponse.from(
+        communityPost, isUserLikedPost(userId, communityPost), commentListResponses);
+  }
+
+  private List<CommentListResponse> mapToCommentTreeResponse(
+      Long userId, List<Comment> allComments) {
+    Map<Long, List<Comment>> childrenMap =
+        allComments.stream()
+            .filter(comment -> comment.getParentComment() != null)
+            .collect(Collectors.groupingBy(comment -> comment.getParentComment().getId()));
+
+    List<Comment> parentComments =
+        allComments.stream().filter(comment -> comment.getParentComment() == null).toList();
+
+    return parentComments.stream()
+        .map(
+            parent -> {
+              List<CommentListResponse> replyListResponse =
+                  childrenMap.getOrDefault(parent.getId(), List.of()).stream()
+                      .map(
+                          child ->
+                              CommentListResponse.from(
+                                  child,
+                                  isUserLikedComment(userId, child),
+                                  child.isAuthor(),
+                                  List.of()))
+                      .toList();
+
+              return CommentListResponse.from(
+                  parent, isUserLikedComment(userId, parent), parent.isAuthor(), replyListResponse);
+            })
+        .toList();
+  }
+
+  private boolean isUserLikedComment(Long userId, Comment comment) {
+    return comment.getCommentLikeList().stream()
+        .anyMatch(commentLike -> commentLike.getUser().getId().equals(userId));
+  }
+
+  private boolean isUserLikedPost(Long userId, CommunityPost communityPost) {
+    return communityPost.getCommunityPostLikeList().stream()
+        .anyMatch(like -> like.getUser().getId().equals(userId));
   }
 
   private Comment validateReply(Long postId, Long commentId, String content) {
