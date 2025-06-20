@@ -85,7 +85,7 @@ public class User extends BaseEntity {
 
   public void withdraw() {
     this.email = "deleted_" + UUID.randomUUID() + "@deleted.com";
-    this.nickname = "Deleted User";
+    this.nickname = "DeletedUser_" + UUID.randomUUID().toString().substring(0, 8);
     this.isDeleted = true;
     this.deletedAt = LocalDateTime.now();
   }
