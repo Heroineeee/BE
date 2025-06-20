@@ -3,8 +3,8 @@ package com.kkinikong.be.community.service;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.stream.Collectors;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
@@ -22,8 +22,8 @@ import com.kkinikong.be.community.domain.Comment;
 import com.kkinikong.be.community.domain.CommentLike;
 import com.kkinikong.be.community.domain.CommunityPost;
 import com.kkinikong.be.community.domain.CommunityPostImage;
-import com.kkinikong.be.community.domain.type.Category;
 import com.kkinikong.be.community.domain.CommunityPostLike;
+import com.kkinikong.be.community.domain.type.Category;
 import com.kkinikong.be.community.dto.request.CommunityCommentRequest;
 import com.kkinikong.be.community.dto.request.CommunityPostRequest;
 import com.kkinikong.be.community.dto.response.CommentListResponse;
@@ -141,9 +141,10 @@ public class CommunityService {
       communityPosts = communityPostRepository.findAll(pageable);
     } else {
       communityPosts = communityPostRepository.findAllByCategory(category, pageable);
-    } 
+    }
+    return communityPosts.map(CommunityPostListResponse::from);
   }
-  
+
   @Transactional
   public LikeToggleResponse postCommunityPostLike(Long postId, Long userId) {
     CommunityPost communityPost =

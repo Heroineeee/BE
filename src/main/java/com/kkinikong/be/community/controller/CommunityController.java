@@ -146,7 +146,7 @@ public class CommunityController {
     return ResponseEntity.status(HttpStatus.OK)
         .body(ApiResponse.from(communityService.getPopularCommunityPosts()));
   }
-    
+
   @PostMapping("/post/{postId}/like")
   @Operation(
       summary = "커뮤니티 게시글 좋아요, 좋아요 취소",

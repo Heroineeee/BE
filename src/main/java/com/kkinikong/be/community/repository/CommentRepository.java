@@ -21,5 +21,4 @@ public interface CommentRepository extends JpaRepository<Comment, Long> {
   @Lock(LockModeType.PESSIMISTIC_WRITE)
   @Query("SELECT c FROM Comment c WHERE c.id = :commendId")
   Optional<Comment> findByIdForUpdate(@Param("commendId") Long commentId);
-
 }
