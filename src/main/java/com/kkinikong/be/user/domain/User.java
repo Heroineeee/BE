@@ -88,6 +88,8 @@ public class User extends BaseEntity {
     this.nickname = "DeletedUser_" + UUID.randomUUID().toString().substring(0, 8);
     this.isDeleted = true;
     this.deletedAt = LocalDateTime.now();
+    this.placeLatitude = null;
+    this.placeLongitude = null;
   }
 
   @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
