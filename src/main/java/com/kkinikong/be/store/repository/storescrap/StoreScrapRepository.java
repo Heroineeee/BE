@@ -7,10 +7,13 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 import com.kkinikong.be.store.domain.Store;
 import com.kkinikong.be.store.domain.StoreScrap;
+import com.kkinikong.be.user.domain.User;
 
 public interface StoreScrapRepository
     extends JpaRepository<StoreScrap, Long>, StoreScrapRepositoryCustom {
   List<StoreScrap> store(Store store);
+
+  void deleteAllByUser(User user);
 
   Optional<StoreScrap> findByStoreIdAndUserId(Long storeId, Long userId);
 

@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 
+import com.kkinikong.be.store.repository.storescrap.StoreScrapRepository;
 import com.kkinikong.be.user.domain.User;
 import com.kkinikong.be.user.domain.type.LoginType;
 import com.kkinikong.be.user.dto.request.NicknameRequest;
@@ -19,6 +20,7 @@ import com.kkinikong.be.user.repository.UserRepository;
 @RequiredArgsConstructor
 public class UserService {
   private final UserRepository userRepository;
+  private final StoreScrapRepository storeScrapRepository;
 
   public User findOrCreateUser(String email, LoginType loginType) {
     return userRepository
@@ -60,6 +62,7 @@ public class UserService {
     if (user.isDeleted()) {
       throw new UserException(USER_ALREADY_DELETED);
     }
+    storeScrapRepository.deleteAllByUser(user);
     user.withdraw();
   }
 
