@@ -1,13 +1,17 @@
 package com.kkinikong.be.user.service;
 
-import static com.kkinikong.be.user.exception.errorcode.UserErrorCode.DUPLICATE_NICKNAME;
-import static com.kkinikong.be.user.exception.errorcode.UserErrorCode.USER_NOT_FOUND;
+import static com.kkinikong.be.user.exception.errorcode.UserErrorCode.*;
+
+import java.util.List;
 
 import org.springframework.stereotype.Service;
 
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 
+import com.kkinikong.be.store.domain.Store;
+import com.kkinikong.be.store.domain.StoreScrap;
+import com.kkinikong.be.store.repository.storescrap.StoreScrapRepository;
 import com.kkinikong.be.user.domain.User;
 import com.kkinikong.be.user.domain.type.LoginType;
 import com.kkinikong.be.user.dto.request.NicknameRequest;
@@ -20,6 +24,7 @@ import com.kkinikong.be.user.repository.UserRepository;
 @RequiredArgsConstructor
 public class UserService {
   private final UserRepository userRepository;
+  private final StoreScrapRepository storeScrapRepository;
 
   public User findOrCreateUser(String email, LoginType loginType) {
     return userRepository
@@ -53,6 +58,21 @@ public class UserService {
   public void setUserPlace(Long userId, Double latitude, Double longitude) {
     User user = getUserOrThrow(userId);
     user.updatePlace(latitude, longitude);
+  }
+
+  @Transactional
+  public void deleteUser(Long userId) {
+    User user = getUserOrThrow(userId);
+    if (user.isDeleted()) {
+      throw new UserException(USER_ALREADY_DELETED);
+    }
+    List<StoreScrap> scrapList = storeScrapRepository.findAllByUser(user);
+    for (StoreScrap scrap : scrapList) {
+      Store store = scrap.getStore();
+      store.decreaseScrapCount();
+    }
+    storeScrapRepository.deleteAllByUser(user);
+    user.withdraw();
   }
 
   private User getUserOrThrow(Long userId) {

@@ -39,6 +39,7 @@ import com.kkinikong.be.user.domain.User;
 import com.kkinikong.be.user.exception.UserException;
 import com.kkinikong.be.user.exception.errorcode.UserErrorCode;
 import com.kkinikong.be.user.repository.UserRepository;
+import com.kkinikong.be.user.utils.UserNicknameUtil;
 import com.kkinikong.be.util.s3.service.ImageService;
 import com.kkinikong.be.util.s3.type.S3Bucket;
 
@@ -135,7 +136,7 @@ public class ReviewService {
               }
 
               return ReviewItemResponse.from(
-                  reviewUserByReviewIds.get(review.getId()).getNickname(),
+                  UserNicknameUtil.displayNickname(user),
                   review,
                   reviewTagsByReviewIds.get(review.getId()),
                   reviewImageByReviewIds.get(review.getId()),

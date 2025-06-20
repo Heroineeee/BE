@@ -1,7 +1,9 @@
 package com.kkinikong.be.user.domain;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 import jakarta.persistence.*;
 import lombok.Builder;
@@ -51,6 +53,12 @@ public class User extends BaseEntity {
   @Column(name = "place_longitude")
   private Double placeLongitude;
 
+  @Column(name = "is_deleted", nullable = false)
+  private boolean isDeleted;
+
+  @Column(name = "deleted_at")
+  private LocalDateTime deletedAt;
+
   @Builder(builderMethodName = "socialLoginBuilder", buildMethodName = "buildSocialLogin")
   public User(String email, LoginType loginType) {
     this.email = email;
@@ -73,6 +81,15 @@ public class User extends BaseEntity {
   public void updatePlace(Double latitude, Double longitude) {
     this.placeLatitude = latitude;
     this.placeLongitude = longitude;
+  }
+
+  public void withdraw() {
+    this.email = "deleted_" + UUID.randomUUID() + "@deleted.com";
+    this.nickname = "DeletedUser_" + UUID.randomUUID().toString().substring(0, 8);
+    this.isDeleted = true;
+    this.deletedAt = LocalDateTime.now();
+    this.placeLatitude = null;
+    this.placeLongitude = null;
   }
 
   @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)

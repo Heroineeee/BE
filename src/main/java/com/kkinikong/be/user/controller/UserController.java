@@ -50,4 +50,12 @@ public class UserController {
     userService.setUserPlace(userDetails.getId(), request.latitude(), request.longitude());
     return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.EMPTY_RESPONSE);
   }
+
+  @Operation(summary = "회원 탈퇴")
+  @DeleteMapping("/me")
+  public ResponseEntity<ApiResponse<Object>> withdraw(
+      @AuthenticationPrincipal CustomUserDetails userDetails) {
+    userService.deleteUser(userDetails.getId());
+    return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.EMPTY_RESPONSE);
+  }
 }
