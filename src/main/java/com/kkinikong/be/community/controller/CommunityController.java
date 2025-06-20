@@ -25,6 +25,7 @@ import com.kkinikong.be.community.domain.type.Category;
 import com.kkinikong.be.community.dto.request.CommunityCommentRequest;
 import com.kkinikong.be.community.dto.request.CommunityPostRequest;
 import com.kkinikong.be.community.dto.response.CommunityPostResponse;
+import com.kkinikong.be.community.dto.response.LikeToggleResponse;
 import com.kkinikong.be.community.service.CommunityService;
 import com.kkinikong.be.global.response.ApiResponse;
 import com.kkinikong.be.user.utils.CustomUserDetails;
@@ -69,7 +70,9 @@ public class CommunityController {
           @RequestParam(value = "files", required = false)
           List<MultipartFile> files,
       @AuthenticationPrincipal CustomUserDetails userDetails) {
+
     communityService.postCommunityPostImage(postId, files, userDetails.getId());
+
     return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.EMPTY_RESPONSE);
   }
 
@@ -144,5 +147,32 @@ public class CommunityController {
   public ResponseEntity<ApiResponse<Object>> getPopularCommunityPosts() {
     return ResponseEntity.status(HttpStatus.OK)
         .body(ApiResponse.from(communityService.getPopularCommunityPosts()));
+  }
+    
+  @PostMapping("/post/{postId}/like")
+  @Operation(
+      summary = "커뮤니티 게시글 좋아요, 좋아요 취소",
+      description = "커뮤니티 게시글에 좋아요를 누르는 API입니다. 이미 좋아요를 누른 경우, 좋아요가 취소됩니다.")
+  public ResponseEntity<ApiResponse<Object>> postCommunityPostLike(
+      @PathVariable("postId") Long postId, @AuthenticationPrincipal CustomUserDetails userDetails) {
+
+    LikeToggleResponse likeToggleResponse =
+        communityService.postCommunityPostLike(postId, userDetails.getId());
+
+    return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.from(likeToggleResponse));
+  }
+
+  @PostMapping("/comment/{commentId}/like")
+  @Operation(
+      summary = "커뮤니티 게시글 댓글 좋아요, 좋아요 취소",
+      description = "커뮤니티 게시글 댓글에 좋아요를 누르는 API입니다. 이미 좋아요를 누른 경우, 좋아요가 취소됩니다.")
+  public ResponseEntity<ApiResponse<Object>> postCommunityCommentLike(
+      @PathVariable("commentId") Long commentId,
+      @AuthenticationPrincipal CustomUserDetails userDetails) {
+
+    LikeToggleResponse likeToggleResponse =
+        communityService.postCommunityCommentLike(commentId, userDetails.getId());
+
+    return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.from(likeToggleResponse));
   }
 }

@@ -82,4 +82,12 @@ public class CommunityPost extends BaseEntity {
   public void updateThumbnailUrl(String thumbnailUrl) {
     this.thumbnailUrl = thumbnailUrl;
   }
+
+  public void incrementLikeCount() {
+    this.likeCount++;
+  }
+
+  public void decrementLikeCount() {
+    this.likeCount--;
+  }
 }

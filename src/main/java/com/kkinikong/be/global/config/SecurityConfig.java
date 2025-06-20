@@ -61,6 +61,7 @@ public class SecurityConfig {
                         "/api/v1/user/**",
                         "/api/v1/store/scrap/**",
                         "/api/v1/report/**",
+                        "/api/v1/feedback/**",
                         "/api/v1/cache/**",
                         "/api/v1/batch/**")
                     .authenticated()
@@ -71,7 +72,8 @@ public class SecurityConfig {
                         "/api/v1/*/review/*/photo",
                         "/api/v1/convenience/post",
                         "/api/v1/convenience/post/**",
-                        "/api/v1/community/post/**")
+                        "/api/v1/community/post/**",
+                        "/api/v1/community/comment/**")
                     .authenticated()
                     // 리뷰,편의점 관련 DELETE 인증 필요
                     .requestMatchers(
