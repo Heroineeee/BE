@@ -12,14 +12,15 @@ public record CommentListResponse(
     String createdAt,
     boolean isModified,
     Long likeCount,
-    boolean isLiked,
+    Boolean isLiked,
     boolean isAuthor,
+    Boolean isMyComment,
     List<CommentListResponse> replyListResponse) {
 
   public static CommentListResponse from(
       Comment comment,
-      boolean isLiked,
-      boolean isAuthor,
+      Boolean isLiked,
+      Boolean isMyComment,
       List<CommentListResponse> replyListResponse) {
     return new CommentListResponse(
         comment.getId(),
@@ -29,7 +30,8 @@ public record CommentListResponse(
         !comment.getCreatedDate().equals(comment.getModifiedDate()),
         comment.getLikeCount(),
         isLiked,
-        isAuthor,
+        comment.isAuthor(),
+        isMyComment,
         replyListResponse);
   }
 }

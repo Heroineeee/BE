@@ -205,7 +205,10 @@ public class CommunityService {
     List<CommentListResponse> commentListResponses = mapToCommentTreeResponse(userId, allComments);
 
     return CommunityPostInfoResponse.from(
-        communityPost, isUserLikedPost(userId, communityPost), commentListResponses);
+        communityPost,
+        isUserLikedPost(userId, communityPost),
+        isMyCommunityPost(userId, communityPost),
+        commentListResponses);
   }
 
   private List<CommentListResponse> mapToCommentTreeResponse(
@@ -231,30 +234,47 @@ public class CommunityService {
                               CommentListResponse.from(
                                   child,
                                   isUserLikedComment(userId, child),
-                                  child.isAuthor(),
+                                  isMyComment(userId, child),
                                   List.of()))
                       .toList();
 
               return CommentListResponse.from(
-                  parent, isUserLikedComment(userId, parent), parent.isAuthor(), replyListResponse);
+                  parent,
+                  isUserLikedComment(userId, parent),
+                  isMyComment(userId, parent),
+                  replyListResponse);
             })
         .toList();
   }
 
-  private boolean isUserLikedComment(Long userId, Comment comment) {
+  private Boolean isUserLikedComment(Long userId, Comment comment) {
     if (userId == null) {
-      return false;
+      return null;
     }
     return comment.getCommentLikeList().stream()
         .anyMatch(commentLike -> commentLike.getUser().getId().equals(userId));
   }
 
-  private boolean isUserLikedPost(Long userId, CommunityPost communityPost) {
+  private Boolean isUserLikedPost(Long userId, CommunityPost communityPost) {
     if (userId == null) {
-      return false;
+      return null;
     }
     return communityPost.getCommunityPostLikeList().stream()
         .anyMatch(like -> like.getUser().getId().equals(userId));
+  }
+
+  private Boolean isMyComment(Long userId, Comment comment) {
+    if (userId == null) {
+      return null;
+    }
+    return comment.getUser().getId().equals(userId);
+  }
+
+  private Boolean isMyCommunityPost(Long userId, CommunityPost communityPost) {
+    if (userId == null) {
+      return null;
+    }
+    return communityPost.getUser().getId().equals(userId);
   }
 
   private Comment validateReply(Long postId, Long commentId, String content) {

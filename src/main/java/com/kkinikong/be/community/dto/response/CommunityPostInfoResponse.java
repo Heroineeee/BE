@@ -16,11 +16,15 @@ public record CommunityPostInfoResponse(
     String content,
     Long likeCount,
     Long commentCount,
-    boolean isLiked,
+    Boolean isLiked,
+    Boolean isMyCommunityPost,
     List<CommentListResponse> commentListResponse) {
 
   public static CommunityPostInfoResponse from(
-      CommunityPost communityPost, boolean isLiked, List<CommentListResponse> commentListResponse) {
+      CommunityPost communityPost,
+      Boolean isLiked,
+      Boolean isMyCommunityPost,
+      List<CommentListResponse> commentListResponse) {
     return new CommunityPostInfoResponse(
         communityPost.getId(),
         communityPost.getTitle(),
@@ -33,6 +37,7 @@ public record CommunityPostInfoResponse(
         communityPost.getLikeCount(),
         communityPost.getCommentCount(),
         isLiked,
+        isMyCommunityPost,
         commentListResponse);
   }
 }
