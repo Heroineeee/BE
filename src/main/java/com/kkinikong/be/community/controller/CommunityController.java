@@ -176,4 +176,20 @@ public class CommunityController {
 
     return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.from(likeToggleResponse));
   }
+
+  @GetMapping("/search/recent")
+  @Operation(summary = "최근 검색어 조회", description = "사용자의 최근 검색어를 조회하는 API입니다. 최대 5개의 최근 검색어를 반환합니다.")
+  public ResponseEntity<ApiResponse<Object>> getRecentSearchTerms(
+      @AuthenticationPrincipal CustomUserDetails userDetails) {
+    return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.EMPTY_RESPONSE);
+  }
+
+  @GetMapping("/search")
+  @Operation(
+      summary = "커뮤니티 게시글 검색",
+      description =
+          "커뮤니티 게시글을 검색하는 API입니다. 검색어를 포함한 게시글을 조회하며, 검색어는 최소 2자 이상이어야 하며, 최대 100자까지 가능합니다.")
+  public ResponseEntity<ApiResponse<Object>> searchCommunityPost() {
+    return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.EMPTY_RESPONSE);
+  }
 }
