@@ -210,11 +210,14 @@ public class CommunityService {
 
   private List<CommentListResponse> mapToCommentTreeResponse(
       Long userId, List<Comment> allComments) {
+
+    // 부모 댓글을 찾고, 자식 댓글들을 그룹화하여 매핑
     Map<Long, List<Comment>> childrenMap =
         allComments.stream()
             .filter(comment -> comment.getParentComment() != null)
             .collect(Collectors.groupingBy(comment -> comment.getParentComment().getId()));
 
+    // 부모 댓글만 필터링하여 리스트 생성
     List<Comment> parentComments =
         allComments.stream().filter(comment -> comment.getParentComment() == null).toList();
 
