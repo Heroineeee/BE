@@ -11,6 +11,9 @@ import org.springframework.transaction.annotation.Transactional;
 
 import lombok.RequiredArgsConstructor;
 
+import com.kkinikong.be.community.domain.CommunityPost;
+import com.kkinikong.be.community.dto.response.CommunityPostListResponse;
+import com.kkinikong.be.community.repository.CommunityPostRepository;
 import com.kkinikong.be.convenience.domain.ConveniencePost;
 import com.kkinikong.be.convenience.dto.response.ConveniencePostListResponse;
 import com.kkinikong.be.convenience.repository.ConvenienceRepository;
@@ -34,6 +37,7 @@ public class MypageService {
   private final ReviewImageRepository reviewImageRepository;
   private final ReviewTagRepository reviewTagRepository;
   private final ConvenienceRepository convenienceRepository;
+  private final CommunityPostRepository communityPostRepository;
 
   public PageResponse<MypageStoreResponse> getScrapStore(Long userId, int page, int size) {
     Pageable pageable = PageRequest.of(page, size);
@@ -65,5 +69,12 @@ public class MypageService {
     Page<ConveniencePost> conveniencePostPage =
         convenienceRepository.findAllByUserIdOrderByCreatedDateDesc(userId, pageable);
     return PageResponse.from(conveniencePostPage, ConveniencePostListResponse::from);
+  }
+
+  public PageResponse<CommunityPostListResponse> getCommunityPost(Long userId, int page, int size) {
+    Pageable pageable = PageRequest.of(page, size);
+    Page<CommunityPost> communityPostPage =
+        communityPostRepository.findAllByUserIdOrderByCreatedDate(userId, pageable);
+    return PageResponse.from(communityPostPage, CommunityPostListResponse::from);
   }
 }

@@ -12,6 +12,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 
+import com.kkinikong.be.community.dto.response.CommunityPostListResponse;
 import com.kkinikong.be.convenience.dto.response.ConveniencePostListResponse;
 import com.kkinikong.be.global.response.ApiResponse;
 import com.kkinikong.be.global.response.PageResponse;
@@ -66,7 +67,7 @@ public class MypageController {
       @AuthenticationPrincipal CustomUserDetails userDetails,
       @RequestParam(defaultValue = "0") int page,
       @RequestParam(defaultValue = "10") int size) {
-    PageResponse<MypageCommunityPostResponse> response =
+    PageResponse<CommunityPostListResponse> response =
         mypageService.getCommunityPost(userDetails.getId(), page, size);
     return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.from(response));
   }
