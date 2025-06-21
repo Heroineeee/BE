@@ -51,6 +51,14 @@ public class UserController {
     return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.EMPTY_RESPONSE);
   }
 
+  @Operation(summary = "유저가 자주가는 지역 위경도 불러오기")
+  @GetMapping("/place")
+  public ResponseEntity<ApiResponse<Object>> userPlace(
+      @AuthenticationPrincipal CustomUserDetails userDetails) {
+    UserPlaceResponse response = userService.getUserPlace(userDetails.getId());
+    return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.from(response));
+  }
+
   @Operation(summary = "회원 탈퇴")
   @DeleteMapping("/me")
   public ResponseEntity<ApiResponse<Object>> withdraw(
