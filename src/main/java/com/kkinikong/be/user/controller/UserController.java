@@ -14,6 +14,7 @@ import com.kkinikong.be.global.response.ApiResponse;
 import com.kkinikong.be.user.dto.request.NicknameRequest;
 import com.kkinikong.be.user.dto.request.UserPlaceRequest;
 import com.kkinikong.be.user.dto.response.NicknameResponse;
+import com.kkinikong.be.user.dto.response.UserPlaceResponse;
 import com.kkinikong.be.user.service.UserService;
 import com.kkinikong.be.user.utils.CustomUserDetails;
 
@@ -49,6 +50,14 @@ public class UserController {
       @AuthenticationPrincipal CustomUserDetails userDetails) {
     userService.setUserPlace(userDetails.getId(), request.latitude(), request.longitude());
     return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.EMPTY_RESPONSE);
+  }
+
+  @Operation(summary = "유저가 자주가는 지역 위경도 불러오기")
+  @GetMapping("/place")
+  public ResponseEntity<ApiResponse<Object>> userPlace(
+      @AuthenticationPrincipal CustomUserDetails userDetails) {
+    UserPlaceResponse response = userService.getUserPlace(userDetails.getId());
+    return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.from(response));
   }
 
   @Operation(summary = "회원 탈퇴")
