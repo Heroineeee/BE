@@ -5,6 +5,7 @@ import java.util.List;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -20,6 +21,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
+import com.kkinikong.be.community.domain.type.Category;
 import com.kkinikong.be.community.dto.request.CommunityCommentRequest;
 import com.kkinikong.be.community.dto.request.CommunityPostRequest;
 import com.kkinikong.be.community.dto.response.CommunityPostResponse;
@@ -103,6 +105,49 @@ public class CommunityController {
     communityService.postCommentAndReply(postId, commentId, request, userDetails.getId());
 
     return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.from(ApiResponse.EMPTY_RESPONSE));
+  }
+
+  @GetMapping("/post/{postId}")
+  @Operation(
+      summary = "커뮤니티 게시글 상세 조회",
+      description = "커뮤니티 게시글을 상세 조회하는 API입니다. 게시글 ID를 통해 해당 게시글과 댓글, 답글을 조회합니다.")
+  public ResponseEntity<ApiResponse<Object>> getCommunityPost(
+      @PathVariable("postId") Long postId, @AuthenticationPrincipal CustomUserDetails userDetails) {
+
+    return ResponseEntity.status(HttpStatus.OK)
+        .body(
+            ApiResponse.from(
+                communityService.getCommunityPost(
+                    postId, userDetails == null ? null : userDetails.getId())));
+  }
+
+  @GetMapping("/post")
+  @Operation(
+      summary = "커뮤니티 게시글 목록 조회 및 카테고리 필터링",
+      description =
+          """
+           - 커뮤니티 게시글 목록을 조회하는 API입니다.
+           - 카테고리로 필터링할 수 있으며, 전체 조회 시 category 파라미터를 생략하거나 null로 설정합니다.
+           - 최신순으로 정렬되며, 페이지네이션을 지원합니다.
+           - 페이지는 0부터 시작하며, 개수는 10개로 기본 설정되어 있습니다.
+           """)
+  public ResponseEntity<ApiResponse<Object>> getCommunityPostList(
+      @RequestParam(value = "category", required = false) Category category,
+      @RequestParam(value = "page", defaultValue = "0") int page,
+      @RequestParam(value = "size", defaultValue = "10") int size) {
+    return ResponseEntity.status(HttpStatus.OK)
+        .body(
+            ApiResponse.from(
+                ApiResponse.from(communityService.getCommunityPostList(category, page, size))));
+  }
+
+  @GetMapping("/post/popular")
+  @Operation(
+      summary = "인기 커뮤니티 게시글 조회",
+      description = "인기 커뮤니티 게시글을 조회하는 API입니다. 인기 게시글은 좋아요 수 기준, 같을 시 조회수 순으로 정렬됩니다.")
+  public ResponseEntity<ApiResponse<Object>> getPopularCommunityPosts() {
+    return ResponseEntity.status(HttpStatus.OK)
+        .body(ApiResponse.from(communityService.getPopularCommunityPosts()));
   }
 
   @PostMapping("/post/{postId}/like")

@@ -1,9 +1,16 @@
 package com.kkinikong.be.community.service;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -16,8 +23,14 @@ import com.kkinikong.be.community.domain.CommentLike;
 import com.kkinikong.be.community.domain.CommunityPost;
 import com.kkinikong.be.community.domain.CommunityPostImage;
 import com.kkinikong.be.community.domain.CommunityPostLike;
+import com.kkinikong.be.community.domain.type.Category;
 import com.kkinikong.be.community.dto.request.CommunityCommentRequest;
 import com.kkinikong.be.community.dto.request.CommunityPostRequest;
+import com.kkinikong.be.community.dto.response.CommentListResponse;
+import com.kkinikong.be.community.dto.response.CommunityPostInfoResponse;
+import com.kkinikong.be.community.dto.response.CommunityPostListResponse;
+import com.kkinikong.be.community.dto.response.CommunityPostPopularResponse;
+import com.kkinikong.be.community.dto.response.CommunityPostPopularWrappingResponse;
 import com.kkinikong.be.community.dto.response.CommunityPostResponse;
 import com.kkinikong.be.community.dto.response.LikeToggleResponse;
 import com.kkinikong.be.community.exception.CommunityException;
@@ -49,7 +62,6 @@ public class CommunityService {
 
   private final ImageService imageService;
 
-  private final int MAX_COMMENT_SIZE = 4000;
   private final int MAX_REPLY_SIZE = 2000;
 
   @Transactional
@@ -85,6 +97,7 @@ public class CommunityService {
       communityPostImageRepository.save(
           CommunityPostImage.builder().communityPost(communityPost).imageUrl(url).build());
     }
+    communityPost.updateThumbnailUrl(imageUrl.get(0));
   }
 
   @Transactional
@@ -94,10 +107,8 @@ public class CommunityService {
 
     Comment parent = null;
 
-    if (commentId != null) { // 답글 작성인 경우
+    if (commentId != null) {
       parent = validateReply(postId, commentId, request.content());
-    } else { // 댓글 작성인 경우
-      validateCommentContentLength(request.content());
     }
 
     commentRepository.save(
@@ -110,6 +121,28 @@ public class CommunityService {
             .build());
 
     communityPost.incrementCommentCount();
+  }
+
+  @Cacheable(value = "community-popular-posts", unless = "#result == null")
+  public CommunityPostPopularWrappingResponse getPopularCommunityPosts() {
+    List<CommunityPostPopularResponse> list =
+        communityPostRepository.findTop5ByOrderByLikeCountDescViewCountDesc().stream()
+            .map(CommunityPostPopularResponse::from)
+            .toList();
+    return new CommunityPostPopularWrappingResponse(List.copyOf(list));
+  }
+
+  public Page<CommunityPostListResponse> getCommunityPostList(
+      Category category, int page, int size) {
+    Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdDate"));
+
+    Page<CommunityPost> communityPosts;
+    if (category == null) {
+      communityPosts = communityPostRepository.findAll(pageable);
+    } else {
+      communityPosts = communityPostRepository.findAllByCategory(category, pageable);
+    }
+    return communityPosts.map(CommunityPostListResponse::from);
   }
 
   @Transactional
@@ -164,10 +197,64 @@ public class CommunityService {
     return LikeToggleResponse.from(isLiked, comment.getLikeCount());
   }
 
-  private void validateCommentContentLength(String content) {
-    if (content.length() > MAX_COMMENT_SIZE) {
-      throw new CommunityException(CommunityErrorCode.COMMENT_SIZE_LIMIT);
+  public CommunityPostInfoResponse getCommunityPost(Long postId, Long userId) {
+    CommunityPost communityPost = getCommunityPostOrThrow(postId);
+
+    List<Comment> allComments = commentRepository.findAllByCommunityPostId(postId);
+
+    List<CommentListResponse> commentListResponses = mapToCommentTreeResponse(userId, allComments);
+
+    return CommunityPostInfoResponse.from(
+        communityPost, isUserLikedPost(userId, communityPost), commentListResponses);
+  }
+
+  private List<CommentListResponse> mapToCommentTreeResponse(
+      Long userId, List<Comment> allComments) {
+
+    // 부모 댓글을 찾고, 자식 댓글들을 그룹화하여 매핑
+    Map<Long, List<Comment>> childrenMap =
+        allComments.stream()
+            .filter(comment -> comment.getParentComment() != null)
+            .collect(Collectors.groupingBy(comment -> comment.getParentComment().getId()));
+
+    // 부모 댓글만 필터링하여 리스트 생성
+    List<Comment> parentComments =
+        allComments.stream().filter(comment -> comment.getParentComment() == null).toList();
+
+    return parentComments.stream()
+        .map(
+            parent -> {
+              List<CommentListResponse> replyListResponse =
+                  childrenMap.getOrDefault(parent.getId(), List.of()).stream()
+                      .map(
+                          child ->
+                              CommentListResponse.from(
+                                  child,
+                                  isUserLikedComment(userId, child),
+                                  child.isAuthor(),
+                                  List.of()))
+                      .toList();
+
+              return CommentListResponse.from(
+                  parent, isUserLikedComment(userId, parent), parent.isAuthor(), replyListResponse);
+            })
+        .toList();
+  }
+
+  private boolean isUserLikedComment(Long userId, Comment comment) {
+    if (userId == null) {
+      return false;
     }
+    return comment.getCommentLikeList().stream()
+        .anyMatch(commentLike -> commentLike.getUser().getId().equals(userId));
+  }
+
+  private boolean isUserLikedPost(Long userId, CommunityPost communityPost) {
+    if (userId == null) {
+      return false;
+    }
+    return communityPost.getCommunityPostLikeList().stream()
+        .anyMatch(like -> like.getUser().getId().equals(userId));
   }
 
   private Comment validateReply(Long postId, Long commentId, String content) {

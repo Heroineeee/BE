@@ -36,7 +36,7 @@ public class CommunityPost extends BaseEntity {
   @Column(name = "title", nullable = false)
   private String title;
 
-  @Column(name = "content", nullable = false)
+  @Column(name = "content", columnDefinition = "TEXT", nullable = false)
   private String content;
 
   @Column(name = "category", nullable = false)
@@ -50,6 +50,9 @@ public class CommunityPost extends BaseEntity {
 
   @Column(name = "comment_count", nullable = false)
   private long commentCount = 0L;
+
+  @Column(name = "thumbnail_url")
+  private String thumbnailUrl;
 
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "user_id", nullable = false)
@@ -74,6 +77,10 @@ public class CommunityPost extends BaseEntity {
 
   public void incrementCommentCount() {
     this.commentCount++;
+  }
+
+  public void updateThumbnailUrl(String thumbnailUrl) {
+    this.thumbnailUrl = thumbnailUrl;
   }
 
   public void incrementLikeCount() {
