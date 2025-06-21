@@ -16,6 +16,7 @@ import com.kkinikong.be.user.domain.User;
 import com.kkinikong.be.user.domain.type.LoginType;
 import com.kkinikong.be.user.dto.request.NicknameRequest;
 import com.kkinikong.be.user.dto.response.NicknameResponse;
+import com.kkinikong.be.user.dto.response.UserPlaceResponse;
 import com.kkinikong.be.user.exception.UserException;
 import com.kkinikong.be.user.exception.errorcode.UserErrorCode;
 import com.kkinikong.be.user.repository.UserRepository;
@@ -58,6 +59,11 @@ public class UserService {
   public void setUserPlace(Long userId, Double latitude, Double longitude) {
     User user = getUserOrThrow(userId);
     user.updatePlace(latitude, longitude);
+  }
+
+  public UserPlaceResponse getUserPlace(Long userId) {
+    User user = getUserOrThrow(userId);
+    return new UserPlaceResponse(user.getPlaceLatitude(), user.getPlaceLongitude());
   }
 
   @Transactional
