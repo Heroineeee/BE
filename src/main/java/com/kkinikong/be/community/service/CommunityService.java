@@ -242,11 +242,17 @@ public class CommunityService {
   }
 
   private boolean isUserLikedComment(Long userId, Comment comment) {
+    if (userId == null) {
+      return false;
+    }
     return comment.getCommentLikeList().stream()
         .anyMatch(commentLike -> commentLike.getUser().getId().equals(userId));
   }
 
   private boolean isUserLikedPost(Long userId, CommunityPost communityPost) {
+    if (userId == null) {
+      return false;
+    }
     return communityPost.getCommunityPostLikeList().stream()
         .anyMatch(like -> like.getUser().getId().equals(userId));
   }
