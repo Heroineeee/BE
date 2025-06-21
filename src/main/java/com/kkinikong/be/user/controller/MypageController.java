@@ -59,4 +59,15 @@ public class MypageController {
         mypageService.getConveniencePost(userDetails.getId(), page, size);
     return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.from(response));
   }
+
+  @Operation(summary = "내가 작성한 커뮤니티 게시글 조회")
+  @GetMapping("/community")
+  public ResponseEntity<ApiResponse<Object>> getCommunityList(
+      @AuthenticationPrincipal CustomUserDetails userDetails,
+      @RequestParam(defaultValue = "0") int page,
+      @RequestParam(defaultValue = "10") int size) {
+    PageResponse<MypageCommunityPostResponse> response =
+        mypageService.getCommunityPost(userDetails.getId(), page, size);
+    return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.from(response));
+  }
 }
