@@ -1,4 +1,4 @@
-package com.kkinikong.be.store.service;
+package com.kkinikong.be.util.redis.service;
 
 import java.util.Map;
 

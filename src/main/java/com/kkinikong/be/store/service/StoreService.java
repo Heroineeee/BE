@@ -31,6 +31,7 @@ import com.kkinikong.be.user.domain.User;
 import com.kkinikong.be.user.exception.UserException;
 import com.kkinikong.be.user.exception.errorcode.UserErrorCode;
 import com.kkinikong.be.user.repository.UserRepository;
+import com.kkinikong.be.util.redis.service.StoreCacheService;
 
 @Service
 @RequiredArgsConstructor
