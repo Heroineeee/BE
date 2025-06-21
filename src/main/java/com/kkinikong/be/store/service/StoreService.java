@@ -13,6 +13,8 @@ import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
+import com.kkinikong.be.cache.service.CounterCacheService;
+import com.kkinikong.be.cache.type.RedisKey;
 import com.kkinikong.be.global.response.PageResponse;
 import com.kkinikong.be.review.domain.type.Tag;
 import com.kkinikong.be.store.domain.Store;
@@ -31,7 +33,6 @@ import com.kkinikong.be.user.domain.User;
 import com.kkinikong.be.user.exception.UserException;
 import com.kkinikong.be.user.exception.errorcode.UserErrorCode;
 import com.kkinikong.be.user.repository.UserRepository;
-import com.kkinikong.be.util.redis.service.StoreCacheService;
 
 @Service
 @RequiredArgsConstructor
@@ -42,7 +43,7 @@ public class StoreService {
   private final StoreRepository storeRepository;
   private final StoreKakaoApiClient storeKakaoApiClient;
   private final StoreGoogleApiClient storeGoogleApiClient;
-  private final StoreCacheService storeCacheService;
+  private final CounterCacheService counterCacheService;
   private final StoreScrapRepository storeScrapRepository;
   private final UserRepository userRepository;
   private final StoreTagCountRepository storeTagCountRepository;
@@ -105,7 +106,7 @@ public class StoreService {
   public StoreInfoResponse getStoreInfo(Long storeId, Long userId) {
     Store store = getStoreOrThrow(storeId);
 
-    storeCacheService.increaseViewCounts(storeId);
+    counterCacheService.increaseViewCounts(storeId, RedisKey.STORE_VIEWS_KEY);
 
     String representativeTag =
         storeTagCountRepository
