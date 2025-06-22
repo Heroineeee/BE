@@ -42,6 +42,7 @@ import com.kkinikong.be.community.repository.CommentRepository;
 import com.kkinikong.be.community.repository.CommunityPostImageRepository;
 import com.kkinikong.be.community.repository.CommunityPostLikeRepository;
 import com.kkinikong.be.community.repository.CommunityPostRepository;
+import com.kkinikong.be.store.dto.response.StoreRecentSearchKeyword;
 import com.kkinikong.be.user.domain.User;
 import com.kkinikong.be.user.exception.UserException;
 import com.kkinikong.be.user.exception.errorcode.UserErrorCode;
@@ -226,6 +227,17 @@ public class CommunityService {
 
     return null;
   }
+
+  public List<StoreRecentSearchKeyword> getRecentSearchKeywords(Long userId) {
+    List<String> recentSearches = redisTempleCacheService.getRecentSearches(userId);
+
+    if (recentSearches.isEmpty()) {
+      return List.of();
+    }
+    return recentSearches.stream().map(StoreRecentSearchKeyword::from).collect(Collectors.toList());
+  }
+
+  public void deleteRecentSearchKeyword(Long userId, String keyword) {}
 
   private List<CommentListResponse> mapToCommentTreeResponse(
       Long userId, List<Comment> allComments) {

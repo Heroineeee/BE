@@ -1,5 +1,6 @@
 package com.kkinikong.be.cache.service;
 
+import java.util.List;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,10 +34,27 @@ public class RedisTempleCacheService {
 
   // 최근 검색어 저장
   public void saveRecentSearch(long userId, String keyword) {
-    String key = RedisKey.RECENT_SEARCHES_KEY.getKey() + ":" + userId;
+    String key = generateRecentSearchKey(userId);
 
     redisTemplate.opsForList().remove(key, 0, keyword); // 중복 제거
     redisTemplate.opsForList().leftPush(key, keyword); // 최근 검색어 추가
     redisTemplate.opsForList().trim(key, 0, 4); // 최대 5개 저장
+  }
+
+  // 최근 검색어 조회
+  public List<String> getRecentSearches(long userId) {
+    String key = generateRecentSearchKey(userId);
+
+    if (!redisTemplate.hasKey(key)) {
+      return List.of(); // 키가 없으면 빈 리스트 반환
+    }
+
+    List<Object> recentSearches = redisTemplate.opsForList().range(key, 0, -1);
+    return recentSearches.stream().map(Object::toString).toList();
+  }
+
+  private static String generateRecentSearchKey(long userId) {
+    String key = RedisKey.RECENT_SEARCHES_KEY.getKey() + ":" + userId;
+    return key;
   }
 }

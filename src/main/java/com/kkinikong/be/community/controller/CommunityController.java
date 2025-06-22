@@ -195,14 +195,15 @@ public class CommunityController {
       - 5개 이상의 검색어가 있는 경우, 가장 최근에 검색한 5개를 반환하며 이전 검색어는 삭제됩니다.
       - 검색어는 중복되지 않으며, 최대 30일 동안 저장됩니다.
       """)
-  public ResponseEntity<ApiResponse<Object>> getRecentSearchTerms(
+  public ResponseEntity<ApiResponse<Object>> getRecentSearchKeywords(
       @AuthenticationPrincipal CustomUserDetails userDetails) {
-    return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.EMPTY_RESPONSE);
+    return ResponseEntity.status(HttpStatus.OK)
+        .body(ApiResponse.from(communityService.getRecentSearchKeywords(userDetails.getId())));
   }
 
   @DeleteMapping("/search/recent")
   @Operation(summary = "최근 검색어 삭제", description = "사용자의 최근 검색어 중에서 선택한 검색어를 삭제하는 API입니다.")
-  public ResponseEntity<ApiResponse<Object>> deleteRecentSearchTerms(
+  public ResponseEntity<ApiResponse<Object>> deleteRecentSearchKeyword(
       @RequestParam("searchTerm") String searchTerm,
       @AuthenticationPrincipal CustomUserDetails userDetails) {
     return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.EMPTY_RESPONSE);
