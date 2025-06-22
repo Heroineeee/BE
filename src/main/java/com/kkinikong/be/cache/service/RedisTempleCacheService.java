@@ -30,4 +30,13 @@ public class RedisTempleCacheService {
   public void clearViewCounts(RedisKey redisKey) {
     redisTemplate.delete(redisKey.getKey());
   }
+
+  // 최근 검색어 저장
+  public void saveRecentSearch(long userId, String keyword) {
+    String key = RedisKey.RECENT_SEARCHES_KEY.getKey() + ":" + userId;
+
+    redisTemplate.opsForList().remove(key, 0, keyword); // 중복 제거
+    redisTemplate.opsForList().leftPush(key, keyword); // 최근 검색어 추가
+    redisTemplate.opsForList().trim(key, 0, 4); // 최대 5개 저장
+  }
 }

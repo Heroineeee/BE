@@ -216,8 +216,13 @@ public class CommunityService {
         commentListResponses);
   }
 
-  public Page<CommunityPostListResponse> searchCommunityPost(String keyword, int page, int size) {
+  public Page<CommunityPostListResponse> searchCommunityPost(
+      String keyword, int page, int size, Long userId) {
+    keyword = keyword.trim();
     // 최근 검색어 추가 로직
+    if (userId != null) {
+      redisTempleCacheService.saveRecentSearch(userId, keyword);
+    }
 
     return null;
   }

@@ -214,14 +214,18 @@ public class CommunityController {
       description =
           """
           - 커뮤니티 게시글을 검색하는 API입니다.
-          - 검색어를 포함한 게시글을 조회하며, 검색어는 최소 2자 이상이어야 하며, 최대 15자까지 가능합니다.
-          - 검색시에 자동으로 최근 검색어에 추가됩니다.
+          - 검색어를 포함한 게시글을 조회하며, 검색어는 null일 수 없고 2자 이상 15자 이하이어야 합니다.
+          - 로그인 후 검색시에 자동으로 최근 검색어에 추가됩니다.
           """)
   public ResponseEntity<ApiResponse<Object>> searchCommunityPost(
       @RequestParam("keyword") @Size(min = 2, max = 15) String keyword,
       @RequestParam(value = "page", defaultValue = "0") int page,
-      @RequestParam(value = "size", defaultValue = "10") int size) {
+      @RequestParam(value = "size", defaultValue = "10") int size,
+      @AuthenticationPrincipal CustomUserDetails userDetails) {
     return ResponseEntity.status(HttpStatus.OK)
-        .body(ApiResponse.from(communityService.searchCommunityPost(keyword, page, size)));
+        .body(
+            ApiResponse.from(
+                communityService.searchCommunityPost(
+                    keyword, page, size, userDetails == null ? null : userDetails.getId())));
   }
 }
