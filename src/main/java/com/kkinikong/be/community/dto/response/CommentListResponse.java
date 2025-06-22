@@ -4,6 +4,7 @@ import java.util.List;
 
 import com.kkinikong.be.community.domain.Comment;
 import com.kkinikong.be.community.util.TimeUtil;
+import com.kkinikong.be.user.utils.UserNicknameUtil;
 
 public record CommentListResponse(
     Long commentId,
@@ -25,7 +26,7 @@ public record CommentListResponse(
     return new CommentListResponse(
         comment.getId(),
         comment.getContent(),
-        comment.getUser().getNickname(),
+        UserNicknameUtil.displayNickname(comment.getUser()),
         TimeUtil.relativeTimeFormatter(comment.getCreatedDate()),
         comment.isModified(),
         comment.getLikeCount(),

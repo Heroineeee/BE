@@ -4,6 +4,7 @@ import java.util.List;
 
 import com.kkinikong.be.community.domain.CommunityPost;
 import com.kkinikong.be.community.util.TimeUtil;
+import com.kkinikong.be.user.utils.UserNicknameUtil;
 
 public record CommunityPostInfoResponse(
     Long communityPostId,
@@ -28,7 +29,7 @@ public record CommunityPostInfoResponse(
     return new CommunityPostInfoResponse(
         communityPost.getId(),
         communityPost.getTitle(),
-        communityPost.getUser().getNickname(),
+        UserNicknameUtil.displayNickname(communityPost.getUser()),
         TimeUtil.relativeTimeFormatter(communityPost.getCreatedDate()),
         communityPost.getViewCount(),
         communityPost.isModified(),
