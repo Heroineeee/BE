@@ -46,11 +46,18 @@ public class RedisTempleCacheService {
     String key = generateRecentSearchKey(userId);
 
     if (!redisTemplate.hasKey(key)) {
-      return List.of(); // 키가 없으면 빈 리스트 반환
+      return List.of();
     }
 
     List<Object> recentSearches = redisTemplate.opsForList().range(key, 0, -1);
     return recentSearches.stream().map(Object::toString).toList();
+  }
+
+  // 최근 검색어 삭제
+  public void deleteRecentSearches(long userId, String keyword) {
+    String key = generateRecentSearchKey(userId);
+
+    redisTemplate.opsForList().remove(key, 0, keyword);
   }
 
   private static String generateRecentSearchKey(long userId) {

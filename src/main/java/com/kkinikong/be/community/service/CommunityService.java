@@ -237,7 +237,10 @@ public class CommunityService {
     return recentSearches.stream().map(StoreRecentSearchKeyword::from).collect(Collectors.toList());
   }
 
-  public void deleteRecentSearchKeyword(Long userId, String keyword) {}
+  public void deleteRecentSearchKeyword(Long userId, String keyword) {
+    keyword = keyword.trim();
+    redisTempleCacheService.deleteRecentSearches(userId, keyword);
+  }
 
   private List<CommentListResponse> mapToCommentTreeResponse(
       Long userId, List<Comment> allComments) {

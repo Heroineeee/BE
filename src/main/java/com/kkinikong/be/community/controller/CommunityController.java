@@ -204,8 +204,9 @@ public class CommunityController {
   @DeleteMapping("/search/recent")
   @Operation(summary = "최근 검색어 삭제", description = "사용자의 최근 검색어 중에서 선택한 검색어를 삭제하는 API입니다.")
   public ResponseEntity<ApiResponse<Object>> deleteRecentSearchKeyword(
-      @RequestParam("searchTerm") String searchTerm,
+      @RequestParam("searchTerm") @Size(min = 2, max = 15) String keyword,
       @AuthenticationPrincipal CustomUserDetails userDetails) {
+    communityService.deleteRecentSearchKeyword(userDetails.getId(), keyword);
     return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.EMPTY_RESPONSE);
   }
 
