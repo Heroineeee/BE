@@ -12,7 +12,7 @@ import com.kkinikong.be.cache.type.RedisKey;
 
 @Service
 @Slf4j
-public class CounterCacheService {
+public class RedisTempleCacheService {
 
   @Autowired private RedisTemplate<String, Object> redisTemplate;
 

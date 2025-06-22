@@ -18,7 +18,7 @@ import org.springframework.web.multipart.MultipartFile;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
-import com.kkinikong.be.cache.service.CounterCacheService;
+import com.kkinikong.be.cache.service.RedisTempleCacheService;
 import com.kkinikong.be.cache.type.RedisKey;
 import com.kkinikong.be.community.domain.Comment;
 import com.kkinikong.be.community.domain.CommentLike;
@@ -63,7 +63,7 @@ public class CommunityService {
   private final CommentLikeRepository commentLikeRepository;
 
   private final ImageService imageService;
-  private final CounterCacheService counterCacheService;
+  private final RedisTempleCacheService redisTempleCacheService;
 
   private final int MAX_REPLY_SIZE = 2000;
 
@@ -203,7 +203,7 @@ public class CommunityService {
   public CommunityPostInfoResponse getCommunityPost(Long postId, Long userId) {
     CommunityPost communityPost = getCommunityPostOrThrow(postId);
 
-    counterCacheService.increaseViewCounts(postId, RedisKey.COMMUNITY_POST_VIEWS_KEY);
+    redisTempleCacheService.increaseViewCounts(postId, RedisKey.COMMUNITY_POST_VIEWS_KEY);
 
     List<Comment> allComments = commentRepository.findAllByCommunityPostId(postId);
 
