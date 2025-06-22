@@ -144,6 +144,7 @@ public class CommunityController {
       @RequestParam(value = "category", required = false) Category category,
       @RequestParam(value = "page", defaultValue = "0") int page,
       @RequestParam(value = "size", defaultValue = "10") int size) {
+
     return ResponseEntity.status(HttpStatus.OK)
         .body(
             ApiResponse.from(
@@ -155,6 +156,7 @@ public class CommunityController {
       summary = "인기 커뮤니티 게시글 조회",
       description = "인기 커뮤니티 게시글을 조회하는 API입니다. 인기 게시글은 좋아요 수 기준, 같을 시 조회수 순으로 정렬됩니다.")
   public ResponseEntity<ApiResponse<Object>> getPopularCommunityPosts() {
+
     return ResponseEntity.status(HttpStatus.OK)
         .body(ApiResponse.from(communityService.getPopularCommunityPosts()));
   }
@@ -197,6 +199,7 @@ public class CommunityController {
       """)
   public ResponseEntity<ApiResponse<Object>> getRecentSearchKeywords(
       @AuthenticationPrincipal CustomUserDetails userDetails) {
+
     return ResponseEntity.status(HttpStatus.OK)
         .body(ApiResponse.from(communityService.getRecentSearchKeywords(userDetails.getId())));
   }
@@ -206,7 +209,9 @@ public class CommunityController {
   public ResponseEntity<ApiResponse<Object>> deleteRecentSearchKeyword(
       @RequestParam("searchTerm") @Size(min = 2, max = 15) String keyword,
       @AuthenticationPrincipal CustomUserDetails userDetails) {
+
     communityService.deleteRecentSearchKeyword(userDetails.getId(), keyword);
+
     return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.EMPTY_RESPONSE);
   }
 
@@ -224,6 +229,7 @@ public class CommunityController {
       @RequestParam(value = "page", defaultValue = "0") int page,
       @RequestParam(value = "size", defaultValue = "10") int size,
       @AuthenticationPrincipal CustomUserDetails userDetails) {
+
     return ResponseEntity.status(HttpStatus.OK)
         .body(
             ApiResponse.from(
