@@ -208,6 +208,12 @@ public class CommunityService {
         communityPost, isUserLikedPost(userId, communityPost), commentListResponses);
   }
 
+  public Page<CommunityPostListResponse> searchCommunityPost(String keyword, int page, int size) {
+    // 최근 검색어 추가 로직
+
+    return null;
+  }
+
   private List<CommentListResponse> mapToCommentTreeResponse(
       Long userId, List<Comment> allComments) {
 
