@@ -41,6 +41,9 @@ public class Comment extends BaseEntity {
   @Column(name = "is_deleted", nullable = false)
   private boolean isDeleted = false;
 
+  @Column(name = "is_modified", nullable = false)
+  private boolean isModified = false;
+
   @Column(name = "is_author", nullable = false)
   private boolean isAuthor = false;
 

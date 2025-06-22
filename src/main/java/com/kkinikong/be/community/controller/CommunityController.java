@@ -110,7 +110,14 @@ public class CommunityController {
   @GetMapping("/post/{postId}")
   @Operation(
       summary = "커뮤니티 게시글 상세 조회",
-      description = "커뮤니티 게시글을 상세 조회하는 API입니다. 게시글 ID를 통해 해당 게시글과 댓글, 답글을 조회합니다.")
+      description =
+          """
+          - 커뮤니티 게시글의 상세 정보와 댓글을 조회하는 API입니다.
+          - 게시글 ID를 통해 해당 게시글을 조회하며, 조회 시 게시글의 조회수가 증가합니다.
+          - isModified : true/false
+          - isLiked, isMyCommunityPost, isMyComment : true/false/null
+          - 인증되지 않은 유저의 경우, 위의 필드는 null로 반환됩니다.
+          """)
   public ResponseEntity<ApiResponse<Object>> getCommunityPost(
       @PathVariable("postId") Long postId, @AuthenticationPrincipal CustomUserDetails userDetails) {
 
