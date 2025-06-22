@@ -18,6 +18,8 @@ import org.springframework.web.multipart.MultipartFile;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
+import com.kkinikong.be.cache.service.CounterCacheService;
+import com.kkinikong.be.cache.type.RedisKey;
 import com.kkinikong.be.community.domain.Comment;
 import com.kkinikong.be.community.domain.CommentLike;
 import com.kkinikong.be.community.domain.CommunityPost;
@@ -61,6 +63,7 @@ public class CommunityService {
   private final CommentLikeRepository commentLikeRepository;
 
   private final ImageService imageService;
+  private final CounterCacheService counterCacheService;
 
   private final int MAX_REPLY_SIZE = 2000;
 
@@ -200,12 +203,17 @@ public class CommunityService {
   public CommunityPostInfoResponse getCommunityPost(Long postId, Long userId) {
     CommunityPost communityPost = getCommunityPostOrThrow(postId);
 
+    counterCacheService.increaseViewCounts(postId, RedisKey.COMMUNITY_POST_VIEWS_KEY);
+
     List<Comment> allComments = commentRepository.findAllByCommunityPostId(postId);
 
     List<CommentListResponse> commentListResponses = mapToCommentTreeResponse(userId, allComments);
 
     return CommunityPostInfoResponse.from(
-        communityPost, isUserLikedPost(userId, communityPost), commentListResponses);
+        communityPost,
+        isUserLikedPost(userId, communityPost),
+        isMyCommunityPost(userId, communityPost),
+        commentListResponses);
   }
 
   public Page<CommunityPostListResponse> searchCommunityPost(String keyword, int page, int size) {
@@ -237,30 +245,47 @@ public class CommunityService {
                               CommentListResponse.from(
                                   child,
                                   isUserLikedComment(userId, child),
-                                  child.isAuthor(),
+                                  isMyComment(userId, child),
                                   List.of()))
                       .toList();
 
               return CommentListResponse.from(
-                  parent, isUserLikedComment(userId, parent), parent.isAuthor(), replyListResponse);
+                  parent,
+                  isUserLikedComment(userId, parent),
+                  isMyComment(userId, parent),
+                  replyListResponse);
             })
         .toList();
   }
 
-  private boolean isUserLikedComment(Long userId, Comment comment) {
+  private Boolean isUserLikedComment(Long userId, Comment comment) {
     if (userId == null) {
-      return false;
+      return null;
     }
     return comment.getCommentLikeList().stream()
         .anyMatch(commentLike -> commentLike.getUser().getId().equals(userId));
   }
 
-  private boolean isUserLikedPost(Long userId, CommunityPost communityPost) {
+  private Boolean isUserLikedPost(Long userId, CommunityPost communityPost) {
     if (userId == null) {
-      return false;
+      return null;
     }
     return communityPost.getCommunityPostLikeList().stream()
         .anyMatch(like -> like.getUser().getId().equals(userId));
+  }
+
+  private Boolean isMyComment(Long userId, Comment comment) {
+    if (userId == null) {
+      return null;
+    }
+    return comment.getUser().getId().equals(userId);
+  }
+
+  private Boolean isMyCommunityPost(Long userId, CommunityPost communityPost) {
+    if (userId == null) {
+      return null;
+    }
+    return communityPost.getUser().getId().equals(userId);
   }
 
   private Comment validateReply(Long postId, Long commentId, String content) {

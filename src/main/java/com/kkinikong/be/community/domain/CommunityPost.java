@@ -54,6 +54,9 @@ public class CommunityPost extends BaseEntity {
   @Column(name = "thumbnail_url")
   private String thumbnailUrl;
 
+  @Column(name = "is_modified", nullable = false)
+  private boolean isModified = false;
+
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "user_id", nullable = false)
   private User user;

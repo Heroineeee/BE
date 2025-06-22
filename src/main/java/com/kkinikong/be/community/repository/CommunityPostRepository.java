@@ -7,6 +7,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Lock;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
@@ -28,4 +29,8 @@ public interface CommunityPostRepository extends JpaRepository<CommunityPost, Lo
   @Lock(LockModeType.PESSIMISTIC_WRITE)
   @Query("SELECT p FROM CommunityPost p WHERE p.id = :postId")
   Optional<CommunityPost> findByIdForUpdate(@Param("postId") Long postId);
+
+  @Modifying(clearAutomatically = true)
+  @Query("UPDATE CommunityPost p SET p.viewCount = p.viewCount + :count WHERE p.id = :postId")
+  void incrementViews(@Param("postId") Long postId, @Param("count") Long count);
 }
