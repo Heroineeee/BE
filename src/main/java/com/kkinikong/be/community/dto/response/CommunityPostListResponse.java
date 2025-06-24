@@ -2,6 +2,7 @@ package com.kkinikong.be.community.dto.response;
 
 import com.kkinikong.be.community.domain.CommunityPost;
 import com.kkinikong.be.community.util.TimeUtil;
+import com.kkinikong.be.user.utils.UserNicknameUtil;
 
 public record CommunityPostListResponse(
     long communityPostId,
@@ -27,7 +28,7 @@ public record CommunityPostListResponse(
         communityPost.getCommentCount(),
         communityPost.getLikeCount(),
         communityPost.getViewCount(),
-        communityPost.getUser().getNickname());
+        UserNicknameUtil.displayNickname(communityPost.getUser()));
   }
 
   private static String shortContent(String content, int maxLength) {
