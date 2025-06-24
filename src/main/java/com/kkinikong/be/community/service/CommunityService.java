@@ -41,7 +41,7 @@ import com.kkinikong.be.community.repository.CommentLikeRepository;
 import com.kkinikong.be.community.repository.CommentRepository;
 import com.kkinikong.be.community.repository.CommunityPostImageRepository;
 import com.kkinikong.be.community.repository.CommunityPostLikeRepository;
-import com.kkinikong.be.community.repository.CommunityPostRepository;
+import com.kkinikong.be.community.repository.communityPost.CommunityPostRepository;
 import com.kkinikong.be.store.dto.response.StoreRecentSearchKeyword;
 import com.kkinikong.be.user.domain.User;
 import com.kkinikong.be.user.exception.UserException;
@@ -224,6 +224,8 @@ public class CommunityService {
     if (userId != null) {
       redisTempleCacheService.saveRecentSearch(userId, keyword);
     }
+
+    Pageable pageable = PageRequest.of(page, size);
 
     return null;
   }

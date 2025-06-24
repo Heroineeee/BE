@@ -1,4 +1,4 @@
-package com.kkinikong.be.community.repository;
+package com.kkinikong.be.community.repository.communityPost;
 
 import java.util.List;
 import java.util.Optional;
@@ -18,7 +18,8 @@ import com.kkinikong.be.community.domain.CommunityPost;
 import com.kkinikong.be.community.domain.type.Category;
 
 @Repository
-public interface CommunityPostRepository extends JpaRepository<CommunityPost, Long> {
+public interface CommunityPostRepository
+    extends JpaRepository<CommunityPost, Long>, CommunityPostCustomRepository {
 
   List<CommunityPost> findTop5ByOrderByLikeCountDescViewCountDesc();
 

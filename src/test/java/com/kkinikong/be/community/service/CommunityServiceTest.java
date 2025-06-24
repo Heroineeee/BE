@@ -18,7 +18,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.kkinikong.be.community.domain.CommunityPost;
-import com.kkinikong.be.community.repository.CommunityPostRepository;
+import com.kkinikong.be.community.repository.communityPost.CommunityPostRepository;
 import com.kkinikong.be.user.domain.User;
 import com.kkinikong.be.user.repository.UserRepository;
 

@@ -10,7 +10,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 import com.kkinikong.be.cache.type.RedisKey;
-import com.kkinikong.be.community.repository.CommunityPostRepository;
+import com.kkinikong.be.community.repository.communityPost.CommunityPostRepository;
 import com.kkinikong.be.store.repository.store.StoreRepository;
 
 @Slf4j
