@@ -8,9 +8,6 @@ spring:
       host: ${LOCAL_REDIS_HOST}
       port: ${REDIS_PORT}
 
-springdoc:
-  swagger-ui:
-    path: /swagger-ui/index.html
+Swagger:
+  server:
     url: ${LOCAL_SWAGGER_URL}
-  api-docs:
-    path: /v3/api-docs
