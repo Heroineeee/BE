@@ -2,7 +2,6 @@ package com.kkinikong.be.auth.controller;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -28,8 +27,8 @@ import com.kkinikong.be.user.domain.type.LoginType;
 public class AuthController {
   private final AuthService authService;
 
-  @Operation(summary = "소셜 로그인 / 회원가입", description = "소셜 로그인을 진행합니다. (카카오) 인가코드를 넣어주세요.")
-  @GetMapping("/login/{loginType}")
+  @Operation(summary = "소셜 로그인 / 회원가입", description = "소셜 로그인을 진행합니다. 인가코드를 넣어주세요.")
+  @PostMapping("/login/{loginType}")
   public ResponseEntity<ApiResponse<Object>> login(
       @PathVariable LoginType loginType, @RequestParam String code) {
 
