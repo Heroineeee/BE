@@ -32,14 +32,13 @@ public class WebClientConfig {
     Function<HttpClient, HttpClient> mapper =
         client ->
             HttpClient.create()
-                .responseTimeout(Duration.ofSeconds(10))
+                .responseTimeout(Duration.ofSeconds(30))
                 .option(ChannelOption.CONNECT_TIMEOUT_MILLIS, 5000)
                 .doOnConnected(
                     connection ->
                         connection
-                            .addHandlerLast(new ReadTimeoutHandler(10))
-                            .addHandlerLast(new WriteTimeoutHandler(10))) // 읽기 및 쓰기 시간 초과 10초로 설정
-                .responseTimeout(Duration.ofSeconds(1)); // 응답 시간 초과 1초로 설정
+                            .addHandlerLast(new ReadTimeoutHandler(60))
+                            .addHandlerLast(new WriteTimeoutHandler(10)));
 
     // HTTP 클라이언트와 연결
     ClientHttpConnector connector = new ReactorClientHttpConnector(resourceFactory(), mapper);
