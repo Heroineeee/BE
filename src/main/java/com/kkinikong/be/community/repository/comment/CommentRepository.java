@@ -1,4 +1,4 @@
-package com.kkinikong.be.community.repository;
+package com.kkinikong.be.community.repository.comment;
 
 import java.util.List;
 import java.util.Optional;
@@ -15,7 +15,7 @@ import jakarta.persistence.LockModeType;
 import com.kkinikong.be.community.domain.Comment;
 
 @Repository
-public interface CommentRepository extends JpaRepository<Comment, Long> {
+public interface CommentRepository extends JpaRepository<Comment, Long>, CommentRepositoryCustom {
 
   @EntityGraph(attributePaths = {"commentLikeList", "commentLikeList.user"})
   List<Comment> findAllByCommunityPostId(Long postId);
