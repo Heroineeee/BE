@@ -20,9 +20,10 @@ public record ConveniencePostDetailResponse(
     long IncorrectCount) {
 
   public static ConveniencePostDetailResponse from(User user, ConveniencePost conveniencePost) {
+    boolean isMine = user != null && user.getId().equals(conveniencePost.getUser().getId());
     return new ConveniencePostDetailResponse(
-        user.getNickname(),
-        user.getId().equals(conveniencePost.getUser().getId()),
+        conveniencePost.getUser().getNickname(),
+        isMine,
         conveniencePost.getCreatedDate().toLocalDate(),
         conveniencePost.getName(),
         conveniencePost.getIsAvailable(),
