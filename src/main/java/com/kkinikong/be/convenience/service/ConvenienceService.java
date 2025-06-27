@@ -132,7 +132,7 @@ public class ConvenienceService {
 
   public ConveniencePostDetailResponse getConveniencePostDetail(Long postId, Long userId) {
     ConveniencePost conveniencePost = getConveniencePostOrThrow(postId);
-    User user = getUserOrThrow(userId);
+    User user = (userId != null) ? getUserOrThrow(userId) : null;
     return ConveniencePostDetailResponse.from(user, conveniencePost);
   }
 

@@ -41,3 +41,11 @@ cloud:
 openai:
     api:
         key: ${OPEN_API_KEY}
+
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html
+    groups-order: desc
+    tags_sorter: alpha
+    operations_sorter: method # delete - get - patch - post - put 정렬
+  use-fqn: true

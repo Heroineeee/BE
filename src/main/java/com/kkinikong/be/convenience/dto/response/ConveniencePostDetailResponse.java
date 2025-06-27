@@ -6,6 +6,7 @@ import com.kkinikong.be.convenience.domain.ConveniencePost;
 import com.kkinikong.be.convenience.domain.type.Brand;
 import com.kkinikong.be.convenience.domain.type.Category;
 import com.kkinikong.be.user.domain.User;
+import com.kkinikong.be.user.utils.UserNicknameUtil;
 
 public record ConveniencePostDetailResponse(
     String userNickname,
@@ -21,8 +22,8 @@ public record ConveniencePostDetailResponse(
 
   public static ConveniencePostDetailResponse from(User user, ConveniencePost conveniencePost) {
     return new ConveniencePostDetailResponse(
-        user.getNickname(),
-        user.getId().equals(conveniencePost.getUser().getId()),
+        UserNicknameUtil.displayNickname(conveniencePost.getUser()),
+        user != null && user.getId().equals(conveniencePost.getUser().getId()),
         conveniencePost.getCreatedDate().toLocalDate(),
         conveniencePost.getName(),
         conveniencePost.getIsAvailable(),

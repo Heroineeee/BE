@@ -127,9 +127,8 @@ public class ConvenienceController {
   @GetMapping("/post/{postId}")
   public ResponseEntity<ApiResponse<Object>> getConveniencePostDetail(
       @PathVariable("postId") Long postId, @AuthenticationPrincipal CustomUserDetails userDetails) {
+    Long userId = (userDetails != null) ? userDetails.getId() : null;
     return ResponseEntity.status(HttpStatus.OK)
-        .body(
-            ApiResponse.from(
-                convenienceService.getConveniencePostDetail(postId, userDetails.getId())));
+        .body(ApiResponse.from(convenienceService.getConveniencePostDetail(postId, userId)));
   }
 }
