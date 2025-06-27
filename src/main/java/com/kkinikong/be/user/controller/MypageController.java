@@ -71,4 +71,15 @@ public class MypageController {
         mypageService.getCommunityPost(userDetails.getId(), page, size);
     return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.from(response));
   }
+
+  @Operation(summary = "내가 좋아요한 게시글 조회")
+  @GetMapping("/like")
+  public ResponseEntity<ApiResponse<Object>> getLikeList(
+      @AuthenticationPrincipal CustomUserDetails userDetails,
+      @RequestParam(defaultValue = "0") int page,
+      @RequestParam(defaultValue = "10") int size) {
+    PageResponse<CommunityPostListResponse> response =
+        mypageService.getLikePost(userDetails.getId(), page, size);
+    return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.from(response));
+  }
 }

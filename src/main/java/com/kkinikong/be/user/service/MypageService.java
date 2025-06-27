@@ -12,7 +12,9 @@ import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;
 
 import com.kkinikong.be.community.domain.CommunityPost;
+import com.kkinikong.be.community.domain.CommunityPostLike;
 import com.kkinikong.be.community.dto.response.CommunityPostListResponse;
+import com.kkinikong.be.community.repository.CommunityPostLikeRepository;
 import com.kkinikong.be.community.repository.CommunityPostRepository;
 import com.kkinikong.be.convenience.domain.ConveniencePost;
 import com.kkinikong.be.convenience.dto.response.ConveniencePostListResponse;
@@ -38,6 +40,7 @@ public class MypageService {
   private final ReviewTagRepository reviewTagRepository;
   private final ConvenienceRepository convenienceRepository;
   private final CommunityPostRepository communityPostRepository;
+  private final CommunityPostLikeRepository communityPostLikeRepository;
 
   public PageResponse<MypageStoreResponse> getScrapStore(Long userId, int page, int size) {
     Pageable pageable = PageRequest.of(page, size);
@@ -76,5 +79,13 @@ public class MypageService {
     Page<CommunityPost> communityPostPage =
         communityPostRepository.findAllByUserIdOrderByCreatedDate(userId, pageable);
     return PageResponse.from(communityPostPage, CommunityPostListResponse::from);
+  }
+
+  public PageResponse<CommunityPostListResponse> getLikePost(Long userId, int page, int size) {
+    Pageable pageable = PageRequest.of(page, size);
+    Page<CommunityPostLike> communityPostListPage =
+        communityPostLikeRepository.findAllByUserIdOrderByCreatedDate(userId, pageable);
+    return PageResponse.from(
+        communityPostListPage, like -> CommunityPostListResponse.from(like.getCommunityPost()));
   }
 }
