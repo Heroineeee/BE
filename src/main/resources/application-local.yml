@@ -14,7 +14,6 @@ spring:
 
 springdoc:
   swagger-ui:
-    path: /swagger-ui/index.html
-    url: ${LOCAL_SWAGGER_URL}
+    path: /swagger-ui.html
   api-docs:
     path: /v3/api-docs

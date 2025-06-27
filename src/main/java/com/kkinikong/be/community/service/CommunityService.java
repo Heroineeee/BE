@@ -11,6 +11,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.elasticsearch.core.ElasticsearchOperations;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -25,6 +26,7 @@ import com.kkinikong.be.community.domain.CommentLike;
 import com.kkinikong.be.community.domain.CommunityPost;
 import com.kkinikong.be.community.domain.CommunityPostImage;
 import com.kkinikong.be.community.domain.CommunityPostLike;
+import com.kkinikong.be.community.domain.elasticsearch.CommunityPostDocument;
 import com.kkinikong.be.community.domain.type.Category;
 import com.kkinikong.be.community.dto.request.CommunityCommentRequest;
 import com.kkinikong.be.community.dto.request.CommunityPostRequest;
@@ -66,6 +68,8 @@ public class CommunityService {
   private final ImageService imageService;
   private final RedisTempleCacheService redisTempleCacheService;
 
+  private final ElasticsearchOperations elasticsearchOperations;
+
   private final int MAX_REPLY_SIZE = 2000;
 
   @Transactional
@@ -78,6 +82,8 @@ public class CommunityService {
                 .category(request.category())
                 .user(getUserOrThrow(userId))
                 .build());
+
+    elasticsearchOperations.save(CommunityPostDocument.from(communityPost));
 
     return new CommunityPostResponse(communityPost.getId());
   }
