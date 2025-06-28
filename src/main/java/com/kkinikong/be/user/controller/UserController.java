@@ -76,4 +76,12 @@ public class UserController {
     userService.deleteUser(userDetails.getId());
     return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.EMPTY_RESPONSE);
   }
+
+  @Operation(summary = "로그인한 유저의 닉네임 조회")
+  @GetMapping("/nickname")
+  public ResponseEntity<ApiResponse<Object>> getNickname(
+      @AuthenticationPrincipal CustomUserDetails userDetails) {
+    NicknameResponse response = userService.getNickname(userDetails.getId());
+    return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.from(response));
+  }
 }
