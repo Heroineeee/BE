@@ -43,6 +43,15 @@ public class UserController {
     return ResponseEntity.ok(ApiResponse.from(isDuplicated));
   }
 
+  @Operation(summary = "닉네임 수정")
+  @PatchMapping("/nickname")
+  public ResponseEntity<ApiResponse<Object>> updateNickname(
+      @Valid @RequestBody NicknameRequest request,
+      @AuthenticationPrincipal CustomUserDetails userDetails) {
+    userService.updateNickname(request, userDetails.getId());
+    return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.EMPTY_RESPONSE);
+  }
+
   @Operation(summary = "유저가 자주 가는 지역 설정")
   @PostMapping("/place")
   public ResponseEntity<ApiResponse<Object>> userPlace(
