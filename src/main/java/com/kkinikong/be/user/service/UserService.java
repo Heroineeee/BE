@@ -81,6 +81,11 @@ public class UserService {
     user.withdraw();
   }
 
+  public NicknameResponse getNickname(Long userId) {
+    User user = getUserOrThrow(userId);
+    return new NicknameResponse(user.getEmail(), user.getNickname());
+  }
+
   private User getUserOrThrow(Long userId) {
     return userRepository
         .findById(userId)
