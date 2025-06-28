@@ -45,7 +45,6 @@ public class UserService {
       throw new UserException(DUPLICATE_NICKNAME);
     }
     user.updateNickname(request.nickname());
-    userRepository.save(user);
     return new NicknameResponse(user.getEmail(), request.nickname());
   }
 
