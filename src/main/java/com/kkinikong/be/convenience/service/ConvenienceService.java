@@ -91,6 +91,8 @@ public class ConvenienceService {
     if (optionalHelpful.isPresent()) {
       ConvenienceHelpful existing = optionalHelpful.get();
       if (existing.getIsCorrect().equals(isCorrect)) {
+        helpfulRepository.delete(existing);
+        conveniencePost.decreaseCount(isCorrect);
         return new ConveniencePostInfoResponse(
             conveniencePost.getCorrectCount(), conveniencePost.getIncorrectCount(), isCorrect);
       }
