@@ -57,7 +57,7 @@ public class UserService {
 
   public void updateNickname(NicknameRequest request, Long userId) {
     User user = getUserOrThrow(userId);
-    if (user.isModified()) {
+    if (user.isNicknameModified()) {
       throw new UserException(NICKNAME_ALREADY_MODIFIED);
     }
     user.updateNickname(request.nickname());
