@@ -39,7 +39,7 @@ public class UserService {
                         .buildSocialLogin()));
   }
 
-  public NicknameResponse updateNickname(NicknameRequest request, Long userId) {
+  public NicknameResponse addNickname(NicknameRequest request, Long userId) {
     User user =
         userRepository.findById(userId).orElseThrow(() -> new UserException(USER_NOT_FOUND));
     if (userRepository.existsByNickname(request.nickname())) {

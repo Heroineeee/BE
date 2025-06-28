@@ -31,7 +31,7 @@ public class UserController {
       @Valid @RequestBody NicknameRequest request,
       @AuthenticationPrincipal CustomUserDetails userDetails) {
 
-    NicknameResponse response = userService.updateNickname(request, userDetails.getId());
+    NicknameResponse response = userService.addNickname(request, userDetails.getId());
     return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.from(response));
   }
 
@@ -48,7 +48,7 @@ public class UserController {
   public ResponseEntity<ApiResponse<Object>> updateNickname(
       @Valid @RequestBody NicknameRequest request,
       @AuthenticationPrincipal CustomUserDetails userDetails) {
-    userService.updateNickname(request, userDetails.getId());
+    userService.addNickname(request, userDetails.getId());
     return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.EMPTY_RESPONSE);
   }
 
