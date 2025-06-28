@@ -59,6 +59,9 @@ public class User extends BaseEntity {
   @Column(name = "deleted_at")
   private LocalDateTime deletedAt;
 
+  @Column(name = "is_modified", nullable = false)
+  private boolean isModified = false;
+
   @Builder(builderMethodName = "socialLoginBuilder", buildMethodName = "buildSocialLogin")
   public User(String email, LoginType loginType) {
     this.email = email;
