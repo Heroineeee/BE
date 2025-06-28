@@ -48,7 +48,7 @@ public class UserController {
   public ResponseEntity<ApiResponse<Object>> updateNickname(
       @Valid @RequestBody NicknameRequest request,
       @AuthenticationPrincipal CustomUserDetails userDetails) {
-    userService.addNickname(request, userDetails.getId());
+    userService.updateNickname(request, userDetails.getId());
     return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.EMPTY_RESPONSE);
   }
 

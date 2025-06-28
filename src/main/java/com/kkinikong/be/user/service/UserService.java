@@ -55,6 +55,15 @@ public class UserService {
     return userRepository.existsByNickname(nickname);
   }
 
+  public void updateNickname(NicknameRequest request, Long userId) {
+    User user = getUserOrThrow(userId);
+    if (user.isModified()) {
+      throw new UserException(NICKNAME_ALREADY_MODIFIED);
+    }
+    user.updateNickname(request.nickname());
+    user.setNicknameModified(true);
+  }
+
   @Transactional
   public void setUserPlace(Long userId, Double latitude, Double longitude) {
     User user = getUserOrThrow(userId);
