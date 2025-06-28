@@ -1,5 +1,6 @@
 package com.kkinikong.be.community.service;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -229,6 +230,15 @@ public class CommunityService {
     // 최근 검색어 추가 로직
     if (userId != null) {
       redisTempleCacheService.saveRecentSearch(userId, keyword);
+    }
+
+    // Elasticsearch
+    if (keyword.contains(" ")) { // 띄어쓰기 있는 경우
+      String noSpaceKeyword = keyword.replaceAll(" ", "");
+      List<String> tokens = Arrays.asList(keyword.split(" "));
+
+    } else { // 띄어쓰기 없는 경우
+
     }
 
     Pageable pageable = PageRequest.of(page, size);
