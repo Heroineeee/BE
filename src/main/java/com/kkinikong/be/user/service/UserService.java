@@ -40,14 +40,12 @@ public class UserService {
   }
 
   public NicknameResponse addNickname(NicknameRequest request, Long userId) {
-    User user =
-        userRepository.findById(userId).orElseThrow(() -> new UserException(USER_NOT_FOUND));
+    User user = getUserOrThrow(userId);
     if (userRepository.existsByNickname(request.nickname())) {
       throw new UserException(DUPLICATE_NICKNAME);
     }
     user.updateNickname(request.nickname());
     userRepository.save(user);
-
     return new NicknameResponse(user.getEmail(), request.nickname());
   }
 
@@ -55,6 +53,7 @@ public class UserService {
     return userRepository.existsByNickname(nickname);
   }
 
+  @Transactional
   public void updateNickname(NicknameRequest request, Long userId) {
     User user = getUserOrThrow(userId);
     if (user.isNicknameModified()) {
