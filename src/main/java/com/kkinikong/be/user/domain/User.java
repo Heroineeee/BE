@@ -59,8 +59,8 @@ public class User extends BaseEntity {
   @Column(name = "deleted_at")
   private LocalDateTime deletedAt;
 
-  @Column(name = "is_modified", nullable = false)
-  private boolean isModified = false;
+  @Column(name = "is_nickname_modified", nullable = false)
+  private boolean isNicknameModified = false;
 
   @Builder(builderMethodName = "socialLoginBuilder", buildMethodName = "buildSocialLogin")
   public User(String email, LoginType loginType) {
@@ -84,6 +84,10 @@ public class User extends BaseEntity {
   public void updatePlace(Double latitude, Double longitude) {
     this.placeLatitude = latitude;
     this.placeLongitude = longitude;
+  }
+
+  public void setNicknameModified(boolean modified) {
+    this.isNicknameModified = modified;
   }
 
   public void withdraw() {
