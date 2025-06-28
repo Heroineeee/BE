@@ -87,17 +87,17 @@ public class ConvenienceService {
     Optional<ConvenienceHelpful> optionalHelpful =
         helpfulRepository.findByConveniencePostAndUser(conveniencePost, user);
 
-    // 기존 선택과 동일한 값이면 아무 변화 없이 현재 상태 반환
+    // 기존 선택과 동일한 값이면 취소 상태로 변환
     if (optionalHelpful.isPresent()) {
       ConvenienceHelpful existing = optionalHelpful.get();
       if (existing.getIsCorrect().equals(isCorrect)) {
         helpfulRepository.delete(existing);
         conveniencePost.decreaseCount(isCorrect);
         return new ConveniencePostInfoResponse(
-            conveniencePost.getCorrectCount(), conveniencePost.getIncorrectCount(), isCorrect);
+            conveniencePost.getCorrectCount(), conveniencePost.getIncorrectCount(), null);
       }
 
-      // 이전 선택을 취소하고 새로 선택
+      // 다른 거를 선택했으면 상태 전환
       conveniencePost.decreaseCount(existing.getIsCorrect());
       existing.updateIsCorrect(isCorrect);
     } else {
