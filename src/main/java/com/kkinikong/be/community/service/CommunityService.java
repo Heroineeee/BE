@@ -234,15 +234,6 @@ public class CommunityService {
     List<CommunitySearchResponse> communitySearchResponses =
         communitySearchService.searchCommunityPost(keyword);
 
-    for (CommunitySearchResponse response : communitySearchResponses) {
-      ;
-      log.info(
-          "Search Result: id={}, title={}, content={}",
-          response.id(),
-          response.title(),
-          response.content());
-    }
-
     return null;
   }
 

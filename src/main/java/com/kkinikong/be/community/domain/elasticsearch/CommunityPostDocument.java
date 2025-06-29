@@ -3,7 +3,6 @@ package com.kkinikong.be.community.domain.elasticsearch;
 import org.springframework.data.elasticsearch.annotations.Document;
 import org.springframework.data.elasticsearch.annotations.Field;
 import org.springframework.data.elasticsearch.annotations.FieldType;
-import org.springframework.data.elasticsearch.annotations.InnerField;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.Id;
@@ -23,21 +22,13 @@ import com.kkinikong.be.community.domain.CommunityPost;
 public class CommunityPostDocument {
   @Id private Long id;
 
-  @Field(
-      type = FieldType.Text,
-      fields = {@InnerField(suffix = "keyword", type = FieldType.Keyword)})
-  private String title;
-
-  @Field(
-      type = FieldType.Text,
-      fields = {@InnerField(suffix = "keyword", type = FieldType.Keyword)})
-  private String content;
+  @Field(name = "titleWithContent", type = FieldType.Text, analyzer = "nori")
+  private String titleWithContent;
 
   public static CommunityPostDocument from(CommunityPost post) {
     return CommunityPostDocument.builder()
         .id(post.getId())
-        .title(post.getTitle())
-        .content(post.getContent())
+        .titleWithContent(post.getTitle() + " " + post.getContent())
         .build();
   }
 }
