@@ -234,6 +234,13 @@ public class CommunityService {
     List<CommunitySearchResponse> communitySearchResponses =
         communitySearchService.searchCommunityPost(keyword);
 
+    for (CommunitySearchResponse communitySearchResponse : communitySearchResponses) {
+      log.info(
+          "titleWithContent: {}, id: {}",
+          communitySearchResponse.titleWithContent(),
+          communitySearchResponse.id());
+    }
+
     return null;
   }
 

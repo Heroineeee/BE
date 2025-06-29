@@ -19,6 +19,8 @@ import lombok.RequiredArgsConstructor;
 import com.kkinikong.be.community.domain.CommunityPost;
 import com.kkinikong.be.community.domain.elasticsearch.CommunityPostDocument;
 import com.kkinikong.be.community.dto.response.CommunitySearchResponse;
+import com.kkinikong.be.community.exception.CommunityException;
+import com.kkinikong.be.community.exception.errorcode.CommunityErrorCode;
 
 @Service
 @RequiredArgsConstructor
@@ -34,7 +36,9 @@ public class CommunitySearchService {
 
   public List<CommunitySearchResponse> searchCommunityPost(String keyword) {
     Query query;
-    if (keyword.contains(" ")) { // 띄어쓰기 있는 경우
+
+    // 띄어쓰기 있는 경우
+    if (keyword.contains(" ")) {
       String noSpaceKeyword = keyword.replaceAll(" ", "");
       List<String> tokens = Arrays.asList(keyword.split(" "));
 
@@ -70,36 +74,35 @@ public class CommunitySearchService {
     }
 
     try {
+      // Elasticsearch에서 검색 수행 및 하이라이트 설정
       SearchResponse<CommunityPostDocument> searchResponse =
           elasticsearchClient.search(
-              s -> s.index("community_post").query(query).size(20), CommunityPostDocument.class);
-      System.out.println(
-          "Elasticsearch 검색 결과: "
-              + searchResponse.hits().hits().size()
-              + "개, 쿼리: "
-              + query.toString());
+              s ->
+                  s.index("community_post")
+                      .query(query)
+                      .highlight(
+                          h ->
+                              h.fields(
+                                  "titleWithContent", hf -> hf.preTags("<em>").postTags("</em>"))),
+              CommunityPostDocument.class);
 
       return searchResponse.hits().hits().stream()
-          .peek(
-              hit -> {
-                double score = hit.score();
-                CommunityPostDocument doc = hit.source();
-                System.out.println(
-                    "Search Result: id="
-                        + doc.getId()
-                        + ", combined="
-                        + doc.getTitleWithContent()
-                        + ", score="
-                        + score);
-              })
           .map(
               hit -> {
                 CommunityPostDocument doc = hit.source();
-                return new CommunitySearchResponse(doc.getId(), doc.getTitleWithContent());
+
+                String highlightedText =
+                    hit.highlight() != null
+                            && hit.highlight().get("titleWithContent") != null
+                            && !hit.highlight().get("titleWithContent").isEmpty()
+                        ? hit.highlight().get("titleWithContent").get(0)
+                        : doc.getTitleWithContent();
+
+                return new CommunitySearchResponse(doc.getId(), highlightedText);
               })
           .collect(Collectors.toList());
     } catch (Exception e) {
-      throw new RuntimeException("Elasticsearch 검색 오류: " + e.getMessage(), e);
+      throw new CommunityException(CommunityErrorCode.ELASTIC_SEARCH_ERROR);
     }
   }
 }
