@@ -24,8 +24,10 @@ public interface CommunityPostRepository
 
   List<CommunityPost> findTop5ByOrderByLikeCountDescViewCountDesc();
 
+  @EntityGraph(attributePaths = {"communityPostImageList"})
   Page<CommunityPost> findAllByCategory(Category category, Pageable pageable);
 
+  @EntityGraph(attributePaths = {"communityPostImageList"})
   Page<CommunityPost> findAll(Pageable pageable);
 
   @Lock(LockModeType.PESSIMISTIC_WRITE)
