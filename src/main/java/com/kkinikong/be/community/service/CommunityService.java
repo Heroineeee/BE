@@ -1,6 +1,5 @@
 package com.kkinikong.be.community.service;
 
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -12,7 +11,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
-import org.springframework.data.elasticsearch.core.ElasticsearchOperations;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -27,7 +25,6 @@ import com.kkinikong.be.community.domain.CommentLike;
 import com.kkinikong.be.community.domain.CommunityPost;
 import com.kkinikong.be.community.domain.CommunityPostImage;
 import com.kkinikong.be.community.domain.CommunityPostLike;
-import com.kkinikong.be.community.domain.elasticsearch.CommunityPostDocument;
 import com.kkinikong.be.community.domain.type.Category;
 import com.kkinikong.be.community.dto.request.CommunityCommentRequest;
 import com.kkinikong.be.community.dto.request.CommunityPostRequest;
@@ -37,6 +34,7 @@ import com.kkinikong.be.community.dto.response.CommunityPostListResponse;
 import com.kkinikong.be.community.dto.response.CommunityPostPopularResponse;
 import com.kkinikong.be.community.dto.response.CommunityPostPopularWrappingResponse;
 import com.kkinikong.be.community.dto.response.CommunityPostResponse;
+import com.kkinikong.be.community.dto.response.CommunitySearchResponse;
 import com.kkinikong.be.community.dto.response.LikeToggleResponse;
 import com.kkinikong.be.community.exception.CommunityException;
 import com.kkinikong.be.community.exception.errorcode.CommunityErrorCode;
@@ -68,8 +66,7 @@ public class CommunityService {
 
   private final ImageService imageService;
   private final RedisTempleCacheService redisTempleCacheService;
-
-  private final ElasticsearchOperations elasticsearchOperations;
+  private final CommunitySearchService communitySearchService;
 
   private final int MAX_REPLY_SIZE = 2000;
 
@@ -84,7 +81,7 @@ public class CommunityService {
                 .user(getUserOrThrow(userId))
                 .build());
 
-    elasticsearchOperations.save(CommunityPostDocument.from(communityPost));
+    communitySearchService.savePostToSearchIndex(communityPost);
 
     return new CommunityPostResponse(communityPost.getId());
   }
@@ -226,22 +223,25 @@ public class CommunityService {
 
   public Page<CommunityPostListResponse> searchCommunityPost(
       String keyword, int page, int size, Long userId) {
+
     keyword = keyword.trim();
     // 최근 검색어 추가 로직
     if (userId != null) {
       redisTempleCacheService.saveRecentSearch(userId, keyword);
     }
 
-    // Elasticsearch
-    if (keyword.contains(" ")) { // 띄어쓰기 있는 경우
-      String noSpaceKeyword = keyword.replaceAll(" ", "");
-      List<String> tokens = Arrays.asList(keyword.split(" "));
-
-    } else { // 띄어쓰기 없는 경우
-
-    }
-
     Pageable pageable = PageRequest.of(page, size);
+    List<CommunitySearchResponse> communitySearchResponses =
+        communitySearchService.searchCommunityPost(keyword);
+
+    for (CommunitySearchResponse response : communitySearchResponses) {
+      ;
+      log.info(
+          "Search Result: id={}, title={}, content={}",
+          response.id(),
+          response.title(),
+          response.content());
+    }
 
     return null;
   }
