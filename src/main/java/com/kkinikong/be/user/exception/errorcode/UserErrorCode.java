@@ -16,6 +16,7 @@ public enum UserErrorCode implements ErrorCode {
   DUPLICATE_NICKNAME(HttpStatus.BAD_REQUEST, "이미 사용 중인 닉네임입니다."),
   USER_NOT_AUTHORIZED(HttpStatus.FORBIDDEN, "권한이 없습니다."),
   USER_ALREADY_DELETED(HttpStatus.NOT_FOUND, "이미 탈퇴한 유저입니다."),
+  NICKNAME_ALREADY_MODIFIED(HttpStatus.BAD_REQUEST, "이미 닉네임을 변경하였습니다."),
   ;
 
   private final HttpStatus httpStatus;

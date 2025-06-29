@@ -39,20 +39,27 @@ public class UserService {
                         .buildSocialLogin()));
   }
 
-  public NicknameResponse updateNickname(NicknameRequest request, Long userId) {
-    User user =
-        userRepository.findById(userId).orElseThrow(() -> new UserException(USER_NOT_FOUND));
+  public NicknameResponse addNickname(NicknameRequest request, Long userId) {
+    User user = getUserOrThrow(userId);
     if (userRepository.existsByNickname(request.nickname())) {
       throw new UserException(DUPLICATE_NICKNAME);
     }
     user.updateNickname(request.nickname());
-    userRepository.save(user);
-
     return new NicknameResponse(user.getEmail(), request.nickname());
   }
 
   public boolean checkNickname(String nickname) {
     return userRepository.existsByNickname(nickname);
+  }
+
+  @Transactional
+  public void updateNickname(NicknameRequest request, Long userId) {
+    User user = getUserOrThrow(userId);
+    if (user.isNicknameModified()) {
+      throw new UserException(NICKNAME_ALREADY_MODIFIED);
+    }
+    user.updateNickname(request.nickname());
+    user.setNicknameModified(true);
   }
 
   @Transactional
@@ -79,6 +86,11 @@ public class UserService {
     }
     storeScrapRepository.deleteAllByUser(user);
     user.withdraw();
+  }
+
+  public NicknameResponse getNickname(Long userId) {
+    User user = getUserOrThrow(userId);
+    return new NicknameResponse(user.getEmail(), user.getNickname());
   }
 
   private User getUserOrThrow(Long userId) {

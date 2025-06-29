@@ -31,7 +31,7 @@ public class UserController {
       @Valid @RequestBody NicknameRequest request,
       @AuthenticationPrincipal CustomUserDetails userDetails) {
 
-    NicknameResponse response = userService.updateNickname(request, userDetails.getId());
+    NicknameResponse response = userService.addNickname(request, userDetails.getId());
     return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.from(response));
   }
 
@@ -41,6 +41,15 @@ public class UserController {
 
     boolean isDuplicated = userService.checkNickname(nickname);
     return ResponseEntity.ok(ApiResponse.from(isDuplicated));
+  }
+
+  @Operation(summary = "닉네임 수정")
+  @PatchMapping("/nickname")
+  public ResponseEntity<ApiResponse<Object>> updateNickname(
+      @Valid @RequestBody NicknameRequest request,
+      @AuthenticationPrincipal CustomUserDetails userDetails) {
+    userService.updateNickname(request, userDetails.getId());
+    return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.EMPTY_RESPONSE);
   }
 
   @Operation(summary = "유저가 자주 가는 지역 설정")
@@ -66,5 +75,13 @@ public class UserController {
       @AuthenticationPrincipal CustomUserDetails userDetails) {
     userService.deleteUser(userDetails.getId());
     return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.EMPTY_RESPONSE);
+  }
+
+  @Operation(summary = "로그인한 유저의 닉네임 조회")
+  @GetMapping("/nickname")
+  public ResponseEntity<ApiResponse<Object>> getNickname(
+      @AuthenticationPrincipal CustomUserDetails userDetails) {
+    NicknameResponse response = userService.getNickname(userDetails.getId());
+    return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.from(response));
   }
 }
