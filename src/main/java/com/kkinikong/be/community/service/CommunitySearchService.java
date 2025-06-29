@@ -34,9 +34,31 @@ public class CommunitySearchService {
     elasticsearchOperations.save(CommunityPostDocument.from(communityPost));
   }
 
-  public List<CommunitySearchResponse> searchCommunityPost(String keyword) {
-    Query query;
+  public List<CommunitySearchResponse> searchCommunityPost(String keyword, int page, int size) {
+    Query query = buildSearchQuery(keyword);
+    int from = page * size;
+    try {
+      // Elasticsearch에서 검색 수행
+      SearchResponse<CommunityPostDocument> searchResponse =
+          elasticsearchClient.search(
+              s -> s.index("community_post").query(query).from(from).size(size),
+              CommunityPostDocument.class);
 
+      return searchResponse.hits().hits().stream()
+          .map(
+              hit -> {
+                CommunityPostDocument doc = hit.source();
+
+                return new CommunitySearchResponse(doc.getId(), doc.getTitleWithContent());
+              })
+          .collect(Collectors.toList());
+    } catch (Exception e) {
+      throw new CommunityException(CommunityErrorCode.ELASTIC_SEARCH_ERROR);
+    }
+  }
+
+  private static Query buildSearchQuery(String keyword) {
+    Query query;
     // 띄어쓰기 있는 경우
     if (keyword.contains(" ")) {
       String noSpaceKeyword = keyword.replaceAll(" ", "");
@@ -70,39 +92,8 @@ public class CommunitySearchService {
 
       query = BoolQuery.of(b -> b.should(level1).should(level2).should(level3))._toQuery();
     } else { // 띄어쓰기 없는 경우
-      query = MatchQuery.of(m -> m.field("titleWithContent").query(keyword))._toQuery();
+      query = MatchPhraseQuery.of(m -> m.field("titleWithContent").query(keyword))._toQuery();
     }
-
-    try {
-      // Elasticsearch에서 검색 수행 및 하이라이트 설정
-      SearchResponse<CommunityPostDocument> searchResponse =
-          elasticsearchClient.search(
-              s ->
-                  s.index("community_post")
-                      .query(query)
-                      .highlight(
-                          h ->
-                              h.fields(
-                                  "titleWithContent", hf -> hf.preTags("<em>").postTags("</em>"))),
-              CommunityPostDocument.class);
-
-      return searchResponse.hits().hits().stream()
-          .map(
-              hit -> {
-                CommunityPostDocument doc = hit.source();
-
-                String highlightedText =
-                    hit.highlight() != null
-                            && hit.highlight().get("titleWithContent") != null
-                            && !hit.highlight().get("titleWithContent").isEmpty()
-                        ? hit.highlight().get("titleWithContent").get(0)
-                        : doc.getTitleWithContent();
-
-                return new CommunitySearchResponse(doc.getId(), highlightedText);
-              })
-          .collect(Collectors.toList());
-    } catch (Exception e) {
-      throw new CommunityException(CommunityErrorCode.ELASTIC_SEARCH_ERROR);
-    }
+    return query;
   }
 }
