@@ -109,9 +109,9 @@ public class CommunityService {
     CommunityPost communityPost = getCommunityPostOrThrow(postId);
 
     Comment parent = null;
-
+    // 답글 작성인 경우
     if (commentId != null) {
-      parent = validateReply(postId, commentId, request.content());
+      parent = validateReply(postId, commentId);
     }
 
     commentRepository.save(
@@ -282,11 +282,7 @@ public class CommunityService {
     return communityPost.getUser().getId().equals(userId);
   }
 
-  private Comment validateReply(Long postId, Long commentId, String content) {
-    if (content.length() > MAX_REPLY_SIZE) {
-      throw new CommunityException(CommunityErrorCode.REPLY_SIZE_LIMIT);
-    }
-
+  private Comment validateReply(Long postId, Long commentId) {
     Comment parent = getCommentOrThrow(commentId);
 
     // 댓글이 작성된 게시글과 일치하는지 확인
