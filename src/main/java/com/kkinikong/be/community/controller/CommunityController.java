@@ -5,6 +5,7 @@ import java.util.List;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -19,6 +20,7 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Size;
 import lombok.RequiredArgsConstructor;
 
 import com.kkinikong.be.community.domain.type.Category;
@@ -142,6 +144,7 @@ public class CommunityController {
       @RequestParam(value = "category", required = false) Category category,
       @RequestParam(value = "page", defaultValue = "0") int page,
       @RequestParam(value = "size", defaultValue = "10") int size) {
+
     return ResponseEntity.status(HttpStatus.OK)
         .body(
             ApiResponse.from(
@@ -153,6 +156,7 @@ public class CommunityController {
       summary = "인기 커뮤니티 게시글 조회",
       description = "인기 커뮤니티 게시글을 조회하는 API입니다. 인기 게시글은 좋아요 수 기준, 같을 시 조회수 순으로 정렬됩니다.")
   public ResponseEntity<ApiResponse<Object>> getPopularCommunityPosts() {
+
     return ResponseEntity.status(HttpStatus.OK)
         .body(ApiResponse.from(communityService.getPopularCommunityPosts()));
   }
@@ -182,5 +186,54 @@ public class CommunityController {
         communityService.postCommunityCommentLike(commentId, userDetails.getId());
 
     return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.from(likeToggleResponse));
+  }
+
+  @GetMapping("/search/recent")
+  @Operation(
+      summary = "최근 검색어 조회",
+      description =
+          """
+      - 사용자의 최근 검색어를 조회하는 API입니다. 최대 5개의 최근 검색어를 반환합니다.
+      - 5개 이상의 검색어가 있는 경우, 가장 최근에 검색한 5개를 반환하며 이전 검색어는 삭제됩니다.
+      - 검색어는 중복되지 않으며, 최대 30일 동안 저장됩니다.
+      """)
+  public ResponseEntity<ApiResponse<Object>> getRecentSearchKeywords(
+      @AuthenticationPrincipal CustomUserDetails userDetails) {
+
+    return ResponseEntity.status(HttpStatus.OK)
+        .body(ApiResponse.from(communityService.getRecentSearchKeywords(userDetails.getId())));
+  }
+
+  @DeleteMapping("/search/recent")
+  @Operation(summary = "최근 검색어 삭제", description = "사용자의 최근 검색어 중에서 선택한 검색어를 삭제하는 API입니다.")
+  public ResponseEntity<ApiResponse<Object>> deleteRecentSearchKeyword(
+      @RequestParam("keyword") @Size(min = 2, max = 15) String keyword,
+      @AuthenticationPrincipal CustomUserDetails userDetails) {
+
+    communityService.deleteRecentSearchKeyword(userDetails.getId(), keyword);
+
+    return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.EMPTY_RESPONSE);
+  }
+
+  @GetMapping("/search")
+  @Operation(
+      summary = "커뮤니티 게시글 검색",
+      description =
+          """
+          - 커뮤니티 게시글을 검색하는 API입니다.
+          - 검색어를 포함한 게시글을 조회하며, 검색어는 null일 수 없고 2자 이상 15자 이하이어야 합니다.
+          - 로그인 후 검색시에 자동으로 최근 검색어에 추가됩니다.
+          """)
+  public ResponseEntity<ApiResponse<Object>> searchCommunityPost(
+      @RequestParam("keyword") @Size(min = 2, max = 15) String keyword,
+      @RequestParam(value = "page", defaultValue = "0") int page,
+      @RequestParam(value = "size", defaultValue = "10") int size,
+      @AuthenticationPrincipal CustomUserDetails userDetails) {
+
+    return ResponseEntity.status(HttpStatus.OK)
+        .body(
+            ApiResponse.from(
+                communityService.searchCommunityPost(
+                    keyword, page, size, userDetails == null ? null : userDetails.getId())));
   }
 }

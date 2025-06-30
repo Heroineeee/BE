@@ -8,6 +8,7 @@ import java.util.stream.Collectors;
 
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -18,7 +19,7 @@ import org.springframework.web.multipart.MultipartFile;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
-import com.kkinikong.be.cache.service.CounterCacheService;
+import com.kkinikong.be.cache.service.RedisTempleCacheService;
 import com.kkinikong.be.cache.type.RedisKey;
 import com.kkinikong.be.community.domain.Comment;
 import com.kkinikong.be.community.domain.CommentLike;
@@ -34,14 +35,16 @@ import com.kkinikong.be.community.dto.response.CommunityPostListResponse;
 import com.kkinikong.be.community.dto.response.CommunityPostPopularResponse;
 import com.kkinikong.be.community.dto.response.CommunityPostPopularWrappingResponse;
 import com.kkinikong.be.community.dto.response.CommunityPostResponse;
+import com.kkinikong.be.community.dto.response.CommunitySearchResponse;
 import com.kkinikong.be.community.dto.response.LikeToggleResponse;
 import com.kkinikong.be.community.exception.CommunityException;
 import com.kkinikong.be.community.exception.errorcode.CommunityErrorCode;
 import com.kkinikong.be.community.repository.CommentLikeRepository;
 import com.kkinikong.be.community.repository.CommunityPostImageRepository;
 import com.kkinikong.be.community.repository.CommunityPostLikeRepository;
-import com.kkinikong.be.community.repository.CommunityPostRepository;
 import com.kkinikong.be.community.repository.comment.CommentRepository;
+import com.kkinikong.be.community.repository.communityPost.CommunityPostRepository;
+import com.kkinikong.be.store.dto.response.StoreRecentSearchKeyword;
 import com.kkinikong.be.user.domain.User;
 import com.kkinikong.be.user.exception.UserException;
 import com.kkinikong.be.user.exception.errorcode.UserErrorCode;
@@ -63,7 +66,8 @@ public class CommunityService {
   private final CommentLikeRepository commentLikeRepository;
 
   private final ImageService imageService;
-  private final CounterCacheService counterCacheService;
+  private final RedisTempleCacheService redisTempleCacheService;
+  private final CommunitySearchService communitySearchService;
 
   private final int MAX_REPLY_SIZE = 2000;
 
@@ -77,6 +81,8 @@ public class CommunityService {
                 .category(request.category())
                 .user(getUserOrThrow(userId))
                 .build());
+
+    communitySearchService.savePostToSearchIndex(communityPost);
 
     return new CommunityPostResponse(communityPost.getId());
   }
@@ -203,7 +209,7 @@ public class CommunityService {
   public CommunityPostInfoResponse getCommunityPost(Long postId, Long userId) {
     CommunityPost communityPost = getCommunityPostOrThrow(postId);
 
-    counterCacheService.increaseViewCounts(postId, RedisKey.COMMUNITY_POST_VIEWS_KEY);
+    redisTempleCacheService.increaseViewCounts(postId, RedisKey.COMMUNITY_POST_VIEWS_KEY);
 
     List<Comment> allComments = commentRepository.findAllByCommunityPostId(postId);
 
@@ -214,6 +220,59 @@ public class CommunityService {
         isUserLikedPost(userId, communityPost),
         isMyCommunityPost(userId, communityPost),
         commentListResponses);
+  }
+
+  public Page<CommunityPostListResponse> searchCommunityPost(
+      String keyword, int page, int size, Long userId) {
+
+    keyword = keyword.trim();
+    // 최근 검색어 추가 로직
+    if (userId != null) {
+      redisTempleCacheService.saveRecentSearch(userId, keyword);
+    }
+
+    // Elasticsearch에서 검색어로 커뮤니티 게시글 페이징해서 가져옴
+    Pageable pageable = PageRequest.of(page, size);
+    List<CommunitySearchResponse> communitySearchResponses =
+        communitySearchService.searchCommunityPost(keyword, page, size);
+
+    if (communitySearchResponses.isEmpty()) {
+      return new PageImpl<>(List.of(), pageable, 0);
+    }
+
+    List<Long> postIds =
+        communitySearchResponses.stream().map(CommunitySearchResponse::id).toList();
+
+    Map<Long, CommunityPost> postMap =
+        communityPostRepository.findByIdIn(postIds).stream()
+            .collect(Collectors.toMap(CommunityPost::getId, post -> post));
+
+    // 순서 유지: 검색 결과에 있는 ID 순서대로 매핑
+    List<CommunityPostListResponse> results =
+        postIds.stream()
+            .map(
+                id ->
+                    Optional.ofNullable(postMap.get(id))
+                        .map(CommunityPostListResponse::from)
+                        .orElse(null))
+            .filter(Objects::nonNull)
+            .toList();
+
+    return new PageImpl<>(results, pageable, communitySearchResponses.size());
+  }
+
+  public List<StoreRecentSearchKeyword> getRecentSearchKeywords(Long userId) {
+    List<String> recentSearches = redisTempleCacheService.getRecentSearches(userId);
+
+    if (recentSearches.isEmpty()) {
+      return List.of();
+    }
+    return recentSearches.stream().map(StoreRecentSearchKeyword::from).collect(Collectors.toList());
+  }
+
+  public void deleteRecentSearchKeyword(Long userId, String keyword) {
+    keyword = keyword.trim();
+    redisTempleCacheService.deleteRecentSearches(userId, keyword);
   }
 
   private List<CommentListResponse> mapToCommentTreeResponse(

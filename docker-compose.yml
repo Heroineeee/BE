@@ -17,6 +17,20 @@ services:
     networks:
         - kkini-kong-net
 
+  elasticsearch: # Elasticsearch 서비스
+    image: elasticsearch:8.18.1
+    container_name: kkini-kong-elasticsearch
+    environment:
+      - discovery.type=single-node
+      - xpack.security.enabled=false
+      - xpack.ml.enabled=false
+      - xpack.graph.enabled=false
+      - ES_JAVA_OPTS=-Xms512m -Xmx512m
+    ports:
+      - "9200:9200"
+    networks:
+        - kkini-kong-net
+
 volumes:
   mysql_data:
 

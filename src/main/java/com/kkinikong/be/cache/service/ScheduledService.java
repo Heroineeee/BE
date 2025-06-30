@@ -10,7 +10,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 import com.kkinikong.be.cache.type.RedisKey;
-import com.kkinikong.be.community.repository.CommunityPostRepository;
+import com.kkinikong.be.community.repository.communityPost.CommunityPostRepository;
 import com.kkinikong.be.store.repository.store.StoreRepository;
 
 @Slf4j
@@ -18,7 +18,7 @@ import com.kkinikong.be.store.repository.store.StoreRepository;
 @RequiredArgsConstructor
 public class ScheduledService {
 
-  private final CounterCacheService counterCacheService;
+  private final RedisTempleCacheService redisTempleCacheService;
   private final StoreRepository storeRepository;
   private final CommunityPostRepository communityPostRepository;
 
@@ -26,7 +26,7 @@ public class ScheduledService {
   @Transactional
   public void syncStoreViewCount() {
     Map<Object, Object> storesViewCounts =
-        counterCacheService.getViewCounts(RedisKey.STORE_VIEWS_KEY);
+        redisTempleCacheService.getViewCounts(RedisKey.STORE_VIEWS_KEY);
     if (storesViewCounts == null || storesViewCounts.isEmpty()) {
       return;
     }
@@ -38,14 +38,14 @@ public class ScheduledService {
           storeRepository.incrementViews(storeId, viewCount);
         });
 
-    counterCacheService.clearViewCounts(RedisKey.STORE_VIEWS_KEY);
+    redisTempleCacheService.clearViewCounts(RedisKey.STORE_VIEWS_KEY);
   }
 
   @Scheduled(cron = "0 10 * * * *") // 매시간 10분에 실행
   @Transactional
   public void syncCommunityPostViewCount() {
     Map<Object, Object> communityPostsViewCounts =
-        counterCacheService.getViewCounts(RedisKey.COMMUNITY_POST_VIEWS_KEY);
+        redisTempleCacheService.getViewCounts(RedisKey.COMMUNITY_POST_VIEWS_KEY);
     if (communityPostsViewCounts == null || communityPostsViewCounts.isEmpty()) {
       return;
     }
@@ -57,6 +57,6 @@ public class ScheduledService {
           communityPostRepository.incrementViews(storeId, viewCount);
         });
 
-    counterCacheService.clearViewCounts(RedisKey.COMMUNITY_POST_VIEWS_KEY);
+    redisTempleCacheService.clearViewCounts(RedisKey.COMMUNITY_POST_VIEWS_KEY);
   }
 }
