@@ -17,7 +17,7 @@ import co.elastic.clients.elasticsearch.core.SearchResponse;
 import lombok.RequiredArgsConstructor;
 
 import com.kkinikong.be.community.domain.CommunityPost;
-import com.kkinikong.be.community.domain.elasticsearch.CommunityPostDocument;
+import com.kkinikong.be.community.domain.document.CommunityPostDocument;
 import com.kkinikong.be.community.dto.response.CommunitySearchResponse;
 import com.kkinikong.be.community.exception.CommunityException;
 import com.kkinikong.be.community.exception.errorcode.CommunityErrorCode;

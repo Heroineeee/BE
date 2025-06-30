@@ -1,4 +1,4 @@
-package com.kkinikong.be.community.domain.elasticsearch;
+package com.kkinikong.be.community.domain.document;
 
 import org.springframework.data.elasticsearch.annotations.Document;
 import org.springframework.data.elasticsearch.annotations.Field;
