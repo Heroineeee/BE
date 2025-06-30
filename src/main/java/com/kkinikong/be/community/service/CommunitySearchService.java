@@ -71,7 +71,8 @@ public class CommunitySearchService {
 
       // 레벨 2 : 띄어쓰기 제거 후 정확한 구문 일치
       Query level2 =
-          MatchQuery.of(m -> m.field("titleWithContent").query(noSpaceKeyword).boost(50f))
+          MatchQuery.of(
+                  m -> m.field("titleWithContent").query(noSpaceKeyword).fuzziness("1").boost(50f))
               ._toQuery();
 
       // 레벨 3: 토큰 포함 여부
@@ -83,7 +84,10 @@ public class CommunitySearchService {
                                   .map(
                                       token ->
                                           MatchQuery.of(
-                                                  m -> m.field("titleWithContent").query(token))
+                                                  m ->
+                                                      m.field("titleWithContent")
+                                                          .query(token)
+                                                          .fuzziness("1"))
                                               ._toQuery())
                                   .toList())
                           .minimumShouldMatch(String.valueOf(tokens.size()))
@@ -92,7 +96,8 @@ public class CommunitySearchService {
 
       query = BoolQuery.of(b -> b.should(level1).should(level2).should(level3))._toQuery();
     } else { // 띄어쓰기 없는 경우
-      query = MatchPhraseQuery.of(m -> m.field("titleWithContent").query(keyword))._toQuery();
+      query =
+          MatchQuery.of(m -> m.field("titleWithContent").query(keyword).fuzziness("1"))._toQuery();
     }
     return query;
   }
