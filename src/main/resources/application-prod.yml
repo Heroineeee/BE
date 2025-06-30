@@ -20,5 +20,3 @@ spring:
 Swagger:
     server:
         url: ${SWAGGER_URL}
-
-ela

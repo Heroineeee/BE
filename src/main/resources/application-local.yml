@@ -10,7 +10,8 @@ spring:
     elasticsearch:
       repositories:
         enabled: true
-      url : ${LOCAL_ELASTICSEARCH_URL}
+  elasticsearch:
+    uris: ${LOCAL_ELASTICSEARCH_URL}
 
 Swagger:
   server:
