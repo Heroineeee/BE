@@ -39,6 +39,7 @@ public class UserService {
                         .buildSocialLogin()));
   }
 
+  @Transactional
   public NicknameResponse addNickname(NicknameRequest request, Long userId) {
     User user = getUserOrThrow(userId);
     if (userRepository.existsByNickname(request.nickname())) {
