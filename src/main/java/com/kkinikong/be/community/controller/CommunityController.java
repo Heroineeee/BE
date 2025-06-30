@@ -200,7 +200,7 @@ public class CommunityController {
   public ResponseEntity<ApiResponse<Object>> deleteCommunityComment(
       @PathVariable("commentId") Long commentId,
       @AuthenticationPrincipal CustomUserDetails userDetails) {
-    // communityService.deleteCommunityComment(commentId, userDetails.getId());
+    communityService.deleteComment(commentId, userDetails.getId());
     return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.from(ApiResponse.EMPTY_RESPONSE));
   }
 }

@@ -216,6 +216,7 @@ public class CommunityService {
         commentListResponses);
   }
 
+  @Transactional
   public void deleteCommunityPost(Long postId, Long userId) {
     CommunityPost communityPost = getCommunityPostOrThrow(postId);
     validatePostOwner(communityPost, userId);
@@ -233,6 +234,14 @@ public class CommunityService {
 
     // 게시글 삭제
     communityPostRepository.delete(communityPost);
+  }
+
+  @Transactional
+  public void deleteComment(Long commentId, Long userId) {
+    Comment comment = getCommentOrThrow(commentId);
+    validateCommentOwner(comment, userId);
+
+    comment.updateIsDeleted(true);
   }
 
   private List<CommentListResponse> mapToCommentTreeResponse(
