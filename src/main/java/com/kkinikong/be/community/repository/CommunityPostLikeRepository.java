@@ -22,5 +22,5 @@ public interface CommunityPostLikeRepository extends JpaRepository<CommunityPost
       })
   Page<CommunityPostLike> findAllByUserIdOrderByCreatedDate(Long userId, Pageable pageable);
 
-  void deleteAllByCommunityPost(Long postId);
+  void deleteAllByCommunityPostId(Long postId);
 }

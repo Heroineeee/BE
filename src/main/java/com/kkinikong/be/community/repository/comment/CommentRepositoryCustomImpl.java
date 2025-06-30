@@ -24,8 +24,6 @@ public class CommentRepositoryCustomImpl implements CommentRepositoryCustom {
   private final QComment qComment = comment;
   private final QCommentLike commentLike = QCommentLike.commentLike;
 
-  private final CommentRepository commentRepository;
-
   @Override
   public Page<CommunityPost> findAllPostsWithMyComments(Long userId, Pageable pageable) {
     List<CommunityPost> content =
@@ -58,20 +56,5 @@ public class CommentRepositoryCustomImpl implements CommentRepositoryCustom {
         .fetchJoin()
         .where(comment.user.id.eq(userId), comment.communityPost.id.in(postIds))
         .fetch();
-  }
-
-  @Override
-  public void deleteAllCommentsAndLikesByPostId(Long postId) {
-    List<Comment> comments =
-        queryFactory
-            .selectFrom(comment)
-            .leftJoin(qComment.commentLikeList, commentLike)
-            .fetchJoin()
-            .where(comment.communityPost.id.eq(postId))
-            .fetch();
-
-    if (!comments.isEmpty()) {
-      commentRepository.deleteAll(comments);
-    }
   }
 }

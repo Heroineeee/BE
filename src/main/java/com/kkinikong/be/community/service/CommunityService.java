@@ -222,11 +222,12 @@ public class CommunityService {
     validatePostOwner(communityPost, userId);
 
     // 댓글, 댓글 좋아요, 게시글 좋아요를 먼저 삭제
-    commentRepository.deleteAllCommentsAndLikesByPostId(postId);
-    communityPostLikeRepository.deleteAllByCommunityPost(postId);
+    commentRepository.deleteAllByCommunityPostId(postId);
+    communityPostLikeRepository.deleteAllByCommunityPostId(postId);
 
     // 게시글 이미지 삭제
-    List<CommunityPostImage> images = communityPostImageRepository.findAllByCommunityPost(postId);
+    List<CommunityPostImage> images =
+        communityPostImageRepository.findAllByCommunityPost(communityPost);
     for (CommunityPostImage image : images) {
       imageService.deleteFile(image.getImageUrl(), S3Bucket.COMMUNITY_POST_IMAGE);
     }
@@ -241,7 +242,7 @@ public class CommunityService {
     Comment comment = getCommentOrThrow(commentId);
     validateCommentOwner(comment, userId);
 
-    comment.updateIsDeleted(true);
+    comment.updateIsDeleted();
   }
 
   private List<CommentListResponse> mapToCommentTreeResponse(

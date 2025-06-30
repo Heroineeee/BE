@@ -12,6 +12,4 @@ public interface CommentRepositoryCustom {
   List<Comment> findMyCommentsInPosts(Long userId, List<Long> postIds);
 
   Page<CommunityPost> findAllPostsWithMyComments(Long userId, Pageable pageable);
-
-  void deleteAllCommentsAndLikesByPostId(Long postId);
 }
