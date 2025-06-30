@@ -45,7 +45,7 @@ public class UserService {
       throw new UserException(DUPLICATE_NICKNAME);
     }
     user.updateNickname(request.nickname());
-    return new NicknameResponse(user.getEmail(), request.nickname());
+    return NicknameResponse.from(userRepository.save(user));
   }
 
   public boolean checkNickname(String nickname) {
@@ -90,7 +90,7 @@ public class UserService {
 
   public NicknameResponse getNickname(Long userId) {
     User user = getUserOrThrow(userId);
-    return new NicknameResponse(user.getEmail(), user.getNickname());
+    return NicknameResponse.from(user);
   }
 
   private User getUserOrThrow(Long userId) {
