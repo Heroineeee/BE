@@ -5,6 +5,7 @@ import java.util.List;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -182,5 +183,24 @@ public class CommunityController {
         communityService.postCommunityCommentLike(commentId, userDetails.getId());
 
     return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.from(likeToggleResponse));
+  }
+
+  @DeleteMapping("/post/{postId}")
+  @Operation(summary = "커뮤니티 게시글 삭제", description = "커뮤니티 게시글을 삭제하는 API입니다. 게시글 작성자만 삭제할 수 있습니다.")
+  public ResponseEntity<ApiResponse<Object>> deleteCommunityPost(
+      @PathVariable("postId") Long postId, @AuthenticationPrincipal CustomUserDetails userDetails) {
+    communityService.deleteCommunityPost(postId, userDetails.getId());
+    return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.from(ApiResponse.EMPTY_RESPONSE));
+  }
+
+  @DeleteMapping("/comment/{commentId}")
+  @Operation(
+      summary = "커뮤니티 게시글 댓글 삭제",
+      description = "커뮤니티 게시글 댓글을 삭제하는 API입니다. 댓글 작성자만 삭제할 수 있습니다.")
+  public ResponseEntity<ApiResponse<Object>> deleteCommunityComment(
+      @PathVariable("commentId") Long commentId,
+      @AuthenticationPrincipal CustomUserDetails userDetails) {
+    // communityService.deleteCommunityComment(commentId, userDetails.getId());
+    return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.from(ApiResponse.EMPTY_RESPONSE));
   }
 }

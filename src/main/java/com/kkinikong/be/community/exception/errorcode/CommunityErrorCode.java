@@ -19,6 +19,7 @@ public enum CommunityErrorCode implements ErrorCode {
   REPLY_SIZE_LIMIT(HttpStatus.BAD_REQUEST, "답글은 2000자 이하로 작성해주세요."),
   COMMENT_NOT_FOUND(HttpStatus.NOT_FOUND, "댓글을 찾을 수 없습니다."),
   NOT_TOP_COMMENT(HttpStatus.BAD_REQUEST, "최상위 댓글이 아닙니다."),
+  COMMENT_NOT_OWNER(HttpStatus.FORBIDDEN, "댓글의 작성자가 아닙니다."),
   ;
 
   private final HttpStatus httpStatus;

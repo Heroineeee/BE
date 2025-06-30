@@ -216,6 +216,25 @@ public class CommunityService {
         commentListResponses);
   }
 
+  public void deleteCommunityPost(Long postId, Long userId) {
+    CommunityPost communityPost = getCommunityPostOrThrow(postId);
+    validatePostOwner(communityPost, userId);
+
+    // 댓글, 댓글 좋아요, 게시글 좋아요를 먼저 삭제
+    commentRepository.deleteAllCommentsAndLikesByPostId(postId);
+    communityPostLikeRepository.deleteAllByCommunityPost(postId);
+
+    // 게시글 이미지 삭제
+    List<CommunityPostImage> images = communityPostImageRepository.findAllByCommunityPost(postId);
+    for (CommunityPostImage image : images) {
+      imageService.deleteFile(image.getImageUrl(), S3Bucket.COMMUNITY_POST_IMAGE);
+    }
+    communityPostImageRepository.deleteAll(images);
+
+    // 게시글 삭제
+    communityPostRepository.delete(communityPost);
+  }
+
   private List<CommentListResponse> mapToCommentTreeResponse(
       Long userId, List<Comment> allComments) {
 
@@ -305,6 +324,12 @@ public class CommunityService {
   private void validatePostOwner(CommunityPost communityPost, Long userId) {
     if (!communityPost.getUser().getId().equals(userId)) {
       throw new CommunityException(CommunityErrorCode.COMMUNITY_NOT_OWNER);
+    }
+  }
+
+  private void validateCommentOwner(Comment comment, Long userId) {
+    if (!comment.getUser().getId().equals(userId)) {
+      throw new CommunityException(CommunityErrorCode.COMMENT_NOT_OWNER);
     }
   }
 
