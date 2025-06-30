@@ -3,6 +3,7 @@ package com.kkinikong.be.community.domain.document;
 import org.springframework.data.elasticsearch.annotations.Document;
 import org.springframework.data.elasticsearch.annotations.Field;
 import org.springframework.data.elasticsearch.annotations.FieldType;
+import org.springframework.data.elasticsearch.annotations.Setting;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.Id;
@@ -19,6 +20,7 @@ import com.kkinikong.be.community.domain.CommunityPost;
 @NoArgsConstructor
 @Document(indexName = "community_post")
 @JsonIgnoreProperties(ignoreUnknown = true)
+@Setting(settingPath = "/elasticsearch/community_post-settings.json")
 public class CommunityPostDocument {
   @Id private Long id;
 
