@@ -67,13 +67,6 @@ jobs:
               echo "❌ Redis에 연결할 수 없습니다! 배포 중단"; exit 1
             fi
 
-            echo "🩺 Elasticsearch 상태 확인 중..."
-            if curl -s http://localhost:9200 | grep -q 'cluster_name'; then
-              echo "✅ Elasticsearch가 정상 작동 중입니다."
-            else
-              echo "❌ Elasticsearch에 연결할 수 없습니다! 배포 중단"; exit 1
-            fi
-
             echo "🔎 배포 후 컨테이너 상태 확인"
             docker ps -a
 
