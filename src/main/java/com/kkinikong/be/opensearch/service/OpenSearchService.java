@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import lombok.RequiredArgsConstructor;
@@ -31,7 +32,9 @@ import com.kkinikong.be.community.exception.errorcode.CommunityErrorCode;
 public class OpenSearchService {
 
   private final OpenSearchClient openSearchClient;
-  private static final String indexName = "community_post";
+
+  @Value("${opensearch.index}")
+  private String indexName;
 
   // 최초 1회 인덱스 생성
   public void createIndexIfNotExists() {
@@ -39,12 +42,46 @@ public class OpenSearchService {
       boolean exists = openSearchClient.indices().exists(b -> b.index(indexName)).value();
       if (!exists) {
         CreateIndexRequest createIndexRequest =
-            new CreateIndexRequest.Builder().index(indexName).build();
+            new CreateIndexRequest.Builder()
+                .index(indexName)
+                .settings(
+                    s ->
+                        s.analysis(
+                            a ->
+                                a.analyzer(
+                                    "nori_analyzer",
+                                    analyzer ->
+                                        analyzer.custom(c -> c.tokenizer("nori_tokenizer")))))
+                .mappings(
+                    m ->
+                        m.properties("id", p -> p.long_(l -> l))
+                            .properties(
+                                "titleWithContent",
+                                p ->
+                                    p.text(
+                                        t ->
+                                            t.analyzer("nori_analyzer")
+                                                .fields(
+                                                    "keyword",
+                                                    k -> k.keyword(kf -> kf.ignoreAbove(256))))))
+                .build();
         openSearchClient.indices().create(createIndexRequest);
       }
 
     } catch (IOException e) {
       throw new CommunityException(CommunityErrorCode.FAILED_TO_SAVE_INDEX);
+    }
+  }
+
+  public void resetIndex(String index) {
+    try {
+      boolean exists = openSearchClient.indices().exists(b -> b.index(index)).value();
+      if (exists) {
+        openSearchClient.indices().delete(d -> d.index(index));
+      }
+
+    } catch (IOException e) {
+      throw new CommunityException(CommunityErrorCode.FAILED_TO_RESET_INDEX);
     }
   }
 

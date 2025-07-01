@@ -83,7 +83,6 @@ public class CommunityService {
                 .user(getUserOrThrow(userId))
                 .build());
 
-    // openSearchService.createIndex();
     openSearchService.savePostToSearchIndex(CommunityPostDocument.from(communityPost));
 
     return new CommunityPostResponse(communityPost.getId());

@@ -3,8 +3,10 @@ package com.kkinikong.be.opensearch.controller;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import io.swagger.v3.oas.annotations.Operation;
@@ -31,6 +33,18 @@ public class OpenSearchAdminController {
   public ResponseEntity<ApiResponse<Object>> createIndex(
       @AuthenticationPrincipal CustomUserDetails userDetails) {
     openSearchService.createIndexIfNotExists();
+    return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.EMPTY_RESPONSE);
+  }
+
+  @DeleteMapping("/reset-index")
+  @Operation(
+      summary = "OpenSearch 인덱스 초기화",
+      description =
+          "OpenSearch 인덱스를 초기화하는 API입니다. 인덱스가 존재하지 않는 경우에는 아무 작업도 수행하지 않습니다. 서버 인덱스 삭제하지 않도록 주의하세요.")
+  public ResponseEntity<ApiResponse<Object>> resetIndex(
+      @AuthenticationPrincipal CustomUserDetails userDetails,
+      @RequestParam(required = false) String index) {
+    openSearchService.resetIndex(index);
     return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.EMPTY_RESPONSE);
   }
 }
