@@ -63,19 +63,24 @@ public class OpenSearchService {
     }
   }
 
-  public List<CommunityPostDocument> searchCommunityPost(String keyword, int page, int size) {
+  public List<Long> searchCommunityPost(String keyword, int page, int size) {
     try {
       Query query = buildSearchQuery(keyword);
 
       SearchRequest request =
           SearchRequest.of(
               searchRequest ->
-                  searchRequest.index(indexName).from(page * size).size(size).query(query));
+                  searchRequest
+                      .index(indexName)
+                      .from(page * size)
+                      .size(size)
+                      .query(query)
+                      .source(src -> src.filter(f -> f.includes(List.of()))));
 
-      SearchResponse<CommunityPostDocument> searchResponse =
-          openSearchClient.search(request, CommunityPostDocument.class);
+      SearchResponse<Void> searchResponse = openSearchClient.search(request, Void.class);
 
-      return searchResponse.hits().hits().stream().map(Hit::source).toList();
+      return searchResponse.hits().hits().stream().map(Hit::id).map(Long::parseLong).toList();
+
     } catch (IOException e) {
       throw new CommunityException(CommunityErrorCode.FAILED_TO_SEARCH_INDEX);
     }

@@ -235,25 +235,20 @@ public class CommunityService {
 
     // Elasticsearch에서 검색어로 커뮤니티 게시글 페이징해서 가져옴
     Pageable pageable = PageRequest.of(page, size);
-    List<CommunityPostDocument> communitySearchResponses =
+    List<Long> communitySearchResponses =
         openSearchService.searchCommunityPost(keyword, page, size);
 
     if (communitySearchResponses.isEmpty()) {
       return new PageImpl<>(List.of(), pageable, 0);
     }
 
-    List<Long> postIds =
-        communitySearchResponses.stream()
-            .map(CommunityPostDocument::getId)
-            .collect(Collectors.toList());
-
     Map<Long, CommunityPost> postMap =
-        communityPostRepository.findByIdIn(postIds).stream()
+        communityPostRepository.findByIdIn(communitySearchResponses).stream()
             .collect(Collectors.toMap(CommunityPost::getId, post -> post));
 
     // 순서 유지: 검색 결과에 있는 ID 순서대로 매핑
     List<CommunityPostListResponse> results =
-        postIds.stream()
+        communitySearchResponses.stream()
             .map(
                 id ->
                     Optional.ofNullable(postMap.get(id))
