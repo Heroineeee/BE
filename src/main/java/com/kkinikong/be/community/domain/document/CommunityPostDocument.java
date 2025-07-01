@@ -1,11 +1,5 @@
 package com.kkinikong.be.community.domain.document;
 
-import org.springframework.data.elasticsearch.annotations.Document;
-import org.springframework.data.elasticsearch.annotations.Field;
-import org.springframework.data.elasticsearch.annotations.FieldType;
-import org.springframework.data.elasticsearch.annotations.Setting;
-
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.Id;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -18,13 +12,9 @@ import com.kkinikong.be.community.domain.CommunityPost;
 @Getter
 @AllArgsConstructor
 @NoArgsConstructor
-@Document(indexName = "community_post")
-@JsonIgnoreProperties(ignoreUnknown = true)
-@Setting(settingPath = "/elasticsearch/community_post-settings.json")
 public class CommunityPostDocument {
   @Id private Long id;
 
-  @Field(name = "titleWithContent", type = FieldType.Text, analyzer = "nori")
   private String titleWithContent;
 
   public static CommunityPostDocument from(CommunityPost post) {
