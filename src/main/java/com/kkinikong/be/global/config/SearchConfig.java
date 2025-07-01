@@ -33,9 +33,9 @@ public class SearchConfig {
   private String opensearchPassword;
 
   @Bean
-  public OpenSearchClient openSearchClient() {
+  public OpenSearchClient openSearchClient(ObjectMapper objectMapper) {
     return new OpenSearchClient(
-        new RestClientTransport(restClient(), new JacksonJsonpMapper(new ObjectMapper())));
+        new RestClientTransport(restClient(), new JacksonJsonpMapper(objectMapper)));
   }
 
   @Bean
