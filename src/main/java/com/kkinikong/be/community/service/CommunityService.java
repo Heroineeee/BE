@@ -26,6 +26,7 @@ import com.kkinikong.be.community.domain.CommentLike;
 import com.kkinikong.be.community.domain.CommunityPost;
 import com.kkinikong.be.community.domain.CommunityPostImage;
 import com.kkinikong.be.community.domain.CommunityPostLike;
+import com.kkinikong.be.community.domain.document.CommunityPostDocument;
 import com.kkinikong.be.community.domain.type.Category;
 import com.kkinikong.be.community.dto.request.CommunityCommentRequest;
 import com.kkinikong.be.community.dto.request.CommunityPostRequest;
@@ -35,7 +36,6 @@ import com.kkinikong.be.community.dto.response.CommunityPostListResponse;
 import com.kkinikong.be.community.dto.response.CommunityPostPopularResponse;
 import com.kkinikong.be.community.dto.response.CommunityPostPopularWrappingResponse;
 import com.kkinikong.be.community.dto.response.CommunityPostResponse;
-import com.kkinikong.be.community.dto.response.CommunitySearchResponse;
 import com.kkinikong.be.community.dto.response.LikeToggleResponse;
 import com.kkinikong.be.community.exception.CommunityException;
 import com.kkinikong.be.community.exception.errorcode.CommunityErrorCode;
@@ -44,6 +44,7 @@ import com.kkinikong.be.community.repository.CommunityPostImageRepository;
 import com.kkinikong.be.community.repository.CommunityPostLikeRepository;
 import com.kkinikong.be.community.repository.comment.CommentRepository;
 import com.kkinikong.be.community.repository.communityPost.CommunityPostRepository;
+import com.kkinikong.be.opensearch.service.OpenSearchService;
 import com.kkinikong.be.store.dto.response.StoreRecentSearchKeyword;
 import com.kkinikong.be.user.domain.User;
 import com.kkinikong.be.user.exception.UserException;
@@ -67,7 +68,7 @@ public class CommunityService {
 
   private final ImageService imageService;
   private final RedisTempleCacheService redisTempleCacheService;
-  private final CommunitySearchService communitySearchService;
+  private final OpenSearchService openSearchService;
 
   private final int MAX_REPLY_SIZE = 2000;
 
@@ -82,7 +83,8 @@ public class CommunityService {
                 .user(getUserOrThrow(userId))
                 .build());
 
-    communitySearchService.savePostToSearchIndex(communityPost);
+    // openSearchService.createIndex();
+    openSearchService.savePostToSearchIndex(CommunityPostDocument.from(communityPost));
 
     return new CommunityPostResponse(communityPost.getId());
   }
@@ -233,15 +235,17 @@ public class CommunityService {
 
     // Elasticsearch에서 검색어로 커뮤니티 게시글 페이징해서 가져옴
     Pageable pageable = PageRequest.of(page, size);
-    List<CommunitySearchResponse> communitySearchResponses =
-        communitySearchService.searchCommunityPost(keyword, page, size);
+    List<CommunityPostDocument> communitySearchResponses =
+        openSearchService.searchCommunityPost(keyword, page, size);
 
     if (communitySearchResponses.isEmpty()) {
       return new PageImpl<>(List.of(), pageable, 0);
     }
 
     List<Long> postIds =
-        communitySearchResponses.stream().map(CommunitySearchResponse::id).toList();
+        communitySearchResponses.stream()
+            .map(CommunityPostDocument::getId)
+            .collect(Collectors.toList());
 
     Map<Long, CommunityPost> postMap =
         communityPostRepository.findByIdIn(postIds).stream()

@@ -61,6 +61,8 @@ public class SecurityConfig {
                     // 가맹점 업로드 관리자만 허용
                     .requestMatchers("/api/v1/store/upload/**")
                     .hasAuthority("ROLE_ADMIN")
+                    .requestMatchers("/api/v1/admin/opensearch/**")
+                    .hasAuthority("ROLE_ADMIN")
 
                     // 편의점 추천 GET 요청, 커뮤니티 최근 검색어 GET 요청 인증 필요
                     .requestMatchers(

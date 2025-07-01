@@ -7,11 +7,6 @@ spring:
     redis:
       host: ${LOCAL_REDIS_HOST}
       port: ${REDIS_PORT}
-    elasticsearch:
-      repositories:
-        enabled: true
-  elasticsearch:
-    uris: ${LOCAL_ELASTICSEARCH_URL}
 
 Swagger:
   server:
