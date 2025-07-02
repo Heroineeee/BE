@@ -20,7 +20,12 @@ public enum CommunityErrorCode implements ErrorCode {
   COMMENT_NOT_FOUND(HttpStatus.NOT_FOUND, "댓글을 찾을 수 없습니다."),
   NOT_TOP_COMMENT(HttpStatus.BAD_REQUEST, "최상위 댓글이 아닙니다."),
 
-  ELASTIC_SEARCH_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "엘라스틱서치 검색 중 오류가 발생했습니다."),
+  // opensearch errorcode
+  CREATE_INDEX_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "인덱스 생성에 실패했습니다."),
+  FAILED_TO_SAVE_INDEX(HttpStatus.INTERNAL_SERVER_ERROR, "인덱스 저장에 실패했습니다."),
+  FAILED_TO_DELETE_INDEX(HttpStatus.INTERNAL_SERVER_ERROR, "인덱스 삭제에 실패했습니다."),
+  FAILED_TO_SEARCH_INDEX(HttpStatus.INTERNAL_SERVER_ERROR, "인덱스 검색에 실패했습니다."),
+  FAILED_TO_RESET_INDEX(HttpStatus.INTERNAL_SERVER_ERROR, "인덱스 초기화에 실패했습니다."),
   ;
 
   private final HttpStatus httpStatus;
