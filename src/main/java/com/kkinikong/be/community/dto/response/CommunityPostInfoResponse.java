@@ -19,12 +19,14 @@ public record CommunityPostInfoResponse(
     long commentCount,
     Boolean isLiked,
     Boolean isMyCommunityPost,
+    List<String> imageUrls,
     List<CommentListResponse> commentListResponse) {
 
   public static CommunityPostInfoResponse from(
       CommunityPost communityPost,
       Boolean isLiked,
       Boolean isMyCommunityPost,
+      List<String> imageUrls,
       List<CommentListResponse> commentListResponse) {
     return new CommunityPostInfoResponse(
         communityPost.getId(),
@@ -39,6 +41,7 @@ public record CommunityPostInfoResponse(
         communityPost.getCommentCount(),
         isLiked,
         isMyCommunityPost,
+        imageUrls,
         commentListResponse);
   }
 }
