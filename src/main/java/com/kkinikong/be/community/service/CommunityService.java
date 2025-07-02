@@ -70,8 +70,6 @@ public class CommunityService {
   private final RedisTempleCacheService redisTempleCacheService;
   private final OpenSearchService openSearchService;
 
-  private final int MAX_REPLY_SIZE = 2000;
-
   @Transactional
   public CommunityPostResponse postCommunityPost(CommunityPostRequest request, Long userId) {
     CommunityPost communityPost =
@@ -213,6 +211,10 @@ public class CommunityService {
     redisTempleCacheService.increaseViewCounts(postId, RedisKey.COMMUNITY_POST_VIEWS_KEY);
 
     List<Comment> allComments = commentRepository.findAllByCommunityPostId(postId);
+    List<String> allImages =
+        communityPostImageRepository.findAllByCommunityPostId(postId).stream()
+            .map(CommunityPostImage::getImageUrl)
+            .toList();
 
     List<CommentListResponse> commentListResponses = mapToCommentTreeResponse(userId, allComments);
 
@@ -220,6 +222,7 @@ public class CommunityService {
         communityPost,
         isUserLikedPost(userId, communityPost),
         isMyCommunityPost(userId, communityPost),
+        allImages,
         commentListResponses);
   }
 
