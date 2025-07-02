@@ -11,3 +11,6 @@ spring:
 Swagger:
   server:
     url: ${LOCAL_SWAGGER_URL}
+
+opensearch:
+  index: ${LOCAL_OPEN_SEARCH_INDEX}

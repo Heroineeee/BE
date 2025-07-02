@@ -1,10 +1,11 @@
-package com.kkinikong.be.community.repository;
+package com.kkinikong.be.community.repository.communityPost;
 
 import java.util.List;
 import java.util.Optional;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Lock;
 import org.springframework.data.jpa.repository.Modifying;
@@ -18,12 +19,15 @@ import com.kkinikong.be.community.domain.CommunityPost;
 import com.kkinikong.be.community.domain.type.Category;
 
 @Repository
-public interface CommunityPostRepository extends JpaRepository<CommunityPost, Long> {
+public interface CommunityPostRepository
+    extends JpaRepository<CommunityPost, Long>, CommunityPostCustomRepository {
 
   List<CommunityPost> findTop5ByOrderByLikeCountDescViewCountDesc();
 
+  @EntityGraph(attributePaths = {"communityPostImageList"})
   Page<CommunityPost> findAllByCategory(Category category, Pageable pageable);
 
+  @EntityGraph(attributePaths = {"communityPostImageList"})
   Page<CommunityPost> findAll(Pageable pageable);
 
   Page<CommunityPost> findAllByUserIdOrderByCreatedDate(Long userId, Pageable pageable);
@@ -35,4 +39,7 @@ public interface CommunityPostRepository extends JpaRepository<CommunityPost, Lo
   @Modifying(clearAutomatically = true)
   @Query("UPDATE CommunityPost p SET p.viewCount = p.viewCount + :count WHERE p.id = :postId")
   void incrementViews(@Param("postId") Long postId, @Param("count") Long count);
+
+  @EntityGraph(attributePaths = {"communityPostImageList"})
+  List<CommunityPost> findByIdIn(List<Long> ids);
 }

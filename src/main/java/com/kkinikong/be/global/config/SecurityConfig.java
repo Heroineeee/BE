@@ -53,9 +53,24 @@ public class SecurityConfig {
                         "/swagger-ui.html",
                         "/v3/api-docs/swagger-config")
                     .permitAll()
-                    // 관리자만 허용
+
+                    // 회원가입, 로그인 관련 전체 허용
+                    .requestMatchers(HttpMethod.POST, "/api/v1/auth/login", "/api/v1/auth/signup")
+                    .permitAll()
+
+                    // 가맹점 업로드 관리자만 허용
                     .requestMatchers("/api/v1/store/upload/**")
                     .hasAuthority("ROLE_ADMIN")
+                    .requestMatchers("/api/v1/admin/opensearch/**")
+                    .hasAuthority("ROLE_ADMIN")
+
+                    // 편의점 추천 GET 요청, 커뮤니티 최근 검색어 GET 요청 인증 필요
+                    .requestMatchers(
+                        HttpMethod.GET,
+                        "/api/v1/convenience/recommendation",
+                        "/api/v1/community/search/recent")
+                    .authenticated()
+
                     // 인증 필요
                     .requestMatchers(
                         "/api/v1/user/**",
@@ -66,23 +81,26 @@ public class SecurityConfig {
                         "/api/v1/cache/**",
                         "/api/v1/batch/**")
                     .authenticated()
-                    // 리뷰,편의점,커뮤니티 관련 POST 인증 필요
-                    .requestMatchers(
-                        HttpMethod.POST,
-                        "/api/v1/*/review",
-                        "/api/v1/*/review/*/photo",
-                        "/api/v1/convenience/post",
-                        "/api/v1/convenience/post/**",
-                        "/api/v1/community/post/**",
-                        "/api/v1/community/comment/**")
+
+                    // // 리뷰,편의점,커뮤니티 관련 POST 인증 필요
+                    // .requestMatchers(
+                    //     HttpMethod.POST,
+                    //     "/api/v1/*/review",
+                    //     "/api/v1/*/review/*/photo",
+                    //     "/api/v1/convenience/post",
+                    //     "/api/v1/convenience/post/**",
+                    //     "/api/v1/community/post/**",
+                    //     "/api/v1/community/comment/**")
+                    // .authenticated()
+
+                    // 모든 DELETE, PATCH 요청 인증 필요
+                    .requestMatchers(HttpMethod.DELETE, "/**")
                     .authenticated()
-                    // 리뷰,편의점 관련 DELETE 인증 필요
-                    .requestMatchers(
-                        HttpMethod.DELETE, "/api/v1/*/review/*", "/api/v1/convenience/post/**")
+                    .requestMatchers(HttpMethod.PATCH, "/**")
                     .authenticated()
-                    // 편의점 추천 GET 요청 인증 필요
-                    .requestMatchers(HttpMethod.GET, "/api/v1/convenience/recommendation")
+                    .requestMatchers(HttpMethod.POST, "/**")
                     .authenticated()
+
                     // 그 외 모든 요청 허용
                     .anyRequest()
                     .permitAll())

@@ -2,7 +2,6 @@ package com.kkinikong.be.community.dto.response;
 
 import com.kkinikong.be.community.domain.CommunityPost;
 import com.kkinikong.be.community.util.TimeUtil;
-import com.kkinikong.be.user.utils.UserNicknameUtil;
 
 public record CommunityPostListResponse(
     long communityPostId,
@@ -14,8 +13,7 @@ public record CommunityPostListResponse(
     String createdAt,
     long commentCount,
     long likeCount,
-    long viewCount,
-    String nickname) {
+    long viewCount) {
   public static CommunityPostListResponse from(CommunityPost communityPost) {
     return new CommunityPostListResponse(
         communityPost.getId(),
@@ -27,8 +25,7 @@ public record CommunityPostListResponse(
         TimeUtil.relativeTimeFormatter(communityPost.getCreatedDate()),
         communityPost.getCommentCount(),
         communityPost.getLikeCount(),
-        communityPost.getViewCount(),
-        UserNicknameUtil.displayNickname(communityPost.getUser()));
+        communityPost.getViewCount());
   }
 
   private static String shortContent(String content, int maxLength) {

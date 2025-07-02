@@ -13,4 +13,6 @@ public interface CommunityPostImageRepository extends JpaRepository<CommunityPos
   boolean existsByCommunityPostId(Long postId);
 
   List<CommunityPostImage> findAllByCommunityPost(CommunityPost communityPost);
+
+  List<CommunityPostImage> findAllByCommunityPostId(Long postId);
 }
