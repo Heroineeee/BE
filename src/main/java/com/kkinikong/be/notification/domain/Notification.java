@@ -34,6 +34,9 @@ public class Notification extends BaseEntity {
   @Column(name = "target_id")
   private Long targetId;
 
+  @Column(name = "redirect_url")
+  private String redirectUrl;
+
   @Column(name = "is_read", nullable = false)
   private boolean isRead = false;
 
