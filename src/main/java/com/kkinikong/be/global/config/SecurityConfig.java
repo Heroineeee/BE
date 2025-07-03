@@ -54,9 +54,12 @@ public class SecurityConfig {
                         "/v3/api-docs/swagger-config")
                     .permitAll()
 
-                    // 회원가입, 로그인 관련 전체 허용
+                    // 회원가입, 로그인, 의견 남기기 관련 전체 허용
                     .requestMatchers(
-                        HttpMethod.POST, "/api/v1/auth/login/**", "/api/v1/auth/signup")
+                        HttpMethod.POST,
+                        "/api/v1/auth/login/**",
+                        "/api/v1/auth/signup",
+                        "/api/v1/feedback")
                     .permitAll()
 
                     // 가맹점 업로드 관리자만 허용
