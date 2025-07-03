@@ -52,13 +52,15 @@ public class NotificationService {
     return emitter;
   }
 
-  public void send(User receiver, NotificationType type, String content, String redirectUrl) {
+  public void send(
+      User receiver, NotificationType type, String content, Long targetId, String redirectUrl) {
     Notification notification =
         notificationRepository.save(
             Notification.builder()
                 .receiver(receiver)
                 .type(type)
                 .content(content)
+                .targetId(targetId)
                 .redirectUrl(redirectUrl)
                 .build());
 
