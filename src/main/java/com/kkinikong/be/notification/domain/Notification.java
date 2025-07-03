@@ -45,11 +45,13 @@ public class Notification extends BaseEntity {
   }
 
   @Builder
-  public Notification(User receiver, NotificationType type, String content, Long targetId) {
+  public Notification(
+      User receiver, NotificationType type, String content, Long targetId, String redirectUrl) {
     this.receiver = receiver;
     this.notificationType = type;
     this.content = content;
     this.targetId = targetId;
+    this.redirectUrl = redirectUrl;
     this.isRead = false;
   }
 }
