@@ -8,9 +8,6 @@ import lombok.RequiredArgsConstructor;
 import com.kkinikong.be.feedback.domain.Feedback;
 import com.kkinikong.be.feedback.dto.request.FeedbackRequest;
 import com.kkinikong.be.feedback.repository.FeedbackRepository;
-import com.kkinikong.be.user.domain.User;
-import com.kkinikong.be.user.exception.UserException;
-import com.kkinikong.be.user.exception.errorcode.UserErrorCode;
 import com.kkinikong.be.user.repository.UserRepository;
 
 @Service
@@ -21,16 +18,9 @@ public class FeedbackService {
   private final UserRepository userRepository;
 
   @Transactional
-  public void addFeedback(FeedbackRequest request, Long userId) {
-    User user = getUserOrThrow(userId);
+  public void addFeedback(FeedbackRequest request) {
     Feedback feedback =
-        Feedback.builder().user(user).rating(request.rating()).content(request.content()).build();
+        Feedback.builder().rating(request.rating()).content(request.content()).build();
     feedbackRepository.save(feedback);
-  }
-
-  private User getUserOrThrow(Long userId) {
-    return userRepository
-        .findById(userId)
-        .orElseThrow(() -> new UserException(UserErrorCode.USER_NOT_FOUND));
   }
 }
