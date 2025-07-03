@@ -2,7 +2,6 @@ package com.kkinikong.be.feedback.controller;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -15,7 +14,6 @@ import lombok.RequiredArgsConstructor;
 import com.kkinikong.be.feedback.dto.request.FeedbackRequest;
 import com.kkinikong.be.feedback.service.FeedbackService;
 import com.kkinikong.be.global.response.ApiResponse;
-import com.kkinikong.be.user.utils.CustomUserDetails;
 
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/feedback")
@@ -27,10 +25,8 @@ public class FeedbackController {
 
   @Operation(summary = "의견 남기기")
   @PostMapping("")
-  public ResponseEntity<ApiResponse<Object>> addFeedback(
-      @RequestBody FeedbackRequest request,
-      @AuthenticationPrincipal CustomUserDetails userDetails) {
-    feedbackService.addFeedback(request, userDetails.getId());
+  public ResponseEntity<ApiResponse<Object>> addFeedback(@RequestBody FeedbackRequest request) {
+    feedbackService.addFeedback(request);
     return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.EMPTY_RESPONSE);
   }
 }
