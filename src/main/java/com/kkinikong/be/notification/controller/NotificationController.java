@@ -9,7 +9,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 
-import com.kkinikong.be.notification.service.NotificationService;
+import com.kkinikong.be.notification.sse.SseNotificationSender;
 import com.kkinikong.be.user.utils.CustomUserDetails;
 
 @RestController
@@ -18,7 +18,7 @@ import com.kkinikong.be.user.utils.CustomUserDetails;
 @RequestMapping("/api/v1/notification")
 public class NotificationController {
 
-  private final NotificationService notificationService;
+  private final SseNotificationSender notificationService;
 
   @Operation(summary = "SSE 연결")
   @GetMapping("/subscribe")
