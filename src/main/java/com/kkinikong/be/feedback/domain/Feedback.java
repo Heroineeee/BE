@@ -6,7 +6,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import com.kkinikong.be.global.entity.BaseEntity;
-import com.kkinikong.be.user.domain.User;
 
 @Table(name = "feedbacks")
 @Entity
@@ -25,14 +24,9 @@ public class Feedback extends BaseEntity {
   @Column(name = "content", length = 6000)
   private String content;
 
-  @ManyToOne(fetch = FetchType.LAZY)
-  @JoinColumn(name = "user_id")
-  private User user;
-
   @Builder
-  public Feedback(int rating, String content, User user) {
+  public Feedback(int rating, String content) {
     this.rating = rating;
     this.content = content;
-    this.user = user;
   }
 }
