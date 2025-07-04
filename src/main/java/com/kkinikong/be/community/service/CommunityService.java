@@ -321,12 +321,15 @@ public class CommunityService {
   }
 
   @Transactional
-  public void updateComment(Long commentId, CommunityCommentRequest request, Long userId) {
+  public CommentResponse updateComment(
+      Long commentId, CommunityCommentRequest request, Long userId) {
     Comment comment = getCommentOrThrow(commentId);
     validateCommentOwner(comment, userId);
     checkIsCommentDeleted(comment);
 
     comment.update(request.content());
+
+    return CommentResponse.from(comment.getId());
   }
 
   @Transactional

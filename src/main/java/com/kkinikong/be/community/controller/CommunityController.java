@@ -277,7 +277,8 @@ public class CommunityController {
       @PathVariable("commentId") Long commentId,
       @RequestBody @Valid CommunityCommentRequest request,
       @AuthenticationPrincipal CustomUserDetails userDetails) {
-    communityService.updateComment(commentId, request, userDetails.getId());
-    return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.EMPTY_RESPONSE);
+    CommentResponse commentResponse =
+        communityService.updateComment(commentId, request, userDetails.getId());
+    return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.from(commentResponse));
   }
 }
