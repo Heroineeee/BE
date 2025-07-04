@@ -12,6 +12,7 @@ import lombok.extern.slf4j.Slf4j;
 
 import com.kkinikong.be.notification.domain.Notification;
 import com.kkinikong.be.notification.domain.type.NotificationType;
+import com.kkinikong.be.notification.dto.response.NotificationResponse;
 import com.kkinikong.be.notification.repository.NotificationRepository;
 import com.kkinikong.be.user.domain.User;
 
@@ -27,7 +28,7 @@ public class SseNotificationSender {
   private final NotificationRepository notificationRepository;
 
   public SseEmitter subscribe(Long userId, String lastEventId) {
-    String emitterId = userId + "_" + System.currentTimeMillis();
+    String emitterId = makeEmitterId(userId);
     SseEmitter emitter = emitterRepository.save(emitterId, new SseEmitter(DEFAULT_TIMEOUT));
     log.info("✅ SSE 연결 생성: emitterId = {}", emitterId);
 
@@ -37,15 +38,12 @@ public class SseNotificationSender {
     emitter.onError((e) -> emitterRepository.deleteById(emitterId));
 
     // 더미 이벤트 전송
-    sendToClient(emitter, emitterId, "EventStream Created. [userId=" + userId + "]");
+    String eventId = makeEventId(userId);
+    sendToClient(emitter, eventId, emitterId, "EventStream Created. [userId=" + userId + "]");
 
-    // 미전송된 이벤트가 있다면 전송
-    if (!lastEventId.isEmpty()) {
-      Map<String, Object> eventCache =
-          emitterRepository.findAllEventCacheStartWithByUserId(String.valueOf(userId));
-      eventCache.entrySet().stream()
-          .filter(entry -> lastEventId.compareTo(entry.getKey()) < 0)
-          .forEach(entry -> sendToClient(emitter, entry.getKey(), entry.getValue()));
+    // 미수신 이벤트 전송
+    if (hasLostData(lastEventId)) {
+      sendLostData(lastEventId, userId, emitterId, emitter);
     }
 
     return emitter;
@@ -63,21 +61,43 @@ public class SseNotificationSender {
                 .redirectUrl(redirectUrl)
                 .build());
 
+    NotificationResponse response = NotificationResponse.from(notification);
     String userId = String.valueOf(receiver.getId());
-    Map<String, SseEmitter> emitters = emitterRepository.findAllEmitterStartWithByUserId(userId);
+    String eventId = makeEventId(receiver.getId());
 
+    Map<String, SseEmitter> emitters = emitterRepository.findAllEmitterStartWithByUserId(userId);
     emitters.forEach(
         (key, emitter) -> {
-          emitterRepository.saveEventCache(key, notification);
-          sendToClient(emitter, key, notification);
+          emitterRepository.saveEventCache(key, response);
+          sendToClient(emitter, eventId, key, response);
         });
   }
 
-  private void sendToClient(SseEmitter emitter, String emitterId, Object data) {
+  private void sendToClient(SseEmitter emitter, String eventId, String emitterId, Object data) {
     try {
-      emitter.send(SseEmitter.event().id(emitterId).name("notification").data(data));
+      emitter.send(SseEmitter.event().id(eventId).name("notification").data(data));
     } catch (IOException e) {
       emitterRepository.deleteById(emitterId);
     }
+  }
+
+  private boolean hasLostData(String lastEventId) {
+    return lastEventId != null && !lastEventId.isEmpty();
+  }
+
+  private void sendLostData(String lastEventId, Long userId, String emitterId, SseEmitter emitter) {
+    Map<String, Object> eventCaches =
+        emitterRepository.findAllEventCacheStartWithByUserId(String.valueOf(userId));
+    eventCaches.entrySet().stream()
+        .filter(entry -> lastEventId.compareTo(entry.getKey()) < 0)
+        .forEach(entry -> sendToClient(emitter, entry.getKey(), emitterId, entry.getValue()));
+  }
+
+  private String makeEmitterId(Long userId) {
+    return userId + "_" + System.currentTimeMillis();
+  }
+
+  private String makeEventId(Long userId) {
+    return userId + "_" + System.currentTimeMillis();
   }
 }
