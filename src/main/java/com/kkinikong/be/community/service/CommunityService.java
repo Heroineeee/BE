@@ -31,6 +31,7 @@ import com.kkinikong.be.community.domain.type.Category;
 import com.kkinikong.be.community.dto.request.CommunityCommentRequest;
 import com.kkinikong.be.community.dto.request.CommunityPostRequest;
 import com.kkinikong.be.community.dto.response.CommentListResponse;
+import com.kkinikong.be.community.dto.response.CommentResponse;
 import com.kkinikong.be.community.dto.response.CommunityPostInfoResponse;
 import com.kkinikong.be.community.dto.response.CommunityPostListResponse;
 import com.kkinikong.be.community.dto.response.CommunityPostPopularResponse;
@@ -109,7 +110,7 @@ public class CommunityService {
   }
 
   @Transactional
-  public void postCommentAndReply(
+  public CommentResponse postCommentAndReply(
       Long postId, Long commentId, CommunityCommentRequest request, Long userId) {
     CommunityPost communityPost = getCommunityPostOrThrow(postId);
 
@@ -119,16 +120,18 @@ public class CommunityService {
       parent = validateReply(postId, commentId);
     }
 
-    commentRepository.save(
-        Comment.builder()
-            .content(request.content())
-            .communityPost(communityPost)
-            .user(getUserOrThrow(userId))
-            .parentComment(parent)
-            .isAuthor(communityPost.getUser().getId().equals(userId))
-            .build());
+    Comment comment =
+        commentRepository.save(
+            Comment.builder()
+                .content(request.content())
+                .communityPost(communityPost)
+                .user(getUserOrThrow(userId))
+                .parentComment(parent)
+                .isAuthor(communityPost.getUser().getId().equals(userId))
+                .build());
 
     communityPost.incrementCommentCount();
+    return CommentResponse.from(comment.getId());
   }
 
   @Cacheable(value = "community-popular-posts", unless = "#result == null")

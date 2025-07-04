@@ -27,6 +27,7 @@ import lombok.RequiredArgsConstructor;
 import com.kkinikong.be.community.domain.type.Category;
 import com.kkinikong.be.community.dto.request.CommunityCommentRequest;
 import com.kkinikong.be.community.dto.request.CommunityPostRequest;
+import com.kkinikong.be.community.dto.response.CommentResponse;
 import com.kkinikong.be.community.dto.response.CommunityPostResponse;
 import com.kkinikong.be.community.dto.response.LikeToggleResponse;
 import com.kkinikong.be.community.service.CommunityService;
@@ -88,9 +89,10 @@ public class CommunityController {
       @RequestBody @Valid CommunityCommentRequest request,
       @AuthenticationPrincipal CustomUserDetails userDetails) {
 
-    communityService.postCommentAndReply(postId, null, request, userDetails.getId());
+    CommentResponse commentResponse =
+        communityService.postCommentAndReply(postId, null, request, userDetails.getId());
 
-    return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.from(ApiResponse.EMPTY_RESPONSE));
+    return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.from(commentResponse));
   }
 
   @PostMapping("/post/{postId}/comment/{commentId}/reply")
@@ -105,9 +107,10 @@ public class CommunityController {
       @RequestBody @Valid CommunityCommentRequest request,
       @AuthenticationPrincipal CustomUserDetails userDetails) {
 
-    communityService.postCommentAndReply(postId, commentId, request, userDetails.getId());
+    CommentResponse commentResponse =
+        communityService.postCommentAndReply(postId, commentId, request, userDetails.getId());
 
-    return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.from(ApiResponse.EMPTY_RESPONSE));
+    return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.from(commentResponse));
   }
 
   @GetMapping("/post/{postId}")
