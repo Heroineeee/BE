@@ -281,19 +281,7 @@ public class CommunityService {
     CommunityPost communityPost = getCommunityPostOrThrow(postId);
     validatePostOwner(communityPost, userId);
 
-    // 댓글, 댓글 좋아요, 게시글 좋아요를 먼저 삭제
-    commentRepository.deleteAllByCommunityPostId(postId);
-    communityPostLikeRepository.deleteAllByCommunityPostId(postId);
-
-    // 게시글 이미지 삭제
-    List<CommunityPostImage> images =
-        communityPostImageRepository.findAllByCommunityPost(communityPost);
-    for (CommunityPostImage image : images) {
-      imageService.deleteFile(image.getImageUrl(), S3Bucket.COMMUNITY_POST_IMAGE);
-    }
-    communityPostImageRepository.deleteAll(images);
-
-    // 게시글 삭제
+    // orphan 관계로 댓글, 댓글 좋아요, 이미지, 게시물 좋아요는 자동으로 삭제됨
     communityPostRepository.delete(communityPost);
   }
 
