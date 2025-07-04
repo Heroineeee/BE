@@ -8,6 +8,12 @@ import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
+import com.kkinikong.be.community.domain.Comment;
+import com.kkinikong.be.community.domain.CommunityPost;
+import com.kkinikong.be.community.exception.CommunityException;
+import com.kkinikong.be.community.exception.errorcode.CommunityErrorCode;
+import com.kkinikong.be.community.repository.comment.CommentRepository;
+import com.kkinikong.be.community.repository.communityPost.CommunityPostRepository;
 import com.kkinikong.be.report.domain.Report;
 import com.kkinikong.be.report.domain.type.CommonReportReason;
 import com.kkinikong.be.report.domain.type.ReportType;
@@ -34,6 +40,8 @@ public class ReportService {
   private final ReportRepository reportRepository;
   private final UserRepository userRepository;
   private final ReviewRepository reviewRepository;
+  private final CommunityPostRepository communityPostRepository;
+  private final CommentRepository commentRepository;
 
   @Transactional
   public void reportStore(
@@ -69,21 +77,56 @@ public class ReportService {
     User user = findUserOrThrow(userId);
     Review review = findReviewOrThrow(reviewId);
 
-    if (reportRepository.existsReportByTargetIdAndUserId(reviewId, user.getId())) {
-      throw new ReportException(ReportErrorCode.REVIEW_ALREADY_EXISTS);
-    }
+    checkSelfReport(review.getUser().getId(), userId);
+    checkTargetExist(ReportType.REVIEW, reviewId, userId);
 
-    if (review.getUser().getId().equals(userId)) {
-      throw new ReportException(ReportErrorCode.REVIEW_REPORT_SELF);
-    }
+    saveReport(reviewId, ReportType.REVIEW, CommonReportReason, reportRequest, user);
+  }
 
+  @Transactional
+  public void reportCommunityPost(
+      Long postId,
+      CommonReportReason CommonReportReason,
+      ReportRequest reportRequest,
+      Long userId) {
+    User user = findUserOrThrow(userId);
+    CommunityPost communityPost = findCommunityPostOrThrow(postId);
+
+    checkSelfReport(communityPost.getUser().getId(), userId);
+    checkTargetExist(ReportType.COMMUNITY_POST, communityPost.getId(), userId);
+
+    saveReport(postId, ReportType.COMMUNITY_POST, CommonReportReason, reportRequest, user);
+  }
+
+  @Transactional
+  public void reportComment(
+      Long commentId,
+      CommonReportReason CommonReportReason,
+      ReportRequest reportRequest,
+      Long userId) {
+    User user = findUserOrThrow(userId);
+
+    Comment comment = findCommentOrThrow(commentId);
+
+    checkSelfReport(comment.getUser().getId(), userId);
+    checkTargetExist(ReportType.COMMUNITY_COMMENT, comment.getId(), userId);
+
+    saveReport(commentId, ReportType.COMMUNITY_COMMENT, CommonReportReason, reportRequest, user);
+  }
+
+  private void saveReport(
+      Long targetId,
+      ReportType reportType,
+      CommonReportReason commonReportReason,
+      ReportRequest reportRequest,
+      User user) {
     Report report =
         Report.builder()
-            .targetId(reviewId)
-            .reportType(ReportType.REVIEW)
-            .reason(CommonReportReason.toString())
+            .targetId(targetId)
+            .reportType(reportType)
+            .reason(commonReportReason.getLabel())
             .description(
-                CommonReportReason.equals(
+                commonReportReason.equals(
                         com.kkinikong.be.report.domain.type.CommonReportReason.ETC)
                     ? reportRequest.description()
                     : null)
@@ -103,5 +146,32 @@ public class ReportService {
     return reviewRepository
         .findById(reviewId)
         .orElseThrow(() -> new ReviewException(ReviewErrorCode.REVIEW_NOT_FOUND));
+  }
+
+  private CommunityPost findCommunityPostOrThrow(Long postId) {
+    return communityPostRepository
+        .findById(postId)
+        .orElseThrow(() -> new CommunityException(CommunityErrorCode.COMMUNITY_POST_NOT_FOUND));
+  }
+
+  private Comment findCommentOrThrow(Long commentId) {
+    return commentRepository
+        .findById(commentId)
+        .orElseThrow(() -> new CommunityException(CommunityErrorCode.COMMENT_NOT_FOUND));
+  }
+
+  // 이미 신고한 대상인지 확인
+  private void checkTargetExist(ReportType reportType, Long targetId, Long userId) {
+    if (reportRepository.existsReportByReportTypeAndTargetIdAndUserId(
+        reportType, targetId, userId)) {
+      throw new ReportException(ReportErrorCode.REPORT_ALREADY_EXISTS);
+    }
+  }
+
+  // 자기 자신을 신고하는지 확인
+  private void checkSelfReport(Long ownerId, Long userId) {
+    if (ownerId.equals(userId)) {
+      throw new ReportException(ReportErrorCode.SELF_REPORT);
+    }
   }
 }
