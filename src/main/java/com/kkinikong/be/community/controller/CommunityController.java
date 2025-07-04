@@ -267,4 +267,14 @@ public class CommunityController {
     communityService.deleteComment(commentId, userDetails.getId());
     return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.from(ApiResponse.EMPTY_RESPONSE));
   }
+
+  @Operation(summary = "커뮤니티 댓글 수정", description = "커뮤니티 댓글을 수정하는 API입니다. 작성자만 수정할 수 있습니다.")
+  @PatchMapping("/comment/{commentId}")
+  public ResponseEntity<ApiResponse<Object>> updateCommunityComment(
+      @PathVariable("commentId") Long commentId,
+      @RequestBody @Valid CommunityCommentRequest request,
+      @AuthenticationPrincipal CustomUserDetails userDetails) {
+    communityService.updateComment(commentId, request, userDetails.getId());
+    return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.EMPTY_RESPONSE);
+  }
 }

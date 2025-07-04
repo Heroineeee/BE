@@ -309,9 +309,19 @@ public class CommunityService {
   }
 
   @Transactional
+  public void updateComment(Long commentId, CommunityCommentRequest request, Long userId) {
+    Comment comment = getCommentOrThrow(commentId);
+    validateCommentOwner(comment, userId);
+    checkIsCommentDeleted(comment);
+
+    comment.update(request.content());
+  }
+
+  @Transactional
   public void deleteComment(Long commentId, Long userId) {
     Comment comment = getCommentOrThrow(commentId);
     validateCommentOwner(comment, userId);
+    checkIsCommentDeleted(comment);
 
     comment.updateIsDeleted();
   }
@@ -380,6 +390,12 @@ public class CommunityService {
       return null;
     }
     return communityPost.getUser().getId().equals(userId);
+  }
+
+  private void checkIsCommentDeleted(Comment comment) {
+    if (comment.isDeleted()) {
+      throw new CommunityException(CommunityErrorCode.COMMENT_ALREADY_DELETED);
+    }
   }
 
   private Comment validateReply(Long postId, Long commentId) {

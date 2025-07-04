@@ -20,6 +20,7 @@ public enum CommunityErrorCode implements ErrorCode {
   COMMENT_NOT_FOUND(HttpStatus.NOT_FOUND, "댓글을 찾을 수 없습니다."),
   NOT_TOP_COMMENT(HttpStatus.BAD_REQUEST, "최상위 댓글이 아닙니다."),
   COMMENT_NOT_OWNER(HttpStatus.FORBIDDEN, "댓글의 작성자가 아닙니다."),
+  COMMENT_ALREADY_DELETED(HttpStatus.BAD_REQUEST, "이미 삭제된 댓글입니다."),
 
   // opensearch errorcode
   CREATE_INDEX_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "인덱스 생성에 실패했습니다."),
