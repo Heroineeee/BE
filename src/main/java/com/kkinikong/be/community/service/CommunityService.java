@@ -283,6 +283,9 @@ public class CommunityService {
 
     // orphan 관계로 댓글, 댓글 좋아요, 이미지, 게시물 좋아요는 자동으로 삭제됨
     communityPostRepository.delete(communityPost);
+
+    // OpenSearch에서 게시글 삭제
+    openSearchService.deletePostFromSearchIndex(postId);
   }
 
   @Transactional
