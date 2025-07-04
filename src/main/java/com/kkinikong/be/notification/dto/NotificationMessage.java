@@ -1,4 +1,4 @@
-package com.kkinikong.be.notification.dto.response;
+package com.kkinikong.be.notification.dto;
 
 import com.kkinikong.be.notification.domain.type.NotificationType;
 

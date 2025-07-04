@@ -5,7 +5,7 @@ import org.springframework.stereotype.Component;
 
 import lombok.RequiredArgsConstructor;
 
-import com.kkinikong.be.notification.sse.SseNotificationService;
+import com.kkinikong.be.notification.infrastructure.sse.SseNotificationService;
 import com.kkinikong.be.notification.util.NotificationFactory;
 
 @Component

@@ -11,8 +11,8 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 
 import com.kkinikong.be.global.response.ApiResponse;
+import com.kkinikong.be.notification.infrastructure.sse.SseNotificationService;
 import com.kkinikong.be.notification.service.NotificationService;
-import com.kkinikong.be.notification.sse.SseNotificationService;
 import com.kkinikong.be.user.utils.CustomUserDetails;
 
 @RestController

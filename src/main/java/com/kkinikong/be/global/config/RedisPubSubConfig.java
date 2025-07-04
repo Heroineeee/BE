@@ -6,7 +6,7 @@ import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.data.redis.listener.ChannelTopic;
 import org.springframework.data.redis.listener.RedisMessageListenerContainer;
 
-import com.kkinikong.be.notification.pubsub.NotificationSubscriber;
+import com.kkinikong.be.notification.infrastructure.pubsub.NotificationSubscriber;
 
 @Configuration
 public class RedisPubSubConfig {

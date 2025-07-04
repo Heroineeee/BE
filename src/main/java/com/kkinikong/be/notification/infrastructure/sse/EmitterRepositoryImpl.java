@@ -1,4 +1,4 @@
-package com.kkinikong.be.notification.sse;
+package com.kkinikong.be.notification.infrastructure.sse;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;

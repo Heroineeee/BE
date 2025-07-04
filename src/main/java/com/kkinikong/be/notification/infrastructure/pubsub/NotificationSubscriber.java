@@ -1,4 +1,4 @@
-package com.kkinikong.be.notification.pubsub;
+package com.kkinikong.be.notification.infrastructure.pubsub;
 
 import org.springframework.data.redis.connection.Message;
 import org.springframework.data.redis.connection.MessageListener;
@@ -8,8 +8,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
-import com.kkinikong.be.notification.dto.response.NotificationMessage;
-import com.kkinikong.be.notification.sse.SseNotificationService;
+import com.kkinikong.be.notification.dto.NotificationMessage;
+import com.kkinikong.be.notification.infrastructure.sse.SseNotificationService;
 import com.kkinikong.be.user.domain.User;
 import com.kkinikong.be.user.exception.UserException;
 import com.kkinikong.be.user.exception.errorcode.UserErrorCode;

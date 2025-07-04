@@ -1,4 +1,4 @@
-package com.kkinikong.be.notification.pubsub;
+package com.kkinikong.be.notification.infrastructure.pubsub;
 
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.listener.ChannelTopic;
@@ -6,7 +6,7 @@ import org.springframework.stereotype.Service;
 
 import lombok.RequiredArgsConstructor;
 
-import com.kkinikong.be.notification.dto.response.NotificationMessage;
+import com.kkinikong.be.notification.dto.NotificationMessage;
 
 @Service
 @RequiredArgsConstructor

@@ -1,4 +1,4 @@
-package com.kkinikong.be.notification.sse;
+package com.kkinikong.be.notification.infrastructure.sse;
 
 import java.io.IOException;
 import java.util.Map;
