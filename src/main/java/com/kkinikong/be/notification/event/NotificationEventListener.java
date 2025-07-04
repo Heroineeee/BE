@@ -5,14 +5,14 @@ import org.springframework.stereotype.Component;
 
 import lombok.RequiredArgsConstructor;
 
-import com.kkinikong.be.notification.sse.SseNotificationSender;
+import com.kkinikong.be.notification.sse.SseNotificationService;
 import com.kkinikong.be.notification.util.NotificationFactory;
 
 @Component
 @RequiredArgsConstructor
 public class NotificationEventListener {
 
-  private final SseNotificationSender notificationService;
+  private final SseNotificationService notificationService;
   private final NotificationFactory notificationFactory;
 
   @EventListener

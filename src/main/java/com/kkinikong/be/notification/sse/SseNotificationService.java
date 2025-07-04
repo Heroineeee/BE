@@ -20,7 +20,7 @@ import com.kkinikong.be.user.domain.User;
 @Slf4j
 @RequiredArgsConstructor
 @Transactional
-public class SseNotificationSender {
+public class SseNotificationService {
 
   private static final Long DEFAULT_TIMEOUT = 60L * 1000 * 60; // 1시간
 
