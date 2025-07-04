@@ -10,7 +10,8 @@ public record NotificationResponse(
     String content,
     String redirectUrl,
     Long targetId,
-    String createdAt) {
+    String createdAt,
+    boolean isRead) {
   public static NotificationResponse from(Notification notification) {
     return new NotificationResponse(
         notification.getId(),
@@ -18,6 +19,7 @@ public record NotificationResponse(
         notification.getContent(),
         notification.getRedirectUrl(),
         notification.getTargetId(),
-        TimeUtil.relativeTimeFormatter(notification.getCreatedDate()));
+        TimeUtil.relativeTimeFormatter(notification.getCreatedDate()),
+        notification.isRead());
   }
 }
