@@ -111,6 +111,8 @@ public class ReportService {
     checkSelfReport(comment.getUser().getId(), userId);
     checkTargetExist(ReportType.COMMUNITY_COMMENT, comment.getId(), userId);
 
+    comment.incrementReportCount();
+
     saveReport(commentId, ReportType.COMMUNITY_COMMENT, CommonReportReason, reportRequest, user);
   }
 
