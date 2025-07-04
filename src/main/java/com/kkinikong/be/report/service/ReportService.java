@@ -124,10 +124,9 @@ public class ReportService {
         Report.builder()
             .targetId(targetId)
             .reportType(reportType)
-            .reason(commonReportReason.getLabel())
+            .reason(commonReportReason.toString())
             .description(
-                commonReportReason.equals(
-                        com.kkinikong.be.report.domain.type.CommonReportReason.ETC)
+                commonReportReason.equals(CommonReportReason.ETC)
                     ? reportRequest.description()
                     : null)
             .user(user)
