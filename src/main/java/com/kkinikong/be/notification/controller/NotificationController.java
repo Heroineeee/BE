@@ -24,8 +24,13 @@ public class NotificationController {
   private final SseNotificationService sseNotificationService;
   private final NotificationService notificationService;
 
-  @Operation(summary = "SSE 연결")
-  @GetMapping("/subscribe")
+  @Operation(
+      summary = "SSE 연결",
+      description =
+          """
+  - 클라이언트에서 서버와의 SSE 연결을 맺어 실시간으로 알림을 수신합니다.
+  - 연결이 끊겼을 경우 `Last-Event-ID`를 이용해 수신하지 못한 알림을 이어받을 수 있습니다.""")
+  @GetMapping(value = "/subscribe")
   public ResponseEntity<SseEmitter> subscribe(
       @AuthenticationPrincipal CustomUserDetails userDetails,
       @RequestHeader(value = "Last-Event-ID", required = false, defaultValue = "")
@@ -34,7 +39,13 @@ public class NotificationController {
     return ResponseEntity.ok(emitter);
   }
 
-  @Operation(summary = "알림 조회")
+  @Operation(
+      summary = "알림 조회",
+      description =
+          """
+  - 로그인한 사용자의 알림 목록을 조회하는 API입니다.
+  - 기본적으로 최신순으로 정렬됩니다.
+  - 알림의 읽음 여부는 true(읽음), false(읽지 않음)으로 나타납니다.""")
   @GetMapping("")
   public ResponseEntity<ApiResponse<Object>> getNotification(
       @AuthenticationPrincipal CustomUserDetails userDetails,
@@ -46,7 +57,7 @@ public class NotificationController {
                 notificationService.getNotificationList(userDetails.getId(), page, size)));
   }
 
-  @Operation(summary = "알림 읽음 처리")
+  @Operation(summary = "알림 읽음 처리", description = "특정 알림을 읽음 처리하는 API입니다.")
   @PatchMapping("/{notificationId}/read")
   public ResponseEntity<ApiResponse<Object>> readNotification(
       @AuthenticationPrincipal CustomUserDetails userDetails, @PathVariable Long notificationId) {
