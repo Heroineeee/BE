@@ -11,6 +11,7 @@ import com.kkinikong.be.review.domain.type.Tag;
 public record MypageReviewResponse(
     Long reviewId,
     String storeName,
+    Long storeId,
     String createdAt,
     int rating,
     @Nullable List<String> tags,
@@ -21,6 +22,7 @@ public record MypageReviewResponse(
     return new MypageReviewResponse(
         review.getId(),
         review.getStore().getName(),
+        review.getStore().getId(),
         TimeUtil.relativeTimeFormatter(review.getCreatedDate()),
         review.getRating(),
         tags == null ? null : tags.stream().map(Tag::getLabel).toList(),
