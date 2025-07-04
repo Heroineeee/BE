@@ -45,4 +45,12 @@ public class NotificationController {
             ApiResponse.from(
                 notificationService.getNotificationList(userDetails.getId(), page, size)));
   }
+
+  @Operation(summary = "알림 읽음 처리")
+  @PatchMapping("/{notificationId}/read")
+  public ResponseEntity<ApiResponse<Object>> readNotification(
+      @AuthenticationPrincipal CustomUserDetails userDetails, @PathVariable Long notificationId) {
+    notificationService.markAsRead(userDetails.getId(), notificationId);
+    return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.EMPTY_RESPONSE);
+  }
 }
