@@ -284,11 +284,20 @@ public class CommunityService {
     CommunityPost communityPost = getCommunityPostOrThrow(postId);
     validatePostOwner(communityPost, userId);
 
-    // orphan 관계로 댓글, 댓글 좋아요, 이미지, 게시물 좋아요는 자동으로 삭제됨
-    communityPostRepository.delete(communityPost);
+    // 이미지 삭제
+    communityPostImageRepository
+        .findAllByCommunityPostId(postId)
+        .forEach(
+            image -> {
+              imageService.deleteFile(image.getImageUrl(), S3Bucket.COMMUNITY_POST_IMAGE);
+            });
+    communityPostImageRepository.deleteAllByCommunityPostId(postId);
 
     // OpenSearch에서 게시글 삭제
     openSearchService.deletePostFromSearchIndex(postId);
+
+    // orphan 관계로 댓글, 댓글 좋아요, 게시물 좋아요는 자동으로 삭제됨
+    communityPostRepository.delete(communityPost);
   }
 
   @Transactional
