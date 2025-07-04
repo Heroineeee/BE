@@ -31,6 +31,7 @@ import com.kkinikong.be.community.domain.type.Category;
 import com.kkinikong.be.community.dto.request.CommunityCommentRequest;
 import com.kkinikong.be.community.dto.request.CommunityPostRequest;
 import com.kkinikong.be.community.dto.response.CommentListResponse;
+import com.kkinikong.be.community.dto.response.CommentResponse;
 import com.kkinikong.be.community.dto.response.CommunityPostInfoResponse;
 import com.kkinikong.be.community.dto.response.CommunityPostListResponse;
 import com.kkinikong.be.community.dto.response.CommunityPostPopularResponse;
@@ -109,7 +110,7 @@ public class CommunityService {
   }
 
   @Transactional
-  public void postCommentAndReply(
+  public CommentResponse postCommentAndReply(
       Long postId, Long commentId, CommunityCommentRequest request, Long userId) {
     CommunityPost communityPost = getCommunityPostOrThrow(postId);
 
@@ -119,16 +120,18 @@ public class CommunityService {
       parent = validateReply(postId, commentId);
     }
 
-    commentRepository.save(
-        Comment.builder()
-            .content(request.content())
-            .communityPost(communityPost)
-            .user(getUserOrThrow(userId))
-            .parentComment(parent)
-            .isAuthor(communityPost.getUser().getId().equals(userId))
-            .build());
+    Comment comment =
+        commentRepository.save(
+            Comment.builder()
+                .content(request.content())
+                .communityPost(communityPost)
+                .user(getUserOrThrow(userId))
+                .parentComment(parent)
+                .isAuthor(communityPost.getUser().getId().equals(userId))
+                .build());
 
     communityPost.incrementCommentCount();
+    return CommentResponse.from(comment.getId());
   }
 
   @Cacheable(value = "community-popular-posts", unless = "#result == null")
@@ -276,6 +279,68 @@ public class CommunityService {
     redisTempleCacheService.deleteRecentSearches(userId, keyword);
   }
 
+  @Transactional
+  public void deleteCommunityPost(Long postId, Long userId) {
+    CommunityPost communityPost = getCommunityPostOrThrow(postId);
+    validatePostOwner(communityPost, userId);
+
+    // 이미지 삭제
+    communityPostImageRepository
+        .findAllByCommunityPostId(postId)
+        .forEach(
+            image -> {
+              imageService.deleteFile(image.getImageUrl(), S3Bucket.COMMUNITY_POST_IMAGE);
+            });
+    communityPostImageRepository.deleteAllByCommunityPostId(postId);
+
+    // OpenSearch에서 게시글 삭제
+    openSearchService.deletePostFromSearchIndex(postId);
+
+    // orphan 관계로 댓글, 댓글 좋아요, 게시물 좋아요는 자동으로 삭제됨
+    communityPostRepository.delete(communityPost);
+  }
+
+  @Transactional
+  public void updateCommunityPost(Long postId, CommunityPostRequest request, Long userId) {
+    CommunityPost communityPost = getCommunityPostOrThrow(postId);
+    validatePostOwner(communityPost, userId);
+
+    // 기존 이미지 모두 삭제
+    communityPostImageRepository
+        .findAllByCommunityPostId(postId)
+        .forEach(
+            image -> {
+              imageService.deleteFile(image.getImageUrl(), S3Bucket.COMMUNITY_POST_IMAGE);
+            });
+    communityPostImageRepository.deleteAllByCommunityPostId(postId);
+
+    communityPost.update(request.title(), request.content(), request.category());
+
+    openSearchService.deletePostFromSearchIndex(postId);
+    openSearchService.savePostToSearchIndex(CommunityPostDocument.from(communityPost));
+  }
+
+  @Transactional
+  public CommentResponse updateComment(
+      Long commentId, CommunityCommentRequest request, Long userId) {
+    Comment comment = getCommentOrThrow(commentId);
+    validateCommentOwner(comment, userId);
+    checkIsCommentDeleted(comment);
+
+    comment.update(request.content());
+
+    return CommentResponse.from(comment.getId());
+  }
+
+  @Transactional
+  public void deleteComment(Long commentId, Long userId) {
+    Comment comment = getCommentOrThrow(commentId);
+    validateCommentOwner(comment, userId);
+    checkIsCommentDeleted(comment);
+
+    comment.updateIsDeleted();
+  }
+
   private List<CommentListResponse> mapToCommentTreeResponse(
       Long userId, List<Comment> allComments) {
 
@@ -342,6 +407,12 @@ public class CommunityService {
     return communityPost.getUser().getId().equals(userId);
   }
 
+  private void checkIsCommentDeleted(Comment comment) {
+    if (comment.isDeleted()) {
+      throw new CommunityException(CommunityErrorCode.COMMENT_ALREADY_DELETED);
+    }
+  }
+
   private Comment validateReply(Long postId, Long commentId) {
     Comment parent = getCommentOrThrow(commentId);
 
@@ -361,6 +432,12 @@ public class CommunityService {
   private void validatePostOwner(CommunityPost communityPost, Long userId) {
     if (!communityPost.getUser().getId().equals(userId)) {
       throw new CommunityException(CommunityErrorCode.COMMUNITY_NOT_OWNER);
+    }
+  }
+
+  private void validateCommentOwner(Comment comment, Long userId) {
+    if (!comment.getUser().getId().equals(userId)) {
+      throw new CommunityException(CommunityErrorCode.COMMENT_NOT_OWNER);
     }
   }
 
