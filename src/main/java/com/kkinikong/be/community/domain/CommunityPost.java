@@ -93,4 +93,12 @@ public class CommunityPost extends BaseEntity {
   public void decrementLikeCount() {
     this.likeCount--;
   }
+
+  public void update(String title, String content, Category category) {
+    this.title = title;
+    this.content = content;
+    this.category = category;
+    this.thumbnailUrl = null;
+    this.isModified = true;
+  }
 }

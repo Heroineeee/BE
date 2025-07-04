@@ -7,6 +7,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -26,6 +27,7 @@ import lombok.RequiredArgsConstructor;
 import com.kkinikong.be.community.domain.type.Category;
 import com.kkinikong.be.community.dto.request.CommunityCommentRequest;
 import com.kkinikong.be.community.dto.request.CommunityPostRequest;
+import com.kkinikong.be.community.dto.response.CommentResponse;
 import com.kkinikong.be.community.dto.response.CommunityPostResponse;
 import com.kkinikong.be.community.dto.response.LikeToggleResponse;
 import com.kkinikong.be.community.service.CommunityService;
@@ -87,9 +89,10 @@ public class CommunityController {
       @RequestBody @Valid CommunityCommentRequest request,
       @AuthenticationPrincipal CustomUserDetails userDetails) {
 
-    communityService.postCommentAndReply(postId, null, request, userDetails.getId());
+    CommentResponse commentResponse =
+        communityService.postCommentAndReply(postId, null, request, userDetails.getId());
 
-    return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.from(ApiResponse.EMPTY_RESPONSE));
+    return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.from(commentResponse));
   }
 
   @PostMapping("/post/{postId}/comment/{commentId}/reply")
@@ -104,9 +107,10 @@ public class CommunityController {
       @RequestBody @Valid CommunityCommentRequest request,
       @AuthenticationPrincipal CustomUserDetails userDetails) {
 
-    communityService.postCommentAndReply(postId, commentId, request, userDetails.getId());
+    CommentResponse commentResponse =
+        communityService.postCommentAndReply(postId, commentId, request, userDetails.getId());
 
-    return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.from(ApiResponse.EMPTY_RESPONSE));
+    return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.from(commentResponse));
   }
 
   @GetMapping("/post/{postId}")
@@ -235,5 +239,46 @@ public class CommunityController {
             ApiResponse.from(
                 communityService.searchCommunityPost(
                     keyword, page, size, userDetails == null ? null : userDetails.getId())));
+  }
+
+  @Operation(summary = "커뮤니티 게시글 수정", description = "커뮤니티 게시글을 수정하는 API입니다. 작성자만 수정할 수 있습니다.")
+  @PatchMapping("/post/{postId}")
+  public ResponseEntity<ApiResponse<Object>> updateCommunityPost(
+      @PathVariable("postId") Long postId,
+      @RequestBody @Valid CommunityPostRequest request,
+      @AuthenticationPrincipal CustomUserDetails userDetails) {
+
+    communityService.updateCommunityPost(postId, request, userDetails.getId());
+    return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.EMPTY_RESPONSE);
+  }
+
+  @DeleteMapping("/post/{postId}")
+  @Operation(summary = "커뮤니티 게시글 삭제", description = "커뮤니티 게시글을 삭제하는 API입니다. 게시글 작성자만 삭제할 수 있습니다.")
+  public ResponseEntity<ApiResponse<Object>> deleteCommunityPost(
+      @PathVariable("postId") Long postId, @AuthenticationPrincipal CustomUserDetails userDetails) {
+    communityService.deleteCommunityPost(postId, userDetails.getId());
+    return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.from(ApiResponse.EMPTY_RESPONSE));
+  }
+
+  @DeleteMapping("/comment/{commentId}")
+  @Operation(
+      summary = "커뮤니티 게시글 댓글 삭제",
+      description = "커뮤니티 게시글 댓글을 삭제하는 API입니다. 댓글 작성자만 삭제할 수 있습니다.")
+  public ResponseEntity<ApiResponse<Object>> deleteCommunityComment(
+      @PathVariable("commentId") Long commentId,
+      @AuthenticationPrincipal CustomUserDetails userDetails) {
+    communityService.deleteComment(commentId, userDetails.getId());
+    return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.from(ApiResponse.EMPTY_RESPONSE));
+  }
+
+  @Operation(summary = "커뮤니티 댓글 수정", description = "커뮤니티 댓글을 수정하는 API입니다. 작성자만 수정할 수 있습니다.")
+  @PatchMapping("/comment/{commentId}")
+  public ResponseEntity<ApiResponse<Object>> updateCommunityComment(
+      @PathVariable("commentId") Long commentId,
+      @RequestBody @Valid CommunityCommentRequest request,
+      @AuthenticationPrincipal CustomUserDetails userDetails) {
+    CommentResponse commentResponse =
+        communityService.updateComment(commentId, request, userDetails.getId());
+    return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.from(commentResponse));
   }
 }

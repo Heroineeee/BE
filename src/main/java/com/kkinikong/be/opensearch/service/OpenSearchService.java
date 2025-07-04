@@ -123,6 +123,15 @@ public class OpenSearchService {
     }
   }
 
+  public void deletePostFromSearchIndex(Long postId) {
+    try {
+      openSearchClient.delete(
+          d -> d.index(indexName).id(String.valueOf(postId)).refresh(Refresh.True));
+    } catch (IOException e) {
+      throw new CommunityException(CommunityErrorCode.FAILED_TO_DELETE_INDEX);
+    }
+  }
+
   private static Query buildSearchQuery(String keyword) {
     // 키워드가 공백을 포함하는 경우
     if (keyword.contains(" ")) {

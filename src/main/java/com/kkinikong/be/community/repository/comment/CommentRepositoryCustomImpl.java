@@ -15,14 +15,14 @@ import lombok.RequiredArgsConstructor;
 import com.kkinikong.be.community.domain.Comment;
 import com.kkinikong.be.community.domain.CommunityPost;
 import com.kkinikong.be.community.domain.QComment;
-import com.kkinikong.be.community.domain.QCommunityPost;
+import com.kkinikong.be.community.domain.QCommentLike;
 
 @RequiredArgsConstructor
 public class CommentRepositoryCustomImpl implements CommentRepositoryCustom {
 
   private final JPAQueryFactory queryFactory;
   private final QComment qComment = comment;
-  private final QCommunityPost qCommunityPost = communityPost;
+  private final QCommentLike commentLike = QCommentLike.commentLike;
 
   @Override
   public Page<CommunityPost> findAllPostsWithMyComments(Long userId, Pageable pageable) {
