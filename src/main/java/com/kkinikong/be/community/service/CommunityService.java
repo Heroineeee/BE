@@ -289,6 +289,26 @@ public class CommunityService {
   }
 
   @Transactional
+  public void updateCommunityPost(Long postId, CommunityPostRequest request, Long userId) {
+    CommunityPost communityPost = getCommunityPostOrThrow(postId);
+    validatePostOwner(communityPost, userId);
+
+    // 기존 이미지 모두 삭제
+    communityPostImageRepository
+        .findAllByCommunityPostId(postId)
+        .forEach(
+            image -> {
+              imageService.deleteFile(image.getImageUrl(), S3Bucket.COMMUNITY_POST_IMAGE);
+            });
+    communityPostImageRepository.deleteAllByCommunityPostId(postId);
+
+    communityPost.update(request.title(), request.content(), request.category());
+
+    openSearchService.deletePostFromSearchIndex(postId);
+    openSearchService.savePostToSearchIndex(CommunityPostDocument.from(communityPost));
+  }
+
+  @Transactional
   public void deleteComment(Long commentId, Long userId) {
     Comment comment = getCommentOrThrow(commentId);
     validateCommentOwner(comment, userId);
