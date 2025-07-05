@@ -3,6 +3,7 @@ package com.kkinikong.be.notification.infrastructure.sse;
 import java.io.IOException;
 import java.util.Map;
 
+import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
@@ -75,7 +76,11 @@ public class SseNotificationService {
 
   private void sendToClient(SseEmitter emitter, String eventId, String emitterId, Object data) {
     try {
-      emitter.send(SseEmitter.event().id(eventId).name("notification").data(data));
+      emitter.send(
+          SseEmitter.event()
+              .id(eventId)
+              .name("notification")
+              .data(data, MediaType.valueOf("application/json;charset=UTF-8")));
     } catch (IOException e) {
       emitterRepository.deleteById(emitterId);
     }
