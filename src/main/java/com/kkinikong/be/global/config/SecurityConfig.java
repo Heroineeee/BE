@@ -86,7 +86,8 @@ public class SecurityConfig {
                     .authenticated()
 
                     // 인증 필요
-                    .requestMatchers("/api/v1/user/**", "/api/v1/mypage/**")
+                    .requestMatchers(
+                        "/api/v1/user/**", "/api/v1/mypage/**", "/api/v1/notification/**")
                     .authenticated()
 
                     // 그 외 모든 요청 허용

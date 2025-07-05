@@ -7,6 +7,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
@@ -45,6 +46,8 @@ import com.kkinikong.be.community.repository.CommunityPostImageRepository;
 import com.kkinikong.be.community.repository.CommunityPostLikeRepository;
 import com.kkinikong.be.community.repository.comment.CommentRepository;
 import com.kkinikong.be.community.repository.communityPost.CommunityPostRepository;
+import com.kkinikong.be.notification.domain.type.NotificationType;
+import com.kkinikong.be.notification.event.NotificationEvent;
 import com.kkinikong.be.opensearch.service.OpenSearchService;
 import com.kkinikong.be.store.dto.response.StoreRecentSearchKeyword;
 import com.kkinikong.be.user.domain.User;
@@ -67,6 +70,7 @@ public class CommunityService {
   private final CommunityPostLikeRepository communityPostLikeRepository;
   private final CommentLikeRepository commentLikeRepository;
 
+  private final ApplicationEventPublisher eventPublisher;
   private final ImageService imageService;
   private final RedisTempleCacheService redisTempleCacheService;
   private final OpenSearchService openSearchService;
@@ -114,6 +118,7 @@ public class CommunityService {
       Long postId, Long commentId, CommunityCommentRequest request, Long userId) {
     CommunityPost communityPost = getCommunityPostOrThrow(postId);
 
+    User sender = getUserOrThrow(userId);
     Comment parent = null;
     // 답글 작성인 경우
     if (commentId != null) {
@@ -131,6 +136,29 @@ public class CommunityService {
                 .build());
 
     communityPost.incrementCommentCount();
+
+    // 알림 이벤트 발행
+    if (parent == null) {
+      eventPublisher.publishEvent(
+          NotificationEvent.builder()
+              .receiver(communityPost.getUser())
+              .type(NotificationType.COMMUNITY_COMMENT)
+              .senderNickname(sender.getNickname())
+              .target(comment)
+              .targetId(communityPost.getId())
+              .redirectUrl("/community/post/" + communityPost.getId() + "/comment/" + commentId)
+              .build());
+    } else {
+      eventPublisher.publishEvent(
+          NotificationEvent.builder()
+              .receiver(parent.getUser())
+              .type(NotificationType.COMMENT_COMMENT)
+              .senderNickname(sender.getNickname())
+              .target(comment)
+              .targetId(communityPost.getId())
+              .redirectUrl("/community/post/" + communityPost.getId() + "/comment/" + commentId)
+              .build());
+    }
     return CommentResponse.from(comment.getId());
   }
 
@@ -178,6 +206,17 @@ public class CommunityService {
           CommunityPostLike.builder().communityPost(communityPost).user(user).build());
       communityPost.incrementLikeCount();
       isLiked = true;
+
+      // 알림 이벤트 발행
+      eventPublisher.publishEvent(
+          NotificationEvent.builder()
+              .receiver(communityPost.getUser())
+              .type(NotificationType.COMMUNITY_LIKE)
+              .senderNickname(user.getNickname())
+              .target(communityPost)
+              .targetId(communityPost.getId())
+              .redirectUrl("/community/post/" + communityPost.getId())
+              .build());
     }
 
     return LikeToggleResponse.from(isLiked, communityPost.getLikeCount());
@@ -203,8 +242,19 @@ public class CommunityService {
       commentLikeRepository.save(CommentLike.builder().comment(comment).user(user).build());
       comment.incrementLikeCount();
       isLiked = true;
-    }
 
+      // 알림 이벤트 발행
+      eventPublisher.publishEvent(
+          NotificationEvent.builder()
+              .receiver(comment.getUser())
+              .type(NotificationType.COMMENT_LIKE)
+              .senderNickname(user.getNickname())
+              .target(comment)
+              .targetId(comment.getCommunityPost().getId())
+              .redirectUrl(
+                  "/community/post/" + comment.getCommunityPost().getId() + "/comment/" + commentId)
+              .build());
+    }
     return LikeToggleResponse.from(isLiked, comment.getLikeCount());
   }
 
