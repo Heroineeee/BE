@@ -15,8 +15,7 @@ public record CommentListResponse(
     String nickname,
     String createdAt,
     boolean isModified,
-    boolean isDeleted,
-    long likeCount,
+    Long likeCount,
     Boolean isLiked,
     boolean isAuthor,
     Boolean isMyComment,
@@ -27,13 +26,40 @@ public record CommentListResponse(
       Boolean isLiked,
       Boolean isMyComment,
       List<CommentListResponse> replyListResponse) {
+
+    if (comment.getReportCount() >= 3) {
+      return CommentListResponse.builder()
+          .commentId(comment.getId())
+          .content("신고된 댓글입니다")
+          .nickname(UserNicknameUtil.checkReportNickname(comment.getUser()))
+          .createdAt(TimeUtil.relativeTimeFormatter(comment.getCreatedDate()))
+          .isModified(comment.isModified())
+          .likeCount(null)
+          .isLiked(null)
+          .isAuthor(comment.isAuthor())
+          .isMyComment(isMyComment)
+          .replyListResponse(replyListResponse)
+          .build();
+    } else if (comment.isDeleted()) {
+      return CommentListResponse.builder()
+          .commentId(comment.getId())
+          .content("삭제된 댓글입니다")
+          .nickname(UserNicknameUtil.displayNickname(comment.getUser()))
+          .createdAt(TimeUtil.relativeTimeFormatter(comment.getCreatedDate()))
+          .isModified(comment.isModified())
+          .likeCount(null)
+          .isLiked(null)
+          .isAuthor(comment.isAuthor())
+          .isMyComment(isMyComment)
+          .replyListResponse(replyListResponse)
+          .build();
+    }
     return CommentListResponse.builder()
         .commentId(comment.getId())
         .content(comment.getContent())
         .nickname(UserNicknameUtil.displayNickname(comment.getUser()))
         .createdAt(TimeUtil.relativeTimeFormatter(comment.getCreatedDate()))
         .isModified(comment.isModified())
-        .isDeleted(comment.isDeleted())
         .likeCount(comment.getLikeCount())
         .isLiked(isLiked)
         .isAuthor(comment.isAuthor())

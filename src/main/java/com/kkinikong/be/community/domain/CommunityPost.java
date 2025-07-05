@@ -57,6 +57,9 @@ public class CommunityPost extends BaseEntity {
   @Column(name = "is_modified", nullable = false)
   private boolean isModified = false;
 
+  @Column(name = "report_count", nullable = false)
+  private long reportCount = 0L;
+
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "user_id", nullable = false)
   private User user;
@@ -100,5 +103,9 @@ public class CommunityPost extends BaseEntity {
     this.category = category;
     this.thumbnailUrl = null;
     this.isModified = true;
+  }
+
+  public void incrementReportCount() {
+    this.reportCount++;
   }
 }
