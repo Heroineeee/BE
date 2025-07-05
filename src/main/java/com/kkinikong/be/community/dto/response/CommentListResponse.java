@@ -15,11 +15,10 @@ public record CommentListResponse(
     String nickname,
     String createdAt,
     boolean isModified,
-    long likeCount,
+    Long likeCount,
     Boolean isLiked,
     boolean isAuthor,
     Boolean isMyComment,
-    long reportCount,
     List<CommentListResponse> replyListResponse) {
 
   public static CommentListResponse from(
@@ -27,6 +26,21 @@ public record CommentListResponse(
       Boolean isLiked,
       Boolean isMyComment,
       List<CommentListResponse> replyListResponse) {
+
+    if (comment.getReportCount() >= 3) {
+      return CommentListResponse.builder()
+          .commentId(comment.getId())
+          .content("신고된 댓글입니다")
+          .nickname(UserNicknameUtil.checkReportNickname(comment.getUser()))
+          .createdAt(TimeUtil.relativeTimeFormatter(comment.getCreatedDate()))
+          .isModified(comment.isModified())
+          .likeCount(null)
+          .isLiked(null)
+          .isAuthor(comment.isAuthor())
+          .isMyComment(isMyComment)
+          .replyListResponse(replyListResponse)
+          .build();
+    }
 
     return CommentListResponse.builder()
         .commentId(comment.getId())
@@ -38,7 +52,6 @@ public record CommentListResponse(
         .isLiked(isLiked)
         .isAuthor(comment.isAuthor())
         .isMyComment(isMyComment)
-        .reportCount(comment.getReportCount())
         .replyListResponse(replyListResponse)
         .build();
   }
