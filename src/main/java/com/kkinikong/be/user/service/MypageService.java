@@ -114,6 +114,7 @@ public class MypageService {
                         post, grouped.getOrDefault(post.getId(), List.of())))
             .toList();
 
-    return PageResponse.of(content, postPage.getTotalPages(), postPage.getNumber());
+    return PageResponse.of(
+        content, postPage.getTotalPages(), postPage.getNumber(), postPage.getTotalElements());
   }
 }
