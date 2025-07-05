@@ -47,6 +47,9 @@ public class Comment extends BaseEntity {
   @Column(name = "is_author", nullable = false)
   private boolean isAuthor = false;
 
+  @Column(name = "report_count", nullable = false)
+  private long reportCount = 0L;
+
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "parent_comment_id")
   private Comment parentComment;
@@ -94,5 +97,9 @@ public class Comment extends BaseEntity {
   public void update(String content) {
     this.content = content;
     this.isModified = true;
+  }
+
+  public void incrementReportCount() {
+    this.reportCount++;
   }
 }

@@ -2,5 +2,7 @@ package com.kkinikong.be.report.domain.type;
 
 public enum ReportType {
   STORE,
-  REVIEW
+  REVIEW,
+  COMMUNITY_POST,
+  COMMUNITY_COMMENT
 }
