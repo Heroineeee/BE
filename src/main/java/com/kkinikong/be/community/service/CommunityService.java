@@ -130,7 +130,7 @@ public class CommunityService {
             Comment.builder()
                 .content(request.content())
                 .communityPost(communityPost)
-                .user(getUserOrThrow(userId))
+                .user(sender)
                 .parentComment(parent)
                 .isAuthor(communityPost.getUser().getId().equals(userId))
                 .build());
