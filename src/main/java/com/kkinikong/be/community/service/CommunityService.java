@@ -146,7 +146,7 @@ public class CommunityService {
               .senderNickname(sender.getNickname())
               .target(comment)
               .targetId(communityPost.getId())
-              .redirectUrl("/community/post/" + communityPost.getId())
+              .redirectUrl("/community/post/" + communityPost.getId() + "/comment/" + commentId)
               .build());
     } else {
       eventPublisher.publishEvent(
@@ -156,7 +156,7 @@ public class CommunityService {
               .senderNickname(sender.getNickname())
               .target(comment)
               .targetId(communityPost.getId())
-              .redirectUrl("/community/post/" + communityPost.getId())
+              .redirectUrl("/community/post/" + communityPost.getId() + "/comment/" + commentId)
               .build());
     }
     return CommentResponse.from(comment.getId());
@@ -251,7 +251,8 @@ public class CommunityService {
               .senderNickname(user.getNickname())
               .target(comment)
               .targetId(comment.getCommunityPost().getId())
-              .redirectUrl("/community/post/" + comment.getCommunityPost().getId())
+              .redirectUrl(
+                  "/community/post/" + comment.getCommunityPost().getId() + "/comment/" + commentId)
               .build());
     }
     return LikeToggleResponse.from(isLiked, comment.getLikeCount());

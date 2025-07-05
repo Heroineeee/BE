@@ -34,7 +34,7 @@ public class NotificationFactory {
 
   private String buildCommentLike(String nickname, Object comment) {
     if (comment instanceof Comment c) {
-      return String.format("%s님이 댓글에 좋아요를 남겼어요. ‘%s’", nickname, shorten(c.getContent()));
+      return String.format("%s님이 ‘%s’ 댓글에 좋아요를 남겼어요.", nickname, shorten(c.getContent()));
     }
     throw new NotificationException(NotificationErrorCode.INVALID_COMMENT);
   }
@@ -55,7 +55,7 @@ public class NotificationFactory {
 
   private String buildCorrectInfo(String nickname, Object content) {
     if (content instanceof String productName) {
-      return String.format("%s님이 ‘%s’ 글에 올바른 정보예요가 달렸어요.", nickname, shorten(productName));
+      return String.format("‘%s’ 글에 올바른 정보예요가 달렸어요.", shorten(productName));
     }
     throw new NotificationException(NotificationErrorCode.INVALID_PRODUCT_NAME);
   }
