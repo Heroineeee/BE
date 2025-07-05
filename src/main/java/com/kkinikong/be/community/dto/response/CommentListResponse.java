@@ -54,7 +54,6 @@ public record CommentListResponse(
           .replyListResponse(replyListResponse)
           .build();
     }
-
     return CommentListResponse.builder()
         .commentId(comment.getId())
         .content(comment.getContent())

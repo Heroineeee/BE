@@ -95,6 +95,8 @@ public class ReportService {
     checkSelfReport(communityPost.getUser().getId(), userId);
     checkTargetExist(ReportType.COMMUNITY_POST, communityPost.getId(), userId);
 
+    communityPost.incrementReportCount();
+
     saveReport(postId, ReportType.COMMUNITY_POST, CommonReportReason, reportRequest, user);
   }
 
