@@ -3,8 +3,6 @@ package com.kkinikong.be.store.repository.storescrap;
 import java.util.List;
 import java.util.Optional;
 
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
@@ -16,7 +14,7 @@ public interface StoreScrapRepository
     extends JpaRepository<StoreScrap, Long>, StoreScrapRepositoryCustom {
   List<StoreScrap> store(Store store);
 
-  Page<StoreScrap> findAllByUserIdOrderByCreatedDateDesc(Long userId, Pageable pageable);
+  List<StoreScrap> findAllByUserIdOrderByCreatedDateDesc(Long userId);
 
   void deleteAllByUser(User user);
 

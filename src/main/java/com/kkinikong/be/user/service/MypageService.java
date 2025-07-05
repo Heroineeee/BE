@@ -47,11 +47,9 @@ public class MypageService {
   private final CommunityPostLikeRepository communityPostLikeRepository;
   private final CommentRepository commentRepository;
 
-  public PageResponse<MypageStoreResponse> getScrapStore(Long userId, int page, int size) {
-    Pageable pageable = PageRequest.of(page, size);
-    Page<StoreScrap> storeScrapPage =
-        storeScrapRepository.findAllByUserIdOrderByCreatedDateDesc(userId, pageable);
-    return PageResponse.from(storeScrapPage, scrap -> MypageStoreResponse.from(scrap.getStore()));
+  public List<MypageStoreResponse> getScrapStore(Long userId) {
+    List<StoreScrap> scraps = storeScrapRepository.findAllByUserIdOrderByCreatedDateDesc(userId);
+    return scraps.stream().map(scrap -> MypageStoreResponse.from(scrap.getStore())).toList();
   }
 
   public PageResponse<MypageReviewResponse> getReview(Long userId, int page, int size) {
