@@ -1,5 +1,7 @@
 package com.kkinikong.be.user.controller;
 
+import java.util.List;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -32,11 +34,8 @@ public class MypageController {
   @Operation(summary = "내가 찜한 가게 조회")
   @GetMapping("/scrap")
   public ResponseEntity<ApiResponse<Object>> getScrapStoreList(
-      @AuthenticationPrincipal CustomUserDetails userDetails,
-      @RequestParam(defaultValue = "0") int page,
-      @RequestParam(defaultValue = "10") int size) {
-    PageResponse<MypageStoreResponse> response =
-        mypageService.getScrapStore(userDetails.getId(), page, size);
+      @AuthenticationPrincipal CustomUserDetails userDetails) {
+    List<MypageStoreResponse> response = mypageService.getScrapStore(userDetails.getId());
     return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.from(response));
   }
 
