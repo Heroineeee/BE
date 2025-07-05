@@ -40,6 +40,19 @@ public record CommentListResponse(
           .isMyComment(isMyComment)
           .replyListResponse(replyListResponse)
           .build();
+    } else if (comment.isDeleted()) {
+      return CommentListResponse.builder()
+          .commentId(comment.getId())
+          .content("삭제된 댓글입니다")
+          .nickname(UserNicknameUtil.displayNickname(comment.getUser()))
+          .createdAt(TimeUtil.relativeTimeFormatter(comment.getCreatedDate()))
+          .isModified(comment.isModified())
+          .likeCount(null)
+          .isLiked(null)
+          .isAuthor(comment.isAuthor())
+          .isMyComment(isMyComment)
+          .replyListResponse(replyListResponse)
+          .build();
     }
 
     return CommentListResponse.builder()
