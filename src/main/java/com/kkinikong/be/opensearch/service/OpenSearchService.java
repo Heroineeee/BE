@@ -114,9 +114,14 @@ public class OpenSearchService {
                       .query(query)
                       .source(src -> src.filter(f -> f.includes(List.of()))));
 
-      SearchResponse<Void> searchResponse = openSearchClient.search(request, Void.class);
+      SearchResponse<CommunityPostDocument> response =
+          openSearchClient.search(request, CommunityPostDocument.class);
 
-      return searchResponse.hits().hits().stream().map(Hit::id).map(Long::parseLong).toList();
+      return response.hits().hits().stream()
+          .filter(hit -> hit.score() != null && hit.score() >= 1.0f)
+          .map(Hit::id)
+          .map(Long::parseLong)
+          .toList();
 
     } catch (IOException e) {
       throw new CommunityException(CommunityErrorCode.FAILED_TO_SEARCH_INDEX);
@@ -168,7 +173,7 @@ public class OpenSearchService {
                                                           .fuzziness("1"))
                                               ._toQuery())
                                   .toList())
-                          .minimumShouldMatch("1")
+                          .minimumShouldMatch("2")
                           .boost(10f))
               ._toQuery();
 
