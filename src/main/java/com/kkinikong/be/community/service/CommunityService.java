@@ -33,6 +33,7 @@ import com.kkinikong.be.community.dto.request.CommunityCommentRequest;
 import com.kkinikong.be.community.dto.request.CommunityPostRequest;
 import com.kkinikong.be.community.dto.response.CommentListResponse;
 import com.kkinikong.be.community.dto.response.CommentResponse;
+import com.kkinikong.be.community.dto.response.CommunityPostImageResponse;
 import com.kkinikong.be.community.dto.response.CommunityPostInfoResponse;
 import com.kkinikong.be.community.dto.response.CommunityPostListResponse;
 import com.kkinikong.be.community.dto.response.CommunityPostPopularResponse;
@@ -92,8 +93,9 @@ public class CommunityService {
   }
 
   @Transactional
-  public void postCommunityPostImage(Long postId, List<MultipartFile> files, Long userId) {
-    if (files == null || files.isEmpty()) return;
+  public CommunityPostImageResponse postCommunityPostImage(
+      Long postId, List<MultipartFile> files, Long userId) {
+    if (files == null || files.isEmpty()) return new CommunityPostImageResponse(List.of());
     if (files.size() > 3) {
       throw new CommunityException(CommunityErrorCode.COMMUNITY_POST_IMAGE_SIZE_LIMIT);
     }
@@ -111,6 +113,7 @@ public class CommunityService {
           CommunityPostImage.builder().communityPost(communityPost).imageUrl(url).build());
     }
     communityPost.updateThumbnailUrl(imageUrl.get(0));
+    return CommunityPostImageResponse.from(imageUrl);
   }
 
   @Transactional
