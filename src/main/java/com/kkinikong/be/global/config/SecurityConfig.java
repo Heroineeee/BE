@@ -85,6 +85,10 @@ public class SecurityConfig {
                         "/api/v1/community/search/recent")
                     .authenticated()
 
+                    // SSE 알림 구독은 인증 없이 허용
+                    .requestMatchers("/api/v1/notification/subscribe")
+                    .permitAll()
+
                     // 인증 필요
                     .requestMatchers(
                         "/api/v1/user/**", "/api/v1/mypage/**", "/api/v1/notification/**")
