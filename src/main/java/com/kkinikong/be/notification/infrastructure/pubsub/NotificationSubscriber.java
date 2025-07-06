@@ -30,6 +30,7 @@ public class NotificationSubscriber implements MessageListener {
   public void onMessage(Message message, byte[] pattern) {
     try {
       String json = new String(message.getBody(), StandardCharsets.UTF_8);
+      log.info("📨 Redis 수신 메시지: {}", json);
       NotificationMessage notificationMessage =
           objectMapper.readValue(json, NotificationMessage.class);
       User receiver = getUserOrThrow(notificationMessage.receiverId());

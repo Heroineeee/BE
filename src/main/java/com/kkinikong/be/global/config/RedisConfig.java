@@ -9,7 +9,10 @@ import org.springframework.data.redis.connection.lettuce.LettuceConnectionFactor
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.repository.configuration.EnableRedisRepositories;
 import org.springframework.data.redis.serializer.GenericJackson2JsonRedisSerializer;
+import org.springframework.data.redis.serializer.Jackson2JsonRedisSerializer;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
+
+import com.kkinikong.be.notification.dto.NotificationMessage;
 
 @Configuration
 @EnableRedisRepositories
@@ -49,6 +52,10 @@ public class RedisConfig {
     redisTemplate.setConnectionFactory(connectionFactory);
     redisTemplate.setKeySerializer(new StringRedisSerializer());
     redisTemplate.setValueSerializer(new GenericJackson2JsonRedisSerializer());
+
+    Jackson2JsonRedisSerializer<NotificationMessage> serializer =
+        new Jackson2JsonRedisSerializer<>(NotificationMessage.class);
+    redisTemplate.setValueSerializer(serializer);
     return redisTemplate;
   }
 }
