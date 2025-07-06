@@ -97,11 +97,10 @@ public class CommunityService {
   public CommunityPostImageResponse postCommunityPostImage(
       Long postId, List<MultipartFile> files, Long userId) {
     if (files == null || files.isEmpty()) return new CommunityPostImageResponse(List.of());
-    if (files.size() > 3) {
+
+    int remainImageSize = communityPostImageRepository.findAllByCommunityPostId(postId).size();
+    if (remainImageSize + files.size() > 3) {
       throw new CommunityException(CommunityErrorCode.COMMUNITY_POST_IMAGE_SIZE_LIMIT);
-    }
-    if (communityPostImageRepository.existsByCommunityPostId(postId)) {
-      throw new CommunityException(CommunityErrorCode.COMMUNITY_POST_IMAGE_ALREADY_EXISTS);
     }
 
     CommunityPost communityPost = getCommunityPostOrThrow(postId);
@@ -113,6 +112,8 @@ public class CommunityService {
       communityPostImageRepository.save(
           CommunityPostImage.builder().communityPost(communityPost).imageUrl(url).build());
     }
+
+    // 썸네일 아직 수정중
     communityPost.updateThumbnailUrl(imageUrl.get(0));
     return CommunityPostImageResponse.from(imageUrl);
   }
