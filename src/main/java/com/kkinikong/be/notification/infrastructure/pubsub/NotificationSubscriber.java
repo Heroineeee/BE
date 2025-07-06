@@ -34,6 +34,7 @@ public class NotificationSubscriber implements MessageListener {
       sseNotificationService.send(
           receiver,
           notificationMessage.type(),
+          notificationMessage.senderNickname(),
           notificationMessage.content(),
           notificationMessage.targetId(),
           notificationMessage.redirectUrl());

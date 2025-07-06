@@ -7,6 +7,7 @@ import com.kkinikong.be.notification.domain.type.NotificationType;
 public record NotificationResponse(
     Long notificationId,
     NotificationType type,
+    String senderNickname,
     String content,
     String redirectUrl,
     Long targetId,
@@ -16,6 +17,7 @@ public record NotificationResponse(
     return new NotificationResponse(
         notification.getId(),
         notification.getNotificationType(),
+        notification.getSenderNickname(),
         notification.getContent(),
         notification.getRedirectUrl(),
         notification.getTargetId(),

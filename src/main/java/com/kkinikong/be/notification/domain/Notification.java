@@ -28,6 +28,9 @@ public class Notification extends BaseEntity {
   @Column(name = "type", nullable = false)
   private NotificationType notificationType;
 
+  @Column(name = "sender_nickname", nullable = false)
+  private String senderNickname;
+
   @Column(name = "content", nullable = false)
   private String content;
 
@@ -46,9 +49,15 @@ public class Notification extends BaseEntity {
 
   @Builder
   public Notification(
-      User receiver, NotificationType type, String content, Long targetId, String redirectUrl) {
+      User receiver,
+      NotificationType type,
+      String senderNickname,
+      String content,
+      Long targetId,
+      String redirectUrl) {
     this.receiver = receiver;
     this.notificationType = type;
+    this.senderNickname = senderNickname;
     this.content = content;
     this.targetId = targetId;
     this.redirectUrl = redirectUrl;
