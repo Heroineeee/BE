@@ -80,14 +80,14 @@ public class MypageService {
   public PageResponse<CommunityPostListResponse> getCommunityPost(Long userId, int page, int size) {
     Pageable pageable = PageRequest.of(page, size);
     Page<CommunityPost> communityPostPage =
-        communityPostRepository.findAllByUserIdOrderByCreatedDate(userId, pageable);
+        communityPostRepository.findAllByUserIdOrderByCreatedDateDesc(userId, pageable);
     return PageResponse.from(communityPostPage, CommunityPostListResponse::from);
   }
 
   public PageResponse<CommunityPostListResponse> getLikePost(Long userId, int page, int size) {
     Pageable pageable = PageRequest.of(page, size);
     Page<CommunityPostLike> communityPostListPage =
-        communityPostLikeRepository.findAllByUserIdOrderByCreatedDate(userId, pageable);
+        communityPostLikeRepository.findAllByUserIdOrderByCreatedDateDesc(userId, pageable);
     return PageResponse.from(
         communityPostListPage, like -> CommunityPostListResponse.from(like.getCommunityPost()));
   }

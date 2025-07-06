@@ -20,7 +20,7 @@ public interface CommunityPostLikeRepository extends JpaRepository<CommunityPost
         "communityPost.user",
         "communityPost.communityPostImageList"
       })
-  Page<CommunityPostLike> findAllByUserIdOrderByCreatedDate(Long userId, Pageable pageable);
+  Page<CommunityPostLike> findAllByUserIdOrderByCreatedDateDesc(Long userId, Pageable pageable);
 
   void deleteAllByCommunityPostId(Long postId);
 }
