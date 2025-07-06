@@ -31,6 +31,7 @@ import com.kkinikong.be.community.domain.document.CommunityPostDocument;
 import com.kkinikong.be.community.domain.type.Category;
 import com.kkinikong.be.community.dto.request.CommunityCommentRequest;
 import com.kkinikong.be.community.dto.request.CommunityPostRequest;
+import com.kkinikong.be.community.dto.request.CommunityPostUpdateRequest;
 import com.kkinikong.be.community.dto.response.CommentListResponse;
 import com.kkinikong.be.community.dto.response.CommentResponse;
 import com.kkinikong.be.community.dto.response.CommunityPostImageResponse;
@@ -353,18 +354,20 @@ public class CommunityService {
   }
 
   @Transactional
-  public void updateCommunityPost(Long postId, CommunityPostRequest request, Long userId) {
+  public void updateCommunityPost(Long postId, CommunityPostUpdateRequest request, Long userId) {
     CommunityPost communityPost = getCommunityPostOrThrow(postId);
     validatePostOwner(communityPost, userId);
+    List<String> remainingImageUrls = request.remainingImageUrls();
 
-    // 기존 이미지 모두 삭제
     communityPostImageRepository
         .findAllByCommunityPostId(postId)
         .forEach(
             image -> {
-              imageService.deleteFile(image.getImageUrl(), S3Bucket.COMMUNITY_POST_IMAGE);
+              if (!remainingImageUrls.contains(image.getImageUrl())) {
+                imageService.deleteFile(image.getImageUrl(), S3Bucket.COMMUNITY_POST_IMAGE);
+                communityPostImageRepository.deleteById(image.getId());
+              }
             });
-    communityPostImageRepository.deleteAllByCommunityPostId(postId);
 
     communityPost.update(request.title(), request.content(), request.category());
 

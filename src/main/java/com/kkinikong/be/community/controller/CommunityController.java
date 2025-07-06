@@ -27,6 +27,7 @@ import lombok.RequiredArgsConstructor;
 import com.kkinikong.be.community.domain.type.Category;
 import com.kkinikong.be.community.dto.request.CommunityCommentRequest;
 import com.kkinikong.be.community.dto.request.CommunityPostRequest;
+import com.kkinikong.be.community.dto.request.CommunityPostUpdateRequest;
 import com.kkinikong.be.community.dto.response.CommentResponse;
 import com.kkinikong.be.community.dto.response.CommunityPostImageResponse;
 import com.kkinikong.be.community.dto.response.CommunityPostResponse;
@@ -247,7 +248,7 @@ public class CommunityController {
   @PatchMapping("/post/{postId}")
   public ResponseEntity<ApiResponse<Object>> updateCommunityPost(
       @PathVariable("postId") Long postId,
-      @RequestBody @Valid CommunityPostRequest request,
+      @RequestBody @Valid CommunityPostUpdateRequest request,
       @AuthenticationPrincipal CustomUserDetails userDetails) {
 
     communityService.updateCommunityPost(postId, request, userDetails.getId());
