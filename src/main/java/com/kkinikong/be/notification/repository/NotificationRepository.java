@@ -5,8 +5,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import com.kkinikong.be.notification.domain.Notification;
-import com.kkinikong.be.user.domain.User;
 
 public interface NotificationRepository extends JpaRepository<Notification, Long> {
-  Page<Notification> findAllByReceiver(User user, Pageable pageable);
+  Page<Notification> findAllByReceiverIdOrderByCreatedDateDesc(Long receiverId, Pageable pageable);
 }

@@ -28,8 +28,8 @@ public class NotificationService {
 
   public PageResponse<NotificationResponse> getNotificationList(Long userId, int page, int size) {
     Pageable pageable = PageRequest.of(page, size);
-    User user = getUserOrThrow(userId);
-    Page<Notification> notificationPage = notificationRepository.findAllByReceiver(user, pageable);
+    Page<Notification> notificationPage =
+        notificationRepository.findAllByReceiverIdOrderByCreatedDateDesc(userId, pageable);
     return PageResponse.from(notificationPage, NotificationResponse::from);
   }
 
