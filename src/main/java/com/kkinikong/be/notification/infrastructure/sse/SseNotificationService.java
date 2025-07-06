@@ -51,12 +51,18 @@ public class SseNotificationService {
   }
 
   public void send(
-      User receiver, NotificationType type, String content, Long targetId, String redirectUrl) {
+      User receiver,
+      NotificationType type,
+      String senderNickname,
+      String content,
+      Long targetId,
+      String redirectUrl) {
     Notification notification =
         notificationRepository.save(
             Notification.builder()
                 .receiver(receiver)
                 .type(type)
+                .senderNickname(senderNickname)
                 .content(content)
                 .targetId(targetId)
                 .redirectUrl(redirectUrl)

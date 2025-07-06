@@ -14,46 +14,45 @@ import com.kkinikong.be.notification.exception.errorcode.NotificationErrorCode;
 @RequiredArgsConstructor
 public class NotificationFactory {
 
-  public String createContent(NotificationType type, String senderNickname, Object target) {
+  public String createContent(NotificationType type, Object target) {
     return switch (type) {
-      case COMMUNITY_LIKE -> buildCommunityLike(senderNickname, target);
-      case COMMENT_LIKE -> buildCommentLike(senderNickname, target);
-      case COMMUNITY_COMMENT -> buildCommunityComment(senderNickname, target);
-      case COMMENT_COMMENT -> buildCommentReply(senderNickname, target);
-      case CONVENIENCE_CORRECT_INFO -> buildCorrectInfo(senderNickname, target);
+      case COMMUNITY_LIKE -> buildCommunityLike(target);
+      case COMMENT_LIKE -> buildCommentLike(target);
+      case COMMUNITY_COMMENT -> buildCommunityComment(target);
+      case COMMENT_COMMENT -> buildCommentReply(target);
+      case CONVENIENCE_CORRECT_INFO -> buildCorrectInfo(target);
     };
   }
 
-  private String buildCommunityLike(String nickname, Object post) {
+  private String buildCommunityLike(Object post) {
     if (post instanceof CommunityPost communityPost) {
-      return String.format(
-          "%s님이 ‘%s’ 게시글에 좋아요를 남겼어요.", nickname, shorten(communityPost.getContent()));
+      return String.format("‘%s’ 게시글에 좋아요를 남겼어요.", shorten(communityPost.getContent()));
     }
     throw new NotificationException(NotificationErrorCode.INVALID_COMMUNITY_POST);
   }
 
-  private String buildCommentLike(String nickname, Object comment) {
+  private String buildCommentLike(Object comment) {
     if (comment instanceof Comment c) {
-      return String.format("%s님이 ‘%s’ 댓글에 좋아요를 남겼어요.", nickname, shorten(c.getContent()));
+      return String.format("‘%s’ 댓글에 좋아요를 남겼어요.", shorten(c.getContent()));
     }
     throw new NotificationException(NotificationErrorCode.INVALID_COMMENT);
   }
 
-  private String buildCommunityComment(String nickname, Object comment) {
+  private String buildCommunityComment(Object comment) {
     if (comment instanceof Comment c) {
-      return String.format("%s님이 게시글에 댓글을 남겼어요. ‘%s’", nickname, shorten(c.getContent()));
+      return String.format("게시글에 댓글을 남겼어요. ‘%s’", shorten(c.getContent()));
     }
     throw new NotificationException(NotificationErrorCode.INVALID_COMMENT);
   }
 
-  private String buildCommentReply(String nickname, Object comment) {
+  private String buildCommentReply(Object comment) {
     if (comment instanceof Comment c) {
-      return String.format("%s님이 답글을 남겼어요. ‘%s’", nickname, shorten(c.getContent()));
+      return String.format("답글을 남겼어요. ‘%s’", shorten(c.getContent()));
     }
     throw new NotificationException(NotificationErrorCode.INVALID_COMMENT);
   }
 
-  private String buildCorrectInfo(String nickname, Object content) {
+  private String buildCorrectInfo(Object content) {
     if (content instanceof String productName) {
       return String.format("‘%s’ 글에 올바른 정보예요가 달렸어요.", shorten(productName));
     }

@@ -30,7 +30,7 @@ public interface CommunityPostRepository
   @EntityGraph(attributePaths = {"communityPostImageList"})
   Page<CommunityPost> findAll(Pageable pageable);
 
-  Page<CommunityPost> findAllByUserIdOrderByCreatedDate(Long userId, Pageable pageable);
+  Page<CommunityPost> findAllByUserIdOrderByCreatedDateDesc(Long userId, Pageable pageable);
 
   @Lock(LockModeType.PESSIMISTIC_WRITE)
   @Query("SELECT p FROM CommunityPost p WHERE p.id = :postId")

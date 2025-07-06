@@ -11,6 +11,9 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 
+import com.kkinikong.be.auth.exception.AuthException;
+import com.kkinikong.be.auth.exception.errorcode.AuthErrorCode;
+import com.kkinikong.be.auth.util.JwtTokenProvider;
 import com.kkinikong.be.global.response.ApiResponse;
 import com.kkinikong.be.notification.infrastructure.sse.SseNotificationService;
 import com.kkinikong.be.notification.service.NotificationService;
@@ -24,6 +27,7 @@ public class NotificationController {
 
   private final SseNotificationService sseNotificationService;
   private final NotificationService notificationService;
+  private final JwtTokenProvider jwtTokenProvider;
 
   @Operation(
       summary = "SSE 연결",
@@ -33,10 +37,14 @@ public class NotificationController {
   - 연결이 끊겼을 경우 `Last-Event-ID`를 이용해 수신하지 못한 알림을 이어받을 수 있습니다.""")
   @GetMapping(value = "/subscribe", produces = MediaType.TEXT_EVENT_STREAM_VALUE + ";charset=UTF-8")
   public ResponseEntity<SseEmitter> subscribe(
-      @AuthenticationPrincipal CustomUserDetails userDetails,
+      @RequestParam("token") String token,
       @RequestHeader(value = "Last-Event-ID", required = false, defaultValue = "")
           String lastEventId) {
-    SseEmitter emitter = sseNotificationService.subscribe(userDetails.getId(), lastEventId);
+    if (!jwtTokenProvider.validateToken(token)) {
+      throw new AuthException(AuthErrorCode.INVALID_TOKEN);
+    }
+    Long userId = Long.parseLong(jwtTokenProvider.getUserPk(token));
+    SseEmitter emitter = sseNotificationService.subscribe(userId, lastEventId);
     return ResponseEntity.ok(emitter);
   }
 

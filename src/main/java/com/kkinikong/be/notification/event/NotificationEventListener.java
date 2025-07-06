@@ -22,8 +22,8 @@ public class NotificationEventListener {
         new NotificationMessage(
             event.getReceiver().getId(),
             event.getType(),
-            notificationFactory.createContent(
-                event.getType(), event.getSenderNickname(), event.getTarget()),
+            event.getSenderNickname(),
+            notificationFactory.createContent(event.getType(), event.getTarget()),
             event.getRedirectUrl(),
             event.getTargetId());
     notificationPublisher.publish(message);
