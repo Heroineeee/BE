@@ -1,5 +1,7 @@
 package com.kkinikong.be.notification.infrastructure.pubsub;
 
+import java.nio.charset.StandardCharsets;
+
 import org.springframework.data.redis.connection.Message;
 import org.springframework.data.redis.connection.MessageListener;
 import org.springframework.stereotype.Component;
@@ -27,7 +29,7 @@ public class NotificationSubscriber implements MessageListener {
   @Override
   public void onMessage(Message message, byte[] pattern) {
     try {
-      String json = new String(message.getBody());
+      String json = new String(message.getBody(), StandardCharsets.UTF_8);
       NotificationMessage notificationMessage =
           objectMapper.readValue(json, NotificationMessage.class);
       User receiver = getUserOrThrow(notificationMessage.receiverId());
