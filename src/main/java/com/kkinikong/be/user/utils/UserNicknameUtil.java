@@ -9,7 +9,7 @@ public class UserNicknameUtil {
 
   public static String checkReportNickname(User user) {
     String nickname = displayNickname(user);
-    if (!nickname.equals("탈퇴한 회원입니다")) {
+    if (!nickname.equals("탈퇴한 회원")) {
       nickname = nickname.charAt(0) + "***";
     }
     return nickname;
