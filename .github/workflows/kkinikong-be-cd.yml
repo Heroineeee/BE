@@ -34,10 +34,15 @@ jobs:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
 
-      - name: 🐳 Docker 이미지 빌드 & Push
-        run: |
-          docker build -t chaeeunkim/kkini-kong-be:develop .
-          docker push chaeeunkim/kkini-kong-be:develop
+      - name: 🏷️ Docker 이미지 빌드 & Push (develop 태그)
+        uses: docker/build-push-action@v4
+        with:
+          context: .
+          file: ./Dockerfile
+          push: true
+          platforms: linux/amd64
+          tags: |
+            chaeeunkim/kkini-kong-be:develop
           
       - name: 🚀 EC2 서버에 SSH 접속 후 Blue-Green 배포
         uses: appleboy/ssh-action@master
