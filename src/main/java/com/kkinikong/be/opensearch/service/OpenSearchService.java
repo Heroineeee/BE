@@ -179,11 +179,7 @@ public class OpenSearchService {
       // 레벨 2 : 공백 제거 후 일치
       Query level2 =
           MatchQuery.of(
-                  m ->
-                      m.field("titleWithContent")
-                          .query(FieldValue.of(noSpaceKeyword))
-                          .fuzziness("1")
-                          .boost(50f))
+                  m -> m.field("titleWithContent").query(FieldValue.of(noSpaceKeyword)).boost(50f))
               ._toQuery();
 
       // 레벨 3 : 각 토큰에 대해 개별적으로 일치
@@ -197,8 +193,7 @@ public class OpenSearchService {
                                           MatchQuery.of(
                                                   m ->
                                                       m.field("titleWithContent")
-                                                          .query(FieldValue.of(token))
-                                                          .fuzziness("1"))
+                                                          .query(FieldValue.of(token)))
                                               ._toQuery())
                                   .toList())
                           .minimumShouldMatch("2")
@@ -208,8 +203,7 @@ public class OpenSearchService {
       return BoolQuery.of(b -> b.should(level1).should(level2).should(level3))._toQuery();
 
     } else { // 키워드가 공백을 포함하지 않는 경우
-      return MatchQuery.of(
-              m -> m.field("titleWithContent").query(FieldValue.of(keyword)).fuzziness("1"))
+      return MatchQuery.of(m -> m.field("titleWithContent").query(FieldValue.of(keyword)))
           ._toQuery();
     }
   }
