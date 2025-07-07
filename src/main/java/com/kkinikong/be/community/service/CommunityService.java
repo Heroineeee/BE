@@ -98,8 +98,9 @@ public class CommunityService {
       Long postId, List<MultipartFile> files, Long userId) {
     if (files == null || files.isEmpty()) return new CommunityPostImageResponse(List.of());
 
-    int remainImageSize = communityPostImageRepository.findAllByCommunityPostId(postId).size();
-    if (remainImageSize + files.size() > 3) {
+    List<CommunityPostImage> remainImageList =
+        communityPostImageRepository.findAllByCommunityPostId(postId);
+    if (remainImageList.size() + files.size() > 3) {
       throw new CommunityException(CommunityErrorCode.COMMUNITY_POST_IMAGE_SIZE_LIMIT);
     }
 
@@ -113,8 +114,12 @@ public class CommunityService {
           CommunityPostImage.builder().communityPost(communityPost).imageUrl(url).build());
     }
 
-    // 썸네일 아직 수정중
-    communityPost.updateThumbnailUrl(imageUrl.get(0));
+    if (!remainImageList.isEmpty()) {
+      communityPost.updateThumbnailUrl(remainImageList.get(0).getImageUrl());
+    } else {
+      communityPost.updateThumbnailUrl(imageUrl.get(0));
+    }
+
     return CommunityPostImageResponse.from(imageUrl);
   }
 
