@@ -27,6 +27,7 @@ import com.kkinikong.be.global.exception.response.ErrorResponse;
 import com.kkinikong.be.global.exception.response.ErrorResponse.ValidationError;
 import com.kkinikong.be.global.exception.response.ErrorResponse.ValidationErrors;
 import com.kkinikong.be.notification.exception.NotificationException;
+import com.kkinikong.be.opensearch.exception.OpenSearchException;
 import com.kkinikong.be.report.exception.ReportException;
 import com.kkinikong.be.review.exception.ReviewException;
 import com.kkinikong.be.store.exception.StoreException;
@@ -110,6 +111,13 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
   @ExceptionHandler(NotificationException.class)
   public ResponseEntity<Object> handleNotificationException(
       final NotificationException e, HttpServletRequest request) {
+    logInfo(e.getErrorCode(), e, request);
+    return handleExceptionInternal(e.getErrorCode());
+  }
+
+  @ExceptionHandler(OpenSearchException.class)
+  public ResponseEntity<Object> handleOpenSearchException(
+      final OpenSearchException e, HttpServletRequest request) {
     logInfo(e.getErrorCode(), e, request);
     return handleExceptionInternal(e.getErrorCode());
   }
