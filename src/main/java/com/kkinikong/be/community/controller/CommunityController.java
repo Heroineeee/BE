@@ -27,7 +27,9 @@ import lombok.RequiredArgsConstructor;
 import com.kkinikong.be.community.domain.type.Category;
 import com.kkinikong.be.community.dto.request.CommunityCommentRequest;
 import com.kkinikong.be.community.dto.request.CommunityPostRequest;
+import com.kkinikong.be.community.dto.request.CommunityPostUpdateRequest;
 import com.kkinikong.be.community.dto.response.CommentResponse;
+import com.kkinikong.be.community.dto.response.CommunityPostImageResponse;
 import com.kkinikong.be.community.dto.response.CommunityPostResponse;
 import com.kkinikong.be.community.dto.response.LikeToggleResponse;
 import com.kkinikong.be.community.service.CommunityService;
@@ -75,9 +77,10 @@ public class CommunityController {
           List<MultipartFile> files,
       @AuthenticationPrincipal CustomUserDetails userDetails) {
 
-    communityService.postCommunityPostImage(postId, files, userDetails.getId());
+    CommunityPostImageResponse communityPostImageResponse =
+        communityService.postCommunityPostImage(postId, files, userDetails.getId());
 
-    return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.EMPTY_RESPONSE);
+    return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.from(communityPostImageResponse));
   }
 
   @PostMapping("/post/{postId}/comment")
@@ -245,7 +248,7 @@ public class CommunityController {
   @PatchMapping("/post/{postId}")
   public ResponseEntity<ApiResponse<Object>> updateCommunityPost(
       @PathVariable("postId") Long postId,
-      @RequestBody @Valid CommunityPostRequest request,
+      @RequestBody @Valid CommunityPostUpdateRequest request,
       @AuthenticationPrincipal CustomUserDetails userDetails) {
 
     communityService.updateCommunityPost(postId, request, userDetails.getId());
