@@ -7,6 +7,7 @@ import java.util.stream.Collectors;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -85,9 +86,9 @@ public class MypageService {
   }
 
   public PageResponse<CommunityPostListResponse> getLikePost(Long userId, int page, int size) {
-    Pageable pageable = PageRequest.of(page, size);
+    Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdDate"));
     Page<CommunityPostLike> communityPostListPage =
-        communityPostLikeRepository.findAllByUserIdOrderByCreatedDateDesc(userId, pageable);
+        communityPostLikeRepository.findAllByUserId(userId, pageable);
     return PageResponse.from(
         communityPostListPage, like -> CommunityPostListResponse.from(like.getCommunityPost()));
   }
