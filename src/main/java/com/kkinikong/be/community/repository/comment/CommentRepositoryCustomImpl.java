@@ -31,7 +31,7 @@ public class CommentRepositoryCustomImpl implements CommentRepositoryCustom {
             .selectDistinct(communityPost)
             .from(comment)
             .join(qComment.communityPost, communityPost)
-            .where(comment.user.id.eq(userId))
+            .where(comment.user.id.eq(userId), comment.isDeleted.eq(false))
             .orderBy(communityPost.createdDate.desc())
             .offset(pageable.getOffset())
             .limit(pageable.getPageSize())
@@ -42,7 +42,7 @@ public class CommentRepositoryCustomImpl implements CommentRepositoryCustom {
             .select(communityPost.countDistinct())
             .from(comment)
             .join(comment.communityPost, communityPost)
-            .where(comment.user.id.eq(userId))
+            .where(comment.user.id.eq(userId), comment.isDeleted.eq(false))
             .fetchOne();
 
     return new PageImpl<>(content, pageable, total != null ? total : 0);
@@ -54,7 +54,10 @@ public class CommentRepositoryCustomImpl implements CommentRepositoryCustom {
         .selectFrom(comment)
         .join(qComment.communityPost, communityPost)
         .fetchJoin()
-        .where(comment.user.id.eq(userId), comment.communityPost.id.in(postIds))
+        .where(
+            comment.user.id.eq(userId),
+            comment.communityPost.id.in(postIds),
+            comment.isDeleted.eq(false))
         .fetch();
   }
 }

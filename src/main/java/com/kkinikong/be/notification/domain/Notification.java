@@ -34,10 +34,10 @@ public class Notification extends BaseEntity {
   @Column(name = "content", nullable = false)
   private String content;
 
-  @Column(name = "target_id")
+  @Column(name = "target_id", nullable = false)
   private Long targetId;
 
-  @Column(name = "redirect_url")
+  @Column(name = "redirect_url", nullable = false)
   private String redirectUrl;
 
   @Column(name = "is_read", nullable = false)

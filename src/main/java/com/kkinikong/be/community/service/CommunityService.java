@@ -149,25 +149,29 @@ public class CommunityService {
 
     // 알림 이벤트 발행
     if (parent == null) {
-      eventPublisher.publishEvent(
-          NotificationEvent.builder()
-              .receiver(communityPost.getUser())
-              .type(NotificationType.COMMUNITY_COMMENT)
-              .senderNickname(sender.getNickname())
-              .target(comment)
-              .targetId(communityPost.getId())
-              .redirectUrl("/community/post/" + communityPost.getId())
-              .build());
+      if (!communityPost.getUser().getId().equals(userId)) {
+        eventPublisher.publishEvent(
+            NotificationEvent.builder()
+                .receiver(communityPost.getUser())
+                .type(NotificationType.COMMUNITY_COMMENT)
+                .senderNickname(sender.getNickname())
+                .target(comment)
+                .targetId(communityPost.getId())
+                .redirectUrl("/community/post/" + communityPost.getId())
+                .build());
+      }
     } else {
-      eventPublisher.publishEvent(
-          NotificationEvent.builder()
-              .receiver(parent.getUser())
-              .type(NotificationType.COMMENT_COMMENT)
-              .senderNickname(sender.getNickname())
-              .target(comment)
-              .targetId(communityPost.getId())
-              .redirectUrl("/community/post/" + communityPost.getId())
-              .build());
+      if (!parent.getUser().getId().equals(userId)) {
+        eventPublisher.publishEvent(
+            NotificationEvent.builder()
+                .receiver(parent.getUser())
+                .type(NotificationType.COMMENT_COMMENT)
+                .senderNickname(sender.getNickname())
+                .target(comment)
+                .targetId(communityPost.getId())
+                .redirectUrl("/community/post/" + communityPost.getId())
+                .build());
+      }
     }
     return CommentResponse.from(comment.getId());
   }
@@ -218,15 +222,17 @@ public class CommunityService {
       isLiked = true;
 
       // 알림 이벤트 발행
-      eventPublisher.publishEvent(
-          NotificationEvent.builder()
-              .receiver(communityPost.getUser())
-              .type(NotificationType.COMMUNITY_LIKE)
-              .senderNickname(user.getNickname())
-              .target(communityPost)
-              .targetId(communityPost.getId())
-              .redirectUrl("/community/post/" + communityPost.getId())
-              .build());
+      if (!communityPost.getUser().getId().equals(userId)) {
+        eventPublisher.publishEvent(
+            NotificationEvent.builder()
+                .receiver(communityPost.getUser())
+                .type(NotificationType.COMMUNITY_LIKE)
+                .senderNickname(user.getNickname())
+                .target(communityPost)
+                .targetId(communityPost.getId())
+                .redirectUrl("/community/post/" + communityPost.getId())
+                .build());
+      }
     }
 
     return LikeToggleResponse.from(isLiked, communityPost.getLikeCount());
@@ -254,15 +260,17 @@ public class CommunityService {
       isLiked = true;
 
       // 알림 이벤트 발행
-      eventPublisher.publishEvent(
-          NotificationEvent.builder()
-              .receiver(comment.getUser())
-              .type(NotificationType.COMMENT_LIKE)
-              .senderNickname(user.getNickname())
-              .target(comment)
-              .targetId(comment.getCommunityPost().getId())
-              .redirectUrl("/community/post/" + comment.getCommunityPost().getId())
-              .build());
+      if (!comment.getUser().getId().equals(userId)) {
+        eventPublisher.publishEvent(
+            NotificationEvent.builder()
+                .receiver(comment.getUser())
+                .type(NotificationType.COMMENT_LIKE)
+                .senderNickname(user.getNickname())
+                .target(comment)
+                .targetId(comment.getCommunityPost().getId())
+                .redirectUrl("/community/post/" + comment.getCommunityPost().getId())
+                .build());
+      }
     }
     return LikeToggleResponse.from(isLiked, comment.getLikeCount());
   }
