@@ -6,6 +6,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import com.kkinikong.be.community.domain.CommunityPostLike;
@@ -20,7 +21,13 @@ public interface CommunityPostLikeRepository extends JpaRepository<CommunityPost
         "communityPost.user",
         "communityPost.communityPostImageList"
       })
-  Page<CommunityPostLike> findAllByUserIdOrderByCreatedDateDesc(Long userId, Pageable pageable);
+  @Query(
+      """
+    SELECT cpl FROM CommunityPostLike cpl
+    WHERE cpl.user.id = :userId
+    ORDER BY cpl.communityPost.createdDate DESC
+""")
+  Page<CommunityPostLike> findAllByUserId(Long userId, Pageable pageable);
 
   void deleteAllByCommunityPostId(Long postId);
 }

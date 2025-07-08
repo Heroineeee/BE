@@ -47,4 +47,14 @@ public class OpenSearchAdminController {
     openSearchService.resetIndex(index);
     return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.EMPTY_RESPONSE);
   }
+
+  @PostMapping("/bulk-index")
+  @Operation(
+      summary = "OpenSearch 인덱스 일괄 생성",
+      description = "DB에 존재하는 게시글에 대해 OpenSearch 인덱스를 일괄 생성하는 API입니다. 한 번만 실행하면 됩니다.")
+  public ResponseEntity<ApiResponse<Object>> bulkIndex(
+      @AuthenticationPrincipal CustomUserDetails userDetails) {
+    openSearchService.bulkIndex();
+    return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.EMPTY_RESPONSE);
+  }
 }

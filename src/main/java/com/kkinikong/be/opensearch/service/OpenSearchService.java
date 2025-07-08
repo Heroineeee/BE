@@ -16,15 +16,18 @@ import org.opensearch.client.opensearch._types.query_dsl.BoolQuery;
 import org.opensearch.client.opensearch._types.query_dsl.MatchPhraseQuery;
 import org.opensearch.client.opensearch._types.query_dsl.MatchQuery;
 import org.opensearch.client.opensearch._types.query_dsl.Query;
+import org.opensearch.client.opensearch.core.BulkRequest;
 import org.opensearch.client.opensearch.core.IndexRequest;
 import org.opensearch.client.opensearch.core.SearchRequest;
 import org.opensearch.client.opensearch.core.SearchResponse;
 import org.opensearch.client.opensearch.core.search.Hit;
 import org.opensearch.client.opensearch.indices.CreateIndexRequest;
 
+import com.kkinikong.be.community.domain.CommunityPost;
 import com.kkinikong.be.community.domain.document.CommunityPostDocument;
-import com.kkinikong.be.community.exception.CommunityException;
-import com.kkinikong.be.community.exception.errorcode.CommunityErrorCode;
+import com.kkinikong.be.community.repository.communityPost.CommunityPostRepository;
+import com.kkinikong.be.opensearch.exception.OpenSearchException;
+import com.kkinikong.be.opensearch.exception.errorcode.OpenSearchErrorCode;
 
 @Service
 @Slf4j
@@ -32,6 +35,7 @@ import com.kkinikong.be.community.exception.errorcode.CommunityErrorCode;
 public class OpenSearchService {
 
   private final OpenSearchClient openSearchClient;
+  private final CommunityPostRepository communityPostRepository;
 
   @Value("${opensearch.index}")
   private String indexName;
@@ -69,7 +73,7 @@ public class OpenSearchService {
       }
 
     } catch (IOException e) {
-      throw new CommunityException(CommunityErrorCode.FAILED_TO_SAVE_INDEX);
+      throw new OpenSearchException(OpenSearchErrorCode.FAILED_TO_SAVE_INDEX);
     }
   }
 
@@ -81,7 +85,7 @@ public class OpenSearchService {
       }
 
     } catch (IOException e) {
-      throw new CommunityException(CommunityErrorCode.FAILED_TO_RESET_INDEX);
+      throw new OpenSearchException(OpenSearchErrorCode.FAILED_TO_RESET_INDEX);
     }
   }
 
@@ -96,7 +100,31 @@ public class OpenSearchService {
                       .document(communityPostDocument)
                       .refresh(Refresh.True)));
     } catch (Exception e) {
-      throw new CommunityException(CommunityErrorCode.FAILED_TO_SAVE_INDEX);
+      throw new OpenSearchException(OpenSearchErrorCode.FAILED_TO_SAVE_INDEX);
+    }
+  }
+
+  public void bulkIndex() {
+    List<CommunityPost> posts = communityPostRepository.findAll();
+
+    List<CommunityPostDocument> documents =
+        posts.stream().map(CommunityPostDocument::from).toList();
+
+    BulkRequest.Builder br = new BulkRequest.Builder();
+    for (CommunityPostDocument document : documents) {
+      br.operations(
+          op ->
+              op.index(
+                  idx ->
+                      idx.index(indexName)
+                          .id(String.valueOf(document.getId()))
+                          .document(document)));
+    }
+
+    try {
+      openSearchClient.bulk(br.build());
+    } catch (Exception e) {
+      throw new OpenSearchException(OpenSearchErrorCode.FAILED_TO_BULK_INDEX);
     }
   }
 
@@ -114,12 +142,17 @@ public class OpenSearchService {
                       .query(query)
                       .source(src -> src.filter(f -> f.includes(List.of()))));
 
-      SearchResponse<Void> searchResponse = openSearchClient.search(request, Void.class);
+      SearchResponse<CommunityPostDocument> response =
+          openSearchClient.search(request, CommunityPostDocument.class);
 
-      return searchResponse.hits().hits().stream().map(Hit::id).map(Long::parseLong).toList();
+      return response.hits().hits().stream()
+          .filter(hit -> hit.score() != null && hit.score() >= 1.0f)
+          .map(Hit::id)
+          .map(Long::parseLong)
+          .toList();
 
     } catch (IOException e) {
-      throw new CommunityException(CommunityErrorCode.FAILED_TO_SEARCH_INDEX);
+      throw new OpenSearchException(OpenSearchErrorCode.FAILED_TO_SEARCH_INDEX);
     }
   }
 
@@ -128,7 +161,7 @@ public class OpenSearchService {
       openSearchClient.delete(
           d -> d.index(indexName).id(String.valueOf(postId)).refresh(Refresh.True));
     } catch (IOException e) {
-      throw new CommunityException(CommunityErrorCode.FAILED_TO_DELETE_INDEX);
+      throw new OpenSearchException(OpenSearchErrorCode.FAILED_TO_DELETE_INDEX);
     }
   }
 
@@ -146,11 +179,7 @@ public class OpenSearchService {
       // 레벨 2 : 공백 제거 후 일치
       Query level2 =
           MatchQuery.of(
-                  m ->
-                      m.field("titleWithContent")
-                          .query(FieldValue.of(noSpaceKeyword))
-                          .fuzziness("1")
-                          .boost(50f))
+                  m -> m.field("titleWithContent").query(FieldValue.of(noSpaceKeyword)).boost(50f))
               ._toQuery();
 
       // 레벨 3 : 각 토큰에 대해 개별적으로 일치
@@ -164,19 +193,17 @@ public class OpenSearchService {
                                           MatchQuery.of(
                                                   m ->
                                                       m.field("titleWithContent")
-                                                          .query(FieldValue.of(token))
-                                                          .fuzziness("1"))
+                                                          .query(FieldValue.of(token)))
                                               ._toQuery())
                                   .toList())
-                          .minimumShouldMatch("1")
+                          .minimumShouldMatch("2")
                           .boost(10f))
               ._toQuery();
 
       return BoolQuery.of(b -> b.should(level1).should(level2).should(level3))._toQuery();
 
     } else { // 키워드가 공백을 포함하지 않는 경우
-      return MatchQuery.of(
-              m -> m.field("titleWithContent").query(FieldValue.of(keyword)).fuzziness("1"))
+      return MatchQuery.of(m -> m.field("titleWithContent").query(FieldValue.of(keyword)))
           ._toQuery();
     }
   }
