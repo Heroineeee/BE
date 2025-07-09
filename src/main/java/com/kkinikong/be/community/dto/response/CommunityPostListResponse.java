@@ -29,6 +29,9 @@ public record CommunityPostListResponse(
   }
 
   private static String shortContent(String content, int maxLength) {
+    if (content == null) {
+      return null;
+    }
     return content.length() > maxLength ? content.substring(0, maxLength) + "..." : content;
   }
 }
