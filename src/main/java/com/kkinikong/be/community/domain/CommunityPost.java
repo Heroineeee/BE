@@ -36,7 +36,7 @@ public class CommunityPost extends BaseEntity {
   @Column(name = "title", nullable = false)
   private String title;
 
-  @Column(name = "content", columnDefinition = "TEXT", nullable = false)
+  @Column(name = "content", columnDefinition = "TEXT")
   private String content;
 
   @Column(name = "category", nullable = false)

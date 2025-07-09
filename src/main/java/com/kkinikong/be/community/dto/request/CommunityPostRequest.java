@@ -6,6 +6,6 @@ import jakarta.validation.constraints.Size;
 import com.kkinikong.be.community.domain.type.Category;
 
 public record CommunityPostRequest(
-    @NotNull @Size(min = 5, max = 25) String title,
-    @NotNull @Size(min = 10, max = 5000) String content,
+    @NotNull @Size(min = 1, max = 25) String title,
+    @Size(max = 5000) String content,
     @NotNull Category category) {}
