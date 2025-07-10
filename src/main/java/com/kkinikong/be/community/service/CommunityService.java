@@ -1,5 +1,6 @@
 package com.kkinikong.be.community.service;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -114,9 +115,7 @@ public class CommunityService {
           CommunityPostImage.builder().communityPost(communityPost).imageUrl(url).build());
     }
 
-    if (!remainImageList.isEmpty()) {
-      communityPost.updateThumbnailUrl(remainImageList.get(0).getImageUrl());
-    } else {
+    if (remainImageList.isEmpty()) {
       communityPost.updateThumbnailUrl(imageUrl.get(0));
     }
 
@@ -371,19 +370,26 @@ public class CommunityService {
   public void updateCommunityPost(Long postId, CommunityPostUpdateRequest request, Long userId) {
     CommunityPost communityPost = getCommunityPostOrThrow(postId);
     validatePostOwner(communityPost, userId);
-    List<String> remainingImageUrls = request.remainingImageUrls();
+    List<String> remaining =
+        request.remainingImageUrls() == null
+            ? Collections.emptyList()
+            : request.remainingImageUrls();
 
     communityPostImageRepository
         .findAllByCommunityPostId(postId)
         .forEach(
             image -> {
-              if (!remainingImageUrls.contains(image.getImageUrl())) {
+              if (!remaining.contains(image.getImageUrl())) {
                 imageService.deleteFile(image.getImageUrl(), S3Bucket.COMMUNITY_POST_IMAGE);
                 communityPostImageRepository.deleteById(image.getId());
               }
             });
 
-    communityPost.update(request.title(), request.content(), request.category());
+    communityPost.update(
+        request.title(),
+        request.content(),
+        request.category(),
+        remaining.isEmpty() ? null : remaining.get(0));
 
     openSearchService.deletePostFromSearchIndex(postId);
     openSearchService.savePostToSearchIndex(CommunityPostDocument.from(communityPost));
