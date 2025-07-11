@@ -60,11 +60,6 @@ public class ReviewService {
 
   @Transactional
   public ReviewPostResponse postReview(Long storeId, ReviewRequest request, Long userId) {
-    // 리뷰 중복 작성 방지
-    if (reviewRepository.existsReviewByUserIdAndStoreId(userId, storeId)) {
-      throw new ReviewException(ReviewErrorCode.REVIEW_ALREADY_EXISTS);
-    }
-
     Store store = getStoreOrThrow(storeId);
     // 리뷰 저장
     Review savedReview =
