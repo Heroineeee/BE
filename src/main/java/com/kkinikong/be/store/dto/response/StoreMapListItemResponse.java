@@ -1,5 +1,7 @@
 package com.kkinikong.be.store.dto.response;
 
+import java.text.DecimalFormat;
+
 import com.kkinikong.be.store.domain.Store;
 
 public record StoreMapListItemResponse(
@@ -9,7 +11,7 @@ public record StoreMapListItemResponse(
     double latitude,
     double longitude,
     String category,
-    double ratingAvg,
+    String ratingAvg,
     long scrapCount,
     Boolean isScrapped) {
   public static StoreMapListItemResponse from(Store store) {
@@ -20,7 +22,7 @@ public record StoreMapListItemResponse(
         store.getLatitude(),
         store.getLongitude(),
         store.getCategory().getLabel(),
-        store.getRatingAvg(),
+        new DecimalFormat("#.##").format(store.getRatingAvg()),
         store.getScrapCount(),
         store.getIsScrapped());
   }
