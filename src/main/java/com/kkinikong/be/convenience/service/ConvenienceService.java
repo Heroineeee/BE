@@ -29,8 +29,7 @@ import com.kkinikong.be.convenience.repository.ConvenienceRepository;
 import com.kkinikong.be.convenience.util.OpenAIApiClient;
 import com.kkinikong.be.convenience.util.dto.OpenAIRequest;
 import com.kkinikong.be.global.response.PageResponse;
-import com.kkinikong.be.notification.domain.type.NotificationType;
-import com.kkinikong.be.notification.event.NotificationEvent;
+import com.kkinikong.be.notification.event.payload.ConvenienceInfoEvent;
 import com.kkinikong.be.user.domain.User;
 import com.kkinikong.be.user.exception.UserException;
 import com.kkinikong.be.user.exception.errorcode.UserErrorCode;
@@ -116,15 +115,7 @@ public class ConvenienceService {
 
       // 알림 이벤트 발행 : '올바른 정보예요' 인 경우
       if (isCorrect) {
-        eventPublisher.publishEvent(
-            NotificationEvent.builder()
-                .receiver(conveniencePost.getUser())
-                .type(NotificationType.CONVENIENCE_CORRECT_INFO)
-                .senderNickname(user.getNickname())
-                .target(conveniencePost.getName())
-                .targetId(conveniencePost.getId())
-                .redirectUrl("/convenience/post/" + conveniencePost.getId())
-                .build());
+        eventPublisher.publishEvent(new ConvenienceInfoEvent(user, conveniencePost));
       }
     }
 

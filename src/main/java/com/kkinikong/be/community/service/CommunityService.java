@@ -49,8 +49,9 @@ import com.kkinikong.be.community.repository.CommunityPostImageRepository;
 import com.kkinikong.be.community.repository.CommunityPostLikeRepository;
 import com.kkinikong.be.community.repository.comment.CommentRepository;
 import com.kkinikong.be.community.repository.communityPost.CommunityPostRepository;
-import com.kkinikong.be.notification.domain.type.NotificationType;
-import com.kkinikong.be.notification.event.NotificationEvent;
+import com.kkinikong.be.notification.event.payload.CommentLikeEvent;
+import com.kkinikong.be.notification.event.payload.CommentReplyEvent;
+import com.kkinikong.be.notification.event.payload.CommunityLikeEvent;
 import com.kkinikong.be.opensearch.service.OpenSearchService;
 import com.kkinikong.be.store.dto.response.StoreRecentSearchKeyword;
 import com.kkinikong.be.user.domain.User;
@@ -148,28 +149,16 @@ public class CommunityService {
 
     // 알림 이벤트 발행
     if (parent == null) {
+      User receiver = communityPost.getUser();
       if (!communityPost.getUser().getId().equals(userId)) {
         eventPublisher.publishEvent(
-            NotificationEvent.builder()
-                .receiver(communityPost.getUser())
-                .type(NotificationType.COMMUNITY_COMMENT)
-                .senderNickname(sender.getNickname())
-                .target(comment)
-                .targetId(communityPost.getId())
-                .redirectUrl("/community/post/" + communityPost.getId())
-                .build());
+            new CommentReplyEvent(receiver, sender, communityPost, comment));
       }
     } else {
+      User receiver = parent.getUser();
       if (!parent.getUser().getId().equals(userId)) {
         eventPublisher.publishEvent(
-            NotificationEvent.builder()
-                .receiver(parent.getUser())
-                .type(NotificationType.COMMENT_COMMENT)
-                .senderNickname(sender.getNickname())
-                .target(comment)
-                .targetId(communityPost.getId())
-                .redirectUrl("/community/post/" + communityPost.getId())
-                .build());
+            new CommentReplyEvent(receiver, sender, communityPost, comment));
       }
     }
     return CommentResponse.from(comment.getId());
@@ -220,20 +209,12 @@ public class CommunityService {
       communityPost.incrementLikeCount();
       isLiked = true;
 
+      User receiver = communityPost.getUser();
       // 알림 이벤트 발행
       if (!communityPost.getUser().getId().equals(userId)) {
-        eventPublisher.publishEvent(
-            NotificationEvent.builder()
-                .receiver(communityPost.getUser())
-                .type(NotificationType.COMMUNITY_LIKE)
-                .senderNickname(user.getNickname())
-                .target(communityPost)
-                .targetId(communityPost.getId())
-                .redirectUrl("/community/post/" + communityPost.getId())
-                .build());
+        eventPublisher.publishEvent(new CommunityLikeEvent(receiver, user, communityPost));
       }
     }
-
     return LikeToggleResponse.from(isLiked, communityPost.getLikeCount());
   }
 
@@ -258,17 +239,10 @@ public class CommunityService {
       comment.incrementLikeCount();
       isLiked = true;
 
+      User receiver = comment.getUser();
       // 알림 이벤트 발행
       if (!comment.getUser().getId().equals(userId)) {
-        eventPublisher.publishEvent(
-            NotificationEvent.builder()
-                .receiver(comment.getUser())
-                .type(NotificationType.COMMENT_LIKE)
-                .senderNickname(user.getNickname())
-                .target(comment)
-                .targetId(comment.getCommunityPost().getId())
-                .redirectUrl("/community/post/" + comment.getCommunityPost().getId())
-                .build());
+        eventPublisher.publishEvent(new CommentLikeEvent(receiver, user, comment));
       }
     }
     return LikeToggleResponse.from(isLiked, comment.getLikeCount());
