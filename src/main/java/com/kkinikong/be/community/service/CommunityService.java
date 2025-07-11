@@ -49,9 +49,9 @@ import com.kkinikong.be.community.repository.CommunityPostImageRepository;
 import com.kkinikong.be.community.repository.CommunityPostLikeRepository;
 import com.kkinikong.be.community.repository.comment.CommentRepository;
 import com.kkinikong.be.community.repository.communityPost.CommunityPostRepository;
-import com.kkinikong.be.notification.event.CommentLikeEvent;
-import com.kkinikong.be.notification.event.CommentReplyEvent;
-import com.kkinikong.be.notification.event.CommunityLikeEvent;
+import com.kkinikong.be.notification.event.payload.CommentLikeEvent;
+import com.kkinikong.be.notification.event.payload.CommentReplyEvent;
+import com.kkinikong.be.notification.event.payload.CommunityLikeEvent;
 import com.kkinikong.be.opensearch.service.OpenSearchService;
 import com.kkinikong.be.store.dto.response.StoreRecentSearchKeyword;
 import com.kkinikong.be.user.domain.User;
@@ -209,8 +209,8 @@ public class CommunityService {
       communityPost.incrementLikeCount();
       isLiked = true;
 
-      // 알림 이벤트 발행
       User receiver = communityPost.getUser();
+      // 알림 이벤트 발행
       if (!communityPost.getUser().getId().equals(userId)) {
         eventPublisher.publishEvent(new CommunityLikeEvent(receiver, user, communityPost));
       }
