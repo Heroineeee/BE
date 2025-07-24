@@ -13,7 +13,7 @@ spring:
     hibernate:
       ddl-auto: update
     show-sql: true
-    database-platform: org.hibernate.dialect.mysql.MySQL56InnoDBSpatialDialect
+    database-platform: org.hibernate.spatial.dialect.mysql.MySQLSpatialDialect
 
   jwt:
     secret: ${JWT_SECRET}
