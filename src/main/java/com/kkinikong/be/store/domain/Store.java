@@ -8,6 +8,10 @@ import jakarta.persistence.*;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.locationtech.jts.geom.Coordinate;
+import org.locationtech.jts.geom.GeometryFactory;
+import org.locationtech.jts.geom.Point;
+import org.locationtech.jts.geom.PrecisionModel;
 
 import com.kkinikong.be.global.entity.BaseEntity;
 import com.kkinikong.be.review.domain.Review;
@@ -42,6 +46,9 @@ public class Store extends BaseEntity {
 
   @Column(name = "longitude", nullable = false)
   private double longitude;
+
+  @Column(columnDefinition = "POINT")
+  private Point location;
 
   @Column(name = "rating_avg", nullable = false)
   private double ratingAvg = 0.0;
@@ -88,6 +95,12 @@ public class Store extends BaseEntity {
     this.ratingAvg = ratingAvg;
   }
 
+  // 위치 정보 초기화
+  public void setLocation(double latitude, double longitude) {
+    GeometryFactory geometryFactory = new GeometryFactory(new PrecisionModel(), 4326);
+    this.location = geometryFactory.createPoint(new Coordinate(longitude, latitude));
+  }
+
   @OneToMany(mappedBy = "store", cascade = CascadeType.ALL, orphanRemoval = true)
   private List<Review> reviewList = new ArrayList<>();
 
@@ -114,5 +127,6 @@ public class Store extends BaseEntity {
     this.ratingAvg = 0.0;
     this.scrapCount = 0L;
     this.reviewCount = 0L;
+    setLocation(latitude, longitude);
   }
 }
