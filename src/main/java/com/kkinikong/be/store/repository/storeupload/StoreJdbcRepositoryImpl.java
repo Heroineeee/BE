@@ -28,7 +28,7 @@ public class StoreJdbcRepositoryImpl implements StoreJdbcRepository {
     String sql =
         "INSERT INTO stores "
             + "(name, region, category, address, latitude, longitude, rating_avg, scrap_count, review_count, view_count, updated_date, created_date, modified_date) "
-            + "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"; // ★ created_date 추가
+            + "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
     jdbcTemplate.batchUpdate(
         sql,
