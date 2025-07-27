@@ -24,7 +24,7 @@ import com.kkinikong.be.store.domain.type.StoreSort;
 public class StoreRepositoryCustomImpl implements StoreRepositoryCustom {
 
   private static final double DEFAULT_RADIUS_METERS = 5000.0;
-
+  private static final double EARTH_RADIUS = 6371000.0;
   private final JPAQueryFactory queryFactory;
   private final QStore store = QStore.store;
   private final QStoreScrap storeScrap = QStoreScrap.storeScrap;
@@ -112,9 +112,17 @@ public class StoreRepositoryCustomImpl implements StoreRepositoryCustom {
     return queryFactory.select(store.count()).from(store).where(whereBuilder).fetchOne();
   }
 
-  // 지정된 반경 내 거리 조건 생성
   private BooleanBuilder buildDistanceCondition(
       Double latitude, Double longitude, double radiusMeters) {
+
+    // Bounding Box 계산
+    BoundingBox box = calculateBoundingBox(latitude, longitude, radiusMeters);
+
+    BooleanBuilder builder = new BooleanBuilder();
+    builder.and(store.latitude.between(box.minLat(), box.maxLat()));
+    builder.and(store.longitude.between(box.minLon(), box.maxLon()));
+
+    // 거리 필터 (Bounding Box로 좁혀진 후 정확한 원 필터링)
     NumberTemplate<Double> distanceExpression =
         Expressions.numberTemplate(
             Double.class,
@@ -123,8 +131,24 @@ public class StoreRepositoryCustomImpl implements StoreRepositoryCustom {
             store.latitude,
             longitude,
             latitude);
-    return new BooleanBuilder(distanceExpression.loe(radiusMeters));
+    builder.and(distanceExpression.loe(radiusMeters));
+
+    return builder;
   }
+
+  private BoundingBox calculateBoundingBox(double lat, double lon, double radiusMeters) {
+    double deltaLat = Math.toDegrees(radiusMeters / EARTH_RADIUS);
+    double deltaLon = Math.toDegrees(radiusMeters / (EARTH_RADIUS * Math.cos(Math.toRadians(lat))));
+
+    double minLat = lat - deltaLat;
+    double maxLat = lat + deltaLat;
+    double minLon = lon - deltaLon;
+    double maxLon = lon + deltaLon;
+
+    return new BoundingBox(minLat, maxLat, minLon, maxLon);
+  }
+
+  private record BoundingBox(double minLat, double maxLat, double minLon, double maxLon) {}
 
   // 정렬 조건 선택
   private OrderSpecifier<?>[] getSortOrder(StoreSort sort, Double latitude, Double longitude) {
