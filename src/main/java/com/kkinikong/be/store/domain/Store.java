@@ -8,10 +8,7 @@ import jakarta.persistence.*;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.locationtech.jts.geom.Coordinate;
-import org.locationtech.jts.geom.GeometryFactory;
 import org.locationtech.jts.geom.Point;
-import org.locationtech.jts.geom.PrecisionModel;
 
 import com.kkinikong.be.global.entity.BaseEntity;
 import com.kkinikong.be.review.domain.Review;
@@ -93,13 +90,6 @@ public class Store extends BaseEntity {
 
   public void updateRatingAvg(double ratingAvg) {
     this.ratingAvg = ratingAvg;
-  }
-
-  @PrePersist
-  @PreUpdate
-  private void updateLocation() {
-    GeometryFactory gf = new GeometryFactory(new PrecisionModel(), 4326);
-    this.location = gf.createPoint(new Coordinate(longitude, latitude));
   }
 
   @OneToMany(mappedBy = "store", cascade = CascadeType.ALL, orphanRemoval = true)
