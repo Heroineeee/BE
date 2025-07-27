@@ -28,7 +28,7 @@ public class StoreJdbcRepositoryImpl implements StoreJdbcRepository {
     String sql =
         "INSERT INTO stores "
             + "(name, region, category, address, latitude, longitude, location, rating_avg, scrap_count, review_count, view_count, updated_date, created_date, modified_date) "
-            + "VALUES (?, ?, ?, ?, ?, ?, ST_GeomFromText(? , 4326), ?, ?, ?, ?, ?, ?, ?)";
+            + "VALUES (?, ?, ?, ?, ?, ?, ST_SRID(POINT(?, ?), 4326), ?, ?, ?, ?, ?, ?, ?)";
 
     jdbcTemplate.batchUpdate(
         sql,
@@ -41,15 +41,16 @@ public class StoreJdbcRepositoryImpl implements StoreJdbcRepository {
           ps.setString(4, store.getAddress());
           ps.setDouble(5, store.getLatitude());
           ps.setDouble(6, store.getLongitude());
-          ps.setString(7, String.format("POINT(%f %f)", store.getLatitude(), store.getLongitude()));
+          ps.setDouble(7, store.getLongitude());
+          ps.setDouble(8, store.getLatitude());
 
-          ps.setDouble(8, 0.0);
-          ps.setLong(9, 0L);
+          ps.setDouble(9, 0.0);
           ps.setLong(10, 0L);
           ps.setLong(11, 0L);
-          ps.setObject(12, store.getUpdatedDate());
-          ps.setObject(13, LocalDate.now());
+          ps.setLong(12, 0L);
+          ps.setObject(13, store.getUpdatedDate());
           ps.setObject(14, LocalDate.now());
+          ps.setObject(15, LocalDate.now());
         });
   }
 
