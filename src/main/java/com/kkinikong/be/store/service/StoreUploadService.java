@@ -87,8 +87,8 @@ public class StoreUploadService {
         .name(record.get(0).trim())
         .address(record.get(1).trim())
         .region(extractRegion(record.get(1).trim()))
-        .latitude(Double.parseDouble(record.get(2).trim()))
-        .longitude(Double.parseDouble(record.get(3).trim()))
+        .latitude(Double.parseDouble(record.get(3).trim()))
+        .longitude(Double.parseDouble(record.get(2).trim()))
         .updatedDate(LocalDate.parse(record.get(4).trim()))
         .category(Category.valueOf(record.get(5).trim()))
         .build();
