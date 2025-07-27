@@ -47,7 +47,7 @@ public class Store extends BaseEntity {
   @Column(name = "longitude", nullable = false)
   private double longitude;
 
-  @Column(columnDefinition = "POINT")
+  @Column(columnDefinition = "POINT SRID 4326")
   private Point location;
 
   @Column(name = "rating_avg", nullable = false)
