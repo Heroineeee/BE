@@ -47,7 +47,7 @@ public class Store extends BaseEntity {
   @Column(name = "longitude", nullable = false)
   private double longitude;
 
-  @Column(columnDefinition = "POINT SRID 4326")
+  @Column(columnDefinition = "POINT SRID 4326 NOT NULL")
   private Point location;
 
   @Column(name = "rating_avg", nullable = false)
@@ -95,10 +95,11 @@ public class Store extends BaseEntity {
     this.ratingAvg = ratingAvg;
   }
 
-  // 위치 정보 초기화
-  public void setLocation(double latitude, double longitude) {
-    GeometryFactory geometryFactory = new GeometryFactory(new PrecisionModel(), 4326);
-    this.location = geometryFactory.createPoint(new Coordinate(longitude, latitude));
+  @PrePersist
+  @PreUpdate
+  private void updateLocation() {
+    GeometryFactory gf = new GeometryFactory(new PrecisionModel(), 4326);
+    this.location = gf.createPoint(new Coordinate(longitude, latitude));
   }
 
   @OneToMany(mappedBy = "store", cascade = CascadeType.ALL, orphanRemoval = true)
@@ -127,6 +128,5 @@ public class Store extends BaseEntity {
     this.ratingAvg = 0.0;
     this.scrapCount = 0L;
     this.reviewCount = 0L;
-    setLocation(latitude, longitude);
   }
 }
