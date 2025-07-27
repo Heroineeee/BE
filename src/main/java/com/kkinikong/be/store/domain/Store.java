@@ -125,8 +125,5 @@ public class Store extends BaseEntity {
     this.latitude = latitude;
     this.longitude = longitude;
     this.updatedDate = updatedDate;
-    this.ratingAvg = 0.0;
-    this.scrapCount = 0L;
-    this.reviewCount = 0L;
   }
 }
