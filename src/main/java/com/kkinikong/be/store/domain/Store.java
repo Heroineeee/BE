@@ -8,7 +8,6 @@ import jakarta.persistence.*;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.locationtech.jts.geom.Point;
 
 import com.kkinikong.be.global.entity.BaseEntity;
 import com.kkinikong.be.review.domain.Review;
@@ -43,9 +42,6 @@ public class Store extends BaseEntity {
 
   @Column(name = "longitude", nullable = false)
   private double longitude;
-
-  @Column(columnDefinition = "POINT SRID 4326 NOT NULL")
-  private Point location;
 
   @Column(name = "rating_avg", nullable = false)
   private double ratingAvg = 0.0;
