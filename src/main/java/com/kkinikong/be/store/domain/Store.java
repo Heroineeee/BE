@@ -13,7 +13,9 @@ import com.kkinikong.be.global.entity.BaseEntity;
 import com.kkinikong.be.review.domain.Review;
 import com.kkinikong.be.store.domain.type.Category;
 
-@Table(name = "stores")
+@Table(
+    name = "stores",
+    indexes = {@Index(name = "idx_lat_lon", columnList = "latitude, longitude")})
 @Entity
 @Getter
 @NoArgsConstructor
