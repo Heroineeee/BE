@@ -134,7 +134,8 @@ public class StoreService {
 
     return StoreExternalLinkResponse.builder()
         .menuUrl(hasInfo ? buildMenuUrl(kakaoPlaceId) : buildNaverUrl(store.getName()))
-        .directionUrl(hasInfo ? buildDirectionUrl(kakaoPlaceId) : buildNaverUrl(store.getName()))
+        .directionUrlMobile(buildDirectionUrlMobile(store))
+        .directionUrlDesktop(buildDirectionUrlDesktop(store))
         .build();
   }
 
@@ -144,18 +145,6 @@ public class StoreService {
       kakaoPlaceId = NO_INFO;
     }
     return kakaoPlaceId;
-  }
-
-  private String buildDirectionUrl(String placeId) {
-    return "https://map.kakao.com/link/to/" + placeId;
-  }
-
-  private String buildMenuUrl(String placeId) {
-    return "https://place.map.kakao.com/" + placeId + "#menuInfo";
-  }
-
-  private String buildNaverUrl(String placeName) {
-    return "https://map.naver.com/v5/search/" + placeName;
   }
 
   public List<StoreCardResponse> getTopViewedStores(Double latitude, Double longitude) {
@@ -204,5 +193,32 @@ public class StoreService {
     return storeScrapRepository
         .findByStoreIdAndUserId(storeId, userId)
         .orElseThrow(() -> new StoreException(StoreErrorCode.SCRAP_NOT_FOUND));
+  }
+
+  private String buildDirectionUrlMobile(Store store) {
+    return "nmap://route/public?dlat="
+        + store.getLatitude()
+        + "&dlng="
+        + store.getLongitude()
+        + "&dname="
+        + store.getName();
+  }
+
+  private String buildDirectionUrlDesktop(Store store) {
+    return "m.map.naver.com/route.nhn?menu=route&ename="
+        + store.getName()
+        + "&ex="
+        + store.getLongitude()
+        + "&ey="
+        + store.getLatitude()
+        + "&pathType=1&showMap=true";
+  }
+
+  private String buildMenuUrl(String placeId) {
+    return "https://place.map.kakao.com/" + placeId + "#menuInfo";
+  }
+
+  private String buildNaverUrl(String placeName) {
+    return "https://map.naver.com/v5/search/" + placeName;
   }
 }
