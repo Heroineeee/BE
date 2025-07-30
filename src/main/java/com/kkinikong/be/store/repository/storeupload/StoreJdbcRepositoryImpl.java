@@ -27,8 +27,9 @@ public class StoreJdbcRepositoryImpl implements StoreJdbcRepository {
   public void saveAllByJdbcTemplate(List<Store> stores) {
     String sql =
         "INSERT INTO stores "
-            + "(name, region, category, address, latitude, longitude, rating_avg, scrap_count, review_count, view_count, updated_date, created_date, modified_date) "
-            + "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"; // ★ created_date 추가
+            + "(name, region, category, address, latitude, longitude, "
+            + "rating_avg, scrap_count, review_count, view_count, updated_date, created_date, modified_date) "
+            + "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
     jdbcTemplate.batchUpdate(
         sql,
@@ -60,10 +61,10 @@ public class StoreJdbcRepositoryImpl implements StoreJdbcRepository {
 
     String sql =
         """
-                 SELECT CONCAT(name, '|', address) AS store_key
-                 FROM stores
-                 WHERE CONCAT(name, '|', address) IN (:keys)
-                 """;
+                         SELECT CONCAT(name, '|', address) AS store_key
+                         FROM stores
+                         WHERE CONCAT(name, '|', address) IN (:keys)
+                         """;
     MapSqlParameterSource params = new MapSqlParameterSource("keys", keys);
     return namedParameterJdbcTemplate.query(sql, params, (rs, rowNum) -> rs.getString("store_key"));
   }
