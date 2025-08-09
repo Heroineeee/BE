@@ -33,9 +33,8 @@ public class RedisCacheConfig {
                     new GenericJackson2JsonRedisSerializer()))
             .entryTtl(Duration.ofDays(30)); // 캐시 수명 30일
 
-    // 인기 검색어: TTL 30분
     cacheConfigurations.put(
-        "community-popular-posts", redisCacheConfiguration.entryTtl(Duration.ofMinutes(30)));
+        "community-popular-posts", redisCacheConfiguration.entryTtl(Duration.ofHours(72)));
 
     return RedisCacheManager.RedisCacheManagerBuilder.fromConnectionFactory(cf)
         .cacheDefaults(redisCacheConfiguration)
