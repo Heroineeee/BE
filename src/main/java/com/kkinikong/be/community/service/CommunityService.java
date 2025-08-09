@@ -1,5 +1,6 @@
 package com.kkinikong.be.community.service;
 
+import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -166,8 +167,10 @@ public class CommunityService {
 
   @Cacheable(value = "community-popular-posts", unless = "#result == null")
   public CommunityPostPopularWrappingResponse getPopularCommunityPosts() {
+    LocalDateTime since72Hours = LocalDateTime.now().minusHours(72);
+
     List<CommunityPostPopularResponse> list =
-        communityPostRepository.findTop5ByOrderByLikeCountDescViewCountDesc().stream()
+        communityPostRepository.findTop3ByLikesSince72Hours(since72Hours).stream()
             .map(CommunityPostPopularResponse::from)
             .toList();
     return new CommunityPostPopularWrappingResponse(List.copyOf(list));
