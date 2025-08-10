@@ -1,5 +1,6 @@
 package com.kkinikong.be.community.repository.communityPost;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -22,7 +23,16 @@ import com.kkinikong.be.community.domain.type.Category;
 public interface CommunityPostRepository
     extends JpaRepository<CommunityPost, Long>, CommunityPostCustomRepository {
 
-  List<CommunityPost> findTop5ByOrderByLikeCountDescViewCountDesc();
+  @Query(
+      """
+      SELECT cp FROM CommunityPost cp
+      LEFT JOIN CommunityPostLike cpl ON cp.id = cpl.communityPost.id
+      WHERE cpl.createdDate >= :since
+      GROUP BY cp.id
+      ORDER BY COUNT(cpl.id) DESC, cp.viewCount DESC
+      LIMIT 3
+      """)
+  List<CommunityPost> findTop3ByLikesSince72Hours(@Param("since") LocalDateTime since);
 
   @EntityGraph(attributePaths = {"communityPostImageList"})
   Page<CommunityPost> findAllByCategory(Category category, Pageable pageable);
