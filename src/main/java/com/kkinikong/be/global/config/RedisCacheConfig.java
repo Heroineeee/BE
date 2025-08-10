@@ -34,7 +34,7 @@ public class RedisCacheConfig {
             .entryTtl(Duration.ofDays(30)); // 캐시 수명 30일
 
     cacheConfigurations.put(
-        "community-popular-posts", redisCacheConfiguration.entryTtl(Duration.ofHours(72)));
+        "community-popular-posts", redisCacheConfiguration.entryTtl(Duration.ofMinutes(10)));
 
     return RedisCacheManager.RedisCacheManagerBuilder.fromConnectionFactory(cf)
         .cacheDefaults(redisCacheConfiguration)
