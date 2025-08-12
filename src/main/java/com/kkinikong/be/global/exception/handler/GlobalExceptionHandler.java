@@ -38,8 +38,8 @@ import com.kkinikong.be.util.s3.exception.S3Exception;
 public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 
   private static final Logger log = LoggerFactory.getLogger("ErrorLogger");
-  private static final String LOG_FORMAT_INFO = "\n[🔵INFO] - ({} {})\n{}\n {}: {}";
-  private static final String LOG_FORMAT_ERROR = "\n[🔴ERROR] - ({} {})";
+  private static final String LOG_FORMAT_INFO = "[🔵INFO] - ({} {}) {} {}: {}";
+  private static final String LOG_FORMAT_ERROR = "[🔴ERROR] - ({} {})";
 
   /**
    * 커스텀 예외 코드 예시 @ExceptionHandler(UserNotFoundException.class) public ResponseEntity<Object>
