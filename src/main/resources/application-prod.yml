@@ -15,6 +15,9 @@ spring:
         format_sql: false
         highlight_sql: false
         use_sql_comments: false
+logging:
+  discord:
+    webhook-url: ${DISCORD_WEBHOOK_URL}
 
 Swagger:
     server:
