@@ -98,6 +98,9 @@ dependencies {
 
 	// AOP
 	implementation 'org.springframework.boot:spring-boot-starter-aop'
+
+	// Discord
+	implementation 'com.github.napstr:logback-discord-appender:0.2.0'
 }
 
 tasks.named('test') {
