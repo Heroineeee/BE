@@ -7,17 +7,6 @@ spring:
     redis:
       host: ${LOCAL_REDIS_HOST}
       port: ${REDIS_PORT}
-  jpa:
-    show-sql: false
-    properties:
-      hibernate:
-        format_sql: false
-        highlight_sql: true
-
-logging:
-  level:
-    org.hibernate.SQL: DEBUG
-    org.hibernate.orm.jdbc.bind: OFF
 
 Swagger:
   server:
