@@ -13,6 +13,24 @@
         <logger name="org.hibernate.SQL" level="DEBUG"/>
         <logger name="org.hibernate.orm.jdbc.bind" level="DEBUG"/>
         <logger name="com.kkinikong.be" level="DEBUG"/>
+
+        <root level="INFO">
+            <appender-ref ref="CONSOLE"/>
+        </root>
+    </springProfile>
+
+    <!--배포 환경에서의 로그 설정-->
+    <springProfile name="prod">
+        <logger name="org.hibernate.SQL" level="OFF"/>
+        <logger name="org.hibernate.orm.jdbc.bind" level="OFF"/>
+
+        <logger name="com.kkinikong.be" level="INFO"/>
+        <logger name="com.kkinikong.be.global.logging.LoggingAspect" level="OFF"/>
+
+        <logger name="ErrorLogger" level="INFO" additivity="false">
+            <appender-ref ref="CONSOLE"/>
+        </logger>
+
         <root level="INFO">
             <appender-ref ref="CONSOLE"/>
         </root>
