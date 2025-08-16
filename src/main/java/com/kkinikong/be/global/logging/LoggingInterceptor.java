@@ -27,7 +27,7 @@ public class LoggingInterceptor implements HandlerInterceptor {
       HttpServletRequest request, HttpServletResponse response, Object handler, Exception ex)
       throws Exception {
     Long start = (Long) request.getAttribute(START_TIME);
-    long duration = System.currentTimeMillis() - (start != null ? start : 0L);
+    long duration = start != null ? System.currentTimeMillis() - start : 0L;
     int status = response.getStatus();
     String method = request.getMethod();
     String uri = request.getRequestURI();
