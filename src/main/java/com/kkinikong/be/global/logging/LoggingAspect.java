@@ -25,7 +25,11 @@ public class LoggingAspect {
       return result;
     } catch (Throwable ex) {
       long duration = System.currentTimeMillis() - start;
-      log.warn("⏱️ 비즈니스 로직: {} 실행 시간 {}ms (예외 발생: {})", methodName, duration, ex.getClass().getSimpleName());
+      log.warn(
+          "⏱️ 비즈니스 로직: {} 실행 시간 {}ms (예외 발생: {})",
+          methodName,
+          duration,
+          ex.getClass().getSimpleName());
       throw ex;
     }
   }
