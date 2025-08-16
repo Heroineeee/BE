@@ -17,12 +17,17 @@ public class LoggingAspect {
   @Around("execution(* com.kkinikong.be..*Service.*(..))")
   public Object logServiceExecutionTime(ProceedingJoinPoint joinPoint) throws Throwable {
     long start = System.currentTimeMillis();
-    Object result = joinPoint.proceed();
-    long end = System.currentTimeMillis();
-    long duration = end - start;
     String methodName = joinPoint.getSignature().toShortString();
-    log.info("⏱️ 비즈니스 로직: {} 실행 시간 {}ms", methodName, duration);
-    return result;
+    try {
+      Object result = joinPoint.proceed();
+      long duration = System.currentTimeMillis() - start;
+      log.info("⏱️ 비즈니스 로직: {} 실행 시간 {}ms", methodName, duration);
+      return result;
+    } catch (Throwable ex) {
+      long duration = System.currentTimeMillis() - start;
+      log.warn("⏱️ 비즈니스 로직: {} 실행 시간 {}ms (예외 발생: {})", methodName, duration, ex.getClass().getSimpleName());
+      throw ex;
+    }
   }
 
   @AfterReturning(
