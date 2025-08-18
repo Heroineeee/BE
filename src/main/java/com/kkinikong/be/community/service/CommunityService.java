@@ -243,32 +243,48 @@ public class CommunityService {
 
   @Transactional
   public LikeToggleResponse postCommunityCommentLike(Long commentId, Long userId) {
-    Comment comment =
-        commentRepository
-            .findByIdForUpdate(commentId)
-            .orElseThrow(() -> new CommunityException(CommunityErrorCode.COMMENT_NOT_FOUND));
-    User user = getUserOrThrow(userId);
+    for (int attempt = 0; attempt < maxRetries; attempt++) {
+      try {
+        Comment comment =
+            commentRepository
+                .findById(commentId)
+                .orElseThrow(() -> new CommunityException(CommunityErrorCode.COMMENT_NOT_FOUND));
+        User user = getUserOrThrow(userId);
 
-    Optional<CommentLike> commentLike =
-        commentLikeRepository.findByCommentIdAndUserId(commentId, userId);
+        Optional<CommentLike> commentLike =
+            commentLikeRepository.findByCommentIdAndUserId(commentId, userId);
 
-    boolean isLiked;
-    if (commentLike.isPresent()) {
-      commentLikeRepository.delete(commentLike.get());
-      comment.decrementLikeCount();
-      isLiked = false;
-    } else {
-      commentLikeRepository.save(CommentLike.builder().comment(comment).user(user).build());
-      comment.incrementLikeCount();
-      isLiked = true;
+        boolean isLiked;
+        if (commentLike.isPresent()) {
+          commentLikeRepository.delete(commentLike.get());
+          comment.decrementLikeCount();
+          isLiked = false;
+        } else {
+          commentLikeRepository.save(CommentLike.builder().comment(comment).user(user).build());
+          comment.incrementLikeCount();
+          isLiked = true;
 
-      User receiver = comment.getUser();
-      // 알림 이벤트 발행
-      if (!comment.getUser().getId().equals(userId)) {
-        eventPublisher.publishEvent(new CommentLikeEvent(receiver, user, comment));
+          User receiver = comment.getUser();
+          // 알림 이벤트 발행
+          if (!comment.getUser().getId().equals(userId)) {
+            eventPublisher.publishEvent(new CommentLikeEvent(receiver, user, comment));
+          }
+        }
+
+        // 버전 충돌 조기 감지를 위해 flush
+        commentRepository.saveAndFlush(comment);
+        return LikeToggleResponse.from(isLiked, comment.getLikeCount());
+      } catch (ObjectOptimisticLockingFailureException e) {
+        if (attempt == maxRetries - 1) {
+          throw e;
+        }
+        try {
+          Thread.sleep(30L * attempt);
+        } catch (InterruptedException ignored) {
+        }
       }
     }
-    return LikeToggleResponse.from(isLiked, comment.getLikeCount());
+    throw new CommunityException(CommunityErrorCode.COMMENT_NOT_FOUND);
   }
 
   public CommunityPostInfoResponse getCommunityPost(Long postId, Long userId) {
