@@ -23,7 +23,7 @@ import org.springframework.web.multipart.MultipartFile;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
-import com.kkinikong.be.cache.service.RedisTempleCacheService;
+import com.kkinikong.be.cache.service.RedisTemplateCacheService;
 import com.kkinikong.be.cache.type.RedisKey;
 import com.kkinikong.be.community.domain.Comment;
 import com.kkinikong.be.community.domain.CommentLike;
@@ -78,7 +78,7 @@ public class CommunityService {
 
   private final ApplicationEventPublisher eventPublisher;
   private final ImageService imageService;
-  private final RedisTempleCacheService redisTempleCacheService;
+  private final RedisTemplateCacheService redisTemplateCacheService;
   private final OpenSearchService openSearchService;
 
   final int maxRetries = 3;
@@ -290,7 +290,7 @@ public class CommunityService {
   public CommunityPostInfoResponse getCommunityPost(Long postId, Long userId) {
     CommunityPost communityPost = getCommunityPostOrThrow(postId);
 
-    redisTempleCacheService.increaseViewCounts(postId, RedisKey.COMMUNITY_POST_VIEWS_KEY);
+    redisTemplateCacheService.increaseViewCounts(postId, RedisKey.COMMUNITY_POST_VIEWS_KEY);
 
     List<Comment> allComments = commentRepository.findAllByCommunityPostId(postId);
     List<String> allImages =
@@ -314,7 +314,7 @@ public class CommunityService {
     keyword = keyword.trim();
     // 최근 검색어 추가 로직
     if (userId != null) {
-      redisTempleCacheService.saveRecentSearch(userId, keyword);
+      redisTemplateCacheService.saveRecentSearch(userId, keyword);
     }
 
     // Elasticsearch에서 검색어로 커뮤니티 게시글 페이징해서 가져옴
@@ -345,7 +345,7 @@ public class CommunityService {
   }
 
   public List<StoreRecentSearchKeyword> getRecentSearchKeywords(Long userId) {
-    List<String> recentSearches = redisTempleCacheService.getRecentSearches(userId);
+    List<String> recentSearches = redisTemplateCacheService.getRecentSearches(userId);
 
     if (recentSearches.isEmpty()) {
       return List.of();
@@ -355,7 +355,7 @@ public class CommunityService {
 
   public void deleteRecentSearchKeyword(Long userId, String keyword) {
     keyword = keyword.trim();
-    redisTempleCacheService.deleteRecentSearches(userId, keyword);
+    redisTemplateCacheService.deleteRecentSearches(userId, keyword);
   }
 
   @Transactional

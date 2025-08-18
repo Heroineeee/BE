@@ -88,7 +88,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
   }
 
   @ExceptionHandler(ReviewException.class)
-  public ResponseEntity<Object> handleS3Exception(
+  public ResponseEntity<Object> handleReviewException(
       final ReviewException e, HttpServletRequest request) {
     logInfo(e.getErrorCode(), e, request);
     return handleExceptionInternal(e.getErrorCode());
@@ -102,7 +102,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
   }
 
   @ExceptionHandler(FeedbackException.class)
-  public ResponseEntity<Object> handleCommunityException(
+  public ResponseEntity<Object> handleFeedbackException(
       final FeedbackException e, HttpServletRequest request) {
     logInfo(e.getErrorCode(), e, request);
     return handleExceptionInternal(e.getErrorCode());

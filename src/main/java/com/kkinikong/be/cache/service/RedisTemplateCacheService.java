@@ -13,7 +13,7 @@ import com.kkinikong.be.cache.type.RedisKey;
 
 @Service
 @Slf4j
-public class RedisTempleCacheService {
+public class RedisTemplateCacheService {
 
   @Autowired private RedisTemplate<String, Object> redisTemplate;
 
