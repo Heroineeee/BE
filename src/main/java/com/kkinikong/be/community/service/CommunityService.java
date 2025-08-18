@@ -15,6 +15,7 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.orm.ObjectOptimisticLockingFailureException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -79,6 +80,8 @@ public class CommunityService {
   private final ImageService imageService;
   private final RedisTempleCacheService redisTempleCacheService;
   private final OpenSearchService openSearchService;
+
+  final int maxRetries = 3;
 
   @Transactional
   public CommunityPostResponse postCommunityPost(CommunityPostRequest request, Long userId) {
@@ -191,34 +194,51 @@ public class CommunityService {
 
   @Transactional
   public LikeToggleResponse postCommunityPostLike(Long postId, Long userId) {
-    CommunityPost communityPost =
-        communityPostRepository
-            .findByIdForUpdate(postId)
-            .orElseThrow(() -> new CommunityException(CommunityErrorCode.COMMUNITY_POST_NOT_FOUND));
+    for (int attempt = 0; attempt < maxRetries; attempt++) {
+      try {
+        CommunityPost communityPost =
+            communityPostRepository
+                .findById(postId)
+                .orElseThrow(
+                    () -> new CommunityException(CommunityErrorCode.COMMUNITY_POST_NOT_FOUND));
 
-    User user = getUserOrThrow(userId);
+        User user = getUserOrThrow(userId);
 
-    Optional<CommunityPostLike> postLike =
-        communityPostLikeRepository.findByCommunityPostIdAndUserId(postId, userId);
+        Optional<CommunityPostLike> postLike =
+            communityPostLikeRepository.findByCommunityPostIdAndUserId(postId, userId);
 
-    boolean isLiked;
-    if (postLike.isPresent()) {
-      communityPostLikeRepository.delete(postLike.get());
-      communityPost.decrementLikeCount();
-      isLiked = false;
-    } else {
-      communityPostLikeRepository.save(
-          CommunityPostLike.builder().communityPost(communityPost).user(user).build());
-      communityPost.incrementLikeCount();
-      isLiked = true;
+        boolean isLiked;
+        if (postLike.isPresent()) {
+          communityPostLikeRepository.delete(postLike.get());
+          communityPost.decrementLikeCount();
+          isLiked = false;
+        } else {
+          communityPostLikeRepository.save(
+              CommunityPostLike.builder().communityPost(communityPost).user(user).build());
+          communityPost.incrementLikeCount();
+          isLiked = true;
 
-      User receiver = communityPost.getUser();
-      // 알림 이벤트 발행
-      if (!communityPost.getUser().getId().equals(userId)) {
-        eventPublisher.publishEvent(new CommunityLikeEvent(receiver, user, communityPost));
+          User receiver = communityPost.getUser();
+          // 알림 이벤트 발행
+          if (!communityPost.getUser().getId().equals(userId)) {
+            eventPublisher.publishEvent(new CommunityLikeEvent(receiver, user, communityPost));
+          }
+        }
+
+        // 버전 충돌 조기 감지를 위해 flush
+        communityPostRepository.saveAndFlush(communityPost);
+        return LikeToggleResponse.from(isLiked, communityPost.getLikeCount());
+      } catch (ObjectOptimisticLockingFailureException e) {
+        if (attempt == maxRetries - 1) {
+          throw e;
+        }
+        try {
+          Thread.sleep(30L * attempt);
+        } catch (InterruptedException ignored) {
+        }
       }
     }
-    return LikeToggleResponse.from(isLiked, communityPost.getLikeCount());
+    throw new CommunityException(CommunityErrorCode.COMMUNITY_POST_NOT_FOUND);
   }
 
   @Transactional
