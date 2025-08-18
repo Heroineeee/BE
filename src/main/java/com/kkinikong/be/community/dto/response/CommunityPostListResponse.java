@@ -1,7 +1,7 @@
 package com.kkinikong.be.community.dto.response;
 
 import com.kkinikong.be.community.domain.CommunityPost;
-import com.kkinikong.be.community.util.TimeUtil;
+import com.kkinikong.be.global.util.TimeUtil;
 
 public record CommunityPostListResponse(
     long communityPostId,

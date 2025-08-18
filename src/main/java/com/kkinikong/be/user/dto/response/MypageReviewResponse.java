@@ -4,7 +4,7 @@ import java.util.List;
 
 import jakarta.annotation.Nullable;
 
-import com.kkinikong.be.community.util.TimeUtil;
+import com.kkinikong.be.global.util.TimeUtil;
 import com.kkinikong.be.review.domain.Review;
 import com.kkinikong.be.review.domain.type.Tag;
 

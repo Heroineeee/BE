@@ -5,7 +5,7 @@ import java.util.List;
 import lombok.Builder;
 
 import com.kkinikong.be.community.domain.CommunityPost;
-import com.kkinikong.be.community.util.TimeUtil;
+import com.kkinikong.be.global.util.TimeUtil;
 import com.kkinikong.be.user.utils.UserNicknameUtil;
 
 @Builder

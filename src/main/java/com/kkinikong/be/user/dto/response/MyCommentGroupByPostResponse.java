@@ -4,7 +4,7 @@ import java.util.List;
 
 import com.kkinikong.be.community.domain.Comment;
 import com.kkinikong.be.community.domain.CommunityPost;
-import com.kkinikong.be.community.util.TimeUtil;
+import com.kkinikong.be.global.util.TimeUtil;
 
 public record MyCommentGroupByPostResponse(
     Long postId,

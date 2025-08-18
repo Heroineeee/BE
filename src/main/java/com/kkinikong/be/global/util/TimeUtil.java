@@ -1,4 +1,4 @@
-package com.kkinikong.be.community.util;
+package com.kkinikong.be.global.util;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
