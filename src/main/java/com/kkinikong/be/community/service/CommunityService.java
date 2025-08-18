@@ -26,7 +26,6 @@ import lombok.extern.slf4j.Slf4j;
 import com.kkinikong.be.cache.service.RedisTemplateCacheService;
 import com.kkinikong.be.cache.type.RedisKey;
 import com.kkinikong.be.community.domain.Comment;
-import com.kkinikong.be.community.domain.CommentLike;
 import com.kkinikong.be.community.domain.CommunityPost;
 import com.kkinikong.be.community.domain.CommunityPostImage;
 import com.kkinikong.be.community.domain.document.CommunityPostDocument;
@@ -49,7 +48,6 @@ import com.kkinikong.be.community.repository.CommentLikeRepository;
 import com.kkinikong.be.community.repository.CommunityPostImageRepository;
 import com.kkinikong.be.community.repository.comment.CommentRepository;
 import com.kkinikong.be.community.repository.communityPost.CommunityPostRepository;
-import com.kkinikong.be.notification.event.payload.CommentLikeEvent;
 import com.kkinikong.be.notification.event.payload.CommentReplyEvent;
 import com.kkinikong.be.opensearch.service.OpenSearchService;
 import com.kkinikong.be.store.dto.response.StoreRecentSearchKeyword;
@@ -205,46 +203,16 @@ public class CommunityService {
     throw new CommunityException(CommunityErrorCode.COMMUNITY_POST_NOT_FOUND);
   }
 
-  @Transactional
   public LikeToggleResponse postCommunityCommentLike(Long commentId, Long userId) {
     for (int attempt = 0; attempt < MAX_RETRIES; attempt++) {
       try {
-        Comment comment =
-            commentRepository
-                .findById(commentId)
-                .orElseThrow(() -> new CommunityException(CommunityErrorCode.COMMENT_NOT_FOUND));
-        User user = getUserOrThrow(userId);
-
-        Optional<CommentLike> commentLike =
-            commentLikeRepository.findByCommentIdAndUserId(commentId, userId);
-
-        boolean isLiked;
-        if (commentLike.isPresent()) {
-          commentLikeRepository.delete(commentLike.get());
-          comment.decrementLikeCount();
-          isLiked = false;
-        } else {
-          commentLikeRepository.save(CommentLike.builder().comment(comment).user(user).build());
-          comment.incrementLikeCount();
-          isLiked = true;
-
-          User receiver = comment.getUser();
-          // 알림 이벤트 발행
-          if (!comment.getUser().getId().equals(userId)) {
-            eventPublisher.publishEvent(new CommentLikeEvent(receiver, user, comment));
-          }
-        }
-
-        // 버전 충돌 조기 감지를 위해 flush
-        commentRepository.saveAndFlush(comment);
-        return LikeToggleResponse.from(isLiked, comment.getLikeCount());
+        return communityLikeToggleExecutor.toggleCommentLikeOnce(commentId, userId);
       } catch (ObjectOptimisticLockingFailureException e) {
-        if (attempt == MAX_RETRIES - 1) {
-          throw e;
-        }
+        if (attempt == MAX_RETRIES - 1) throw e;
         try {
-          Thread.sleep(30L * attempt);
-        } catch (InterruptedException ignored) {
+          Thread.sleep(30L * (attempt + 1));
+        } catch (InterruptedException ie) {
+          Thread.currentThread().interrupt();
         }
       }
     }
