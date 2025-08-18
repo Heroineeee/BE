@@ -29,7 +29,6 @@ import com.kkinikong.be.community.domain.Comment;
 import com.kkinikong.be.community.domain.CommentLike;
 import com.kkinikong.be.community.domain.CommunityPost;
 import com.kkinikong.be.community.domain.CommunityPostImage;
-import com.kkinikong.be.community.domain.CommunityPostLike;
 import com.kkinikong.be.community.domain.document.CommunityPostDocument;
 import com.kkinikong.be.community.domain.type.Category;
 import com.kkinikong.be.community.dto.request.CommunityCommentRequest;
@@ -48,12 +47,10 @@ import com.kkinikong.be.community.exception.CommunityException;
 import com.kkinikong.be.community.exception.errorcode.CommunityErrorCode;
 import com.kkinikong.be.community.repository.CommentLikeRepository;
 import com.kkinikong.be.community.repository.CommunityPostImageRepository;
-import com.kkinikong.be.community.repository.CommunityPostLikeRepository;
 import com.kkinikong.be.community.repository.comment.CommentRepository;
 import com.kkinikong.be.community.repository.communityPost.CommunityPostRepository;
 import com.kkinikong.be.notification.event.payload.CommentLikeEvent;
 import com.kkinikong.be.notification.event.payload.CommentReplyEvent;
-import com.kkinikong.be.notification.event.payload.CommunityLikeEvent;
 import com.kkinikong.be.opensearch.service.OpenSearchService;
 import com.kkinikong.be.store.dto.response.StoreRecentSearchKeyword;
 import com.kkinikong.be.user.domain.User;
@@ -73,15 +70,15 @@ public class CommunityService {
   private final UserRepository userRepository;
   private final CommunityPostImageRepository communityPostImageRepository;
   private final CommentRepository commentRepository;
-  private final CommunityPostLikeRepository communityPostLikeRepository;
   private final CommentLikeRepository commentLikeRepository;
 
   private final ApplicationEventPublisher eventPublisher;
   private final ImageService imageService;
   private final RedisTemplateCacheService redisTemplateCacheService;
   private final OpenSearchService openSearchService;
+  private final CommunityLikeToggleExecutor communityLikeToggleExecutor;
 
-  final int maxRetries = 3;
+  final int MAX_RETRIES = 3;
 
   @Transactional
   public CommunityPostResponse postCommunityPost(CommunityPostRequest request, Long userId) {
@@ -192,49 +189,16 @@ public class CommunityService {
     return communityPosts.map(CommunityPostListResponse::from);
   }
 
-  @Transactional
   public LikeToggleResponse postCommunityPostLike(Long postId, Long userId) {
-    for (int attempt = 0; attempt < maxRetries; attempt++) {
+    for (int attempt = 0; attempt < MAX_RETRIES; attempt++) {
       try {
-        CommunityPost communityPost =
-            communityPostRepository
-                .findById(postId)
-                .orElseThrow(
-                    () -> new CommunityException(CommunityErrorCode.COMMUNITY_POST_NOT_FOUND));
-
-        User user = getUserOrThrow(userId);
-
-        Optional<CommunityPostLike> postLike =
-            communityPostLikeRepository.findByCommunityPostIdAndUserId(postId, userId);
-
-        boolean isLiked;
-        if (postLike.isPresent()) {
-          communityPostLikeRepository.delete(postLike.get());
-          communityPost.decrementLikeCount();
-          isLiked = false;
-        } else {
-          communityPostLikeRepository.save(
-              CommunityPostLike.builder().communityPost(communityPost).user(user).build());
-          communityPost.incrementLikeCount();
-          isLiked = true;
-
-          User receiver = communityPost.getUser();
-          // 알림 이벤트 발행
-          if (!communityPost.getUser().getId().equals(userId)) {
-            eventPublisher.publishEvent(new CommunityLikeEvent(receiver, user, communityPost));
-          }
-        }
-
-        // 버전 충돌 조기 감지를 위해 flush
-        communityPostRepository.saveAndFlush(communityPost);
-        return LikeToggleResponse.from(isLiked, communityPost.getLikeCount());
+        return communityLikeToggleExecutor.togglePostLikeOnce(postId, userId);
       } catch (ObjectOptimisticLockingFailureException e) {
-        if (attempt == maxRetries - 1) {
-          throw e;
-        }
+        if (attempt == MAX_RETRIES - 1) throw e;
         try {
-          Thread.sleep(30L * attempt);
-        } catch (InterruptedException ignored) {
+          Thread.sleep(30L * (attempt + 1));
+        } catch (InterruptedException ie) {
+          Thread.currentThread().interrupt();
         }
       }
     }
@@ -243,7 +207,7 @@ public class CommunityService {
 
   @Transactional
   public LikeToggleResponse postCommunityCommentLike(Long commentId, Long userId) {
-    for (int attempt = 0; attempt < maxRetries; attempt++) {
+    for (int attempt = 0; attempt < MAX_RETRIES; attempt++) {
       try {
         Comment comment =
             commentRepository
@@ -275,7 +239,7 @@ public class CommunityService {
         commentRepository.saveAndFlush(comment);
         return LikeToggleResponse.from(isLiked, comment.getLikeCount());
       } catch (ObjectOptimisticLockingFailureException e) {
-        if (attempt == maxRetries - 1) {
+        if (attempt == MAX_RETRIES - 1) {
           throw e;
         }
         try {
