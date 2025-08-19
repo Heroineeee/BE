@@ -194,13 +194,17 @@ public class CommunityService {
       } catch (ObjectOptimisticLockingFailureException e) {
         if (attempt == MAX_RETRIES - 1) throw e;
         try {
+          log.warn(
+              "Optimistic locking failure on comment like toggle, retrying... Attempt: {} of {}",
+              attempt + 1,
+              MAX_RETRIES);
           Thread.sleep(30L * (attempt + 1));
         } catch (InterruptedException ie) {
           Thread.currentThread().interrupt();
         }
       }
     }
-    throw new CommunityException(CommunityErrorCode.COMMUNITY_POST_NOT_FOUND);
+    throw new CommunityException(CommunityErrorCode.RETRY_LIMIT_EXCEEDED);
   }
 
   public LikeToggleResponse postCommunityCommentLike(Long commentId, Long userId) {
@@ -210,13 +214,17 @@ public class CommunityService {
       } catch (ObjectOptimisticLockingFailureException e) {
         if (attempt == MAX_RETRIES - 1) throw e;
         try {
+          log.warn(
+              "Optimistic locking failure on comment like toggle, retrying... Attempt: {} of {}",
+              attempt + 1,
+              MAX_RETRIES);
           Thread.sleep(30L * (attempt + 1));
         } catch (InterruptedException ie) {
           Thread.currentThread().interrupt();
         }
       }
     }
-    throw new CommunityException(CommunityErrorCode.COMMENT_NOT_FOUND);
+    throw new CommunityException(CommunityErrorCode.RETRY_LIMIT_EXCEEDED);
   }
 
   public CommunityPostInfoResponse getCommunityPost(Long postId, Long userId) {
