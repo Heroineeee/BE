@@ -37,17 +37,6 @@ public class AuthController {
   }
 
   @Operation(
-      summary = "기본 회원가입",
-      description = "(관리자) 이메일과 비밀번호로 회원가입합니다. '@'를 포함한 이메일과 비밀번호를 입력해주세요.")
-  @PostMapping("/signup")
-  public ResponseEntity<ApiResponse<Object>> signUp(
-      @Valid @RequestBody BasicLoginRequest basicLoginRequest) {
-
-    authService.signup(basicLoginRequest);
-    return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.EMPTY_RESPONSE);
-  }
-
-  @Operation(
       summary = "기본 로그인",
       description = "(관리자) 이메일과 비밀번호로 로그인합니다. '@'를 포함한 이메일과 비밀번호를 입력해주세요.")
   @PostMapping("/login")

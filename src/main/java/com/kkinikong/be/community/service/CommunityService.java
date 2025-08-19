@@ -15,6 +15,7 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.orm.ObjectOptimisticLockingFailureException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -22,13 +23,11 @@ import org.springframework.web.multipart.MultipartFile;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
-import com.kkinikong.be.cache.service.RedisTempleCacheService;
+import com.kkinikong.be.cache.service.RedisTemplateCacheService;
 import com.kkinikong.be.cache.type.RedisKey;
 import com.kkinikong.be.community.domain.Comment;
-import com.kkinikong.be.community.domain.CommentLike;
 import com.kkinikong.be.community.domain.CommunityPost;
 import com.kkinikong.be.community.domain.CommunityPostImage;
-import com.kkinikong.be.community.domain.CommunityPostLike;
 import com.kkinikong.be.community.domain.document.CommunityPostDocument;
 import com.kkinikong.be.community.domain.type.Category;
 import com.kkinikong.be.community.dto.request.CommunityCommentRequest;
@@ -47,12 +46,9 @@ import com.kkinikong.be.community.exception.CommunityException;
 import com.kkinikong.be.community.exception.errorcode.CommunityErrorCode;
 import com.kkinikong.be.community.repository.CommentLikeRepository;
 import com.kkinikong.be.community.repository.CommunityPostImageRepository;
-import com.kkinikong.be.community.repository.CommunityPostLikeRepository;
 import com.kkinikong.be.community.repository.comment.CommentRepository;
 import com.kkinikong.be.community.repository.communityPost.CommunityPostRepository;
-import com.kkinikong.be.notification.event.payload.CommentLikeEvent;
 import com.kkinikong.be.notification.event.payload.CommentReplyEvent;
-import com.kkinikong.be.notification.event.payload.CommunityLikeEvent;
 import com.kkinikong.be.opensearch.service.OpenSearchService;
 import com.kkinikong.be.store.dto.response.StoreRecentSearchKeyword;
 import com.kkinikong.be.user.domain.User;
@@ -72,13 +68,15 @@ public class CommunityService {
   private final UserRepository userRepository;
   private final CommunityPostImageRepository communityPostImageRepository;
   private final CommentRepository commentRepository;
-  private final CommunityPostLikeRepository communityPostLikeRepository;
   private final CommentLikeRepository commentLikeRepository;
 
   private final ApplicationEventPublisher eventPublisher;
   private final ImageService imageService;
-  private final RedisTempleCacheService redisTempleCacheService;
+  private final RedisTemplateCacheService redisTemplateCacheService;
   private final OpenSearchService openSearchService;
+  private final CommunityLikeToggleExecutor communityLikeToggleExecutor;
+
+  final int MAX_RETRIES = 3;
 
   @Transactional
   public CommunityPostResponse postCommunityPost(CommunityPostRequest request, Long userId) {
@@ -189,72 +187,50 @@ public class CommunityService {
     return communityPosts.map(CommunityPostListResponse::from);
   }
 
-  @Transactional
   public LikeToggleResponse postCommunityPostLike(Long postId, Long userId) {
-    CommunityPost communityPost =
-        communityPostRepository
-            .findByIdForUpdate(postId)
-            .orElseThrow(() -> new CommunityException(CommunityErrorCode.COMMUNITY_POST_NOT_FOUND));
-
-    User user = getUserOrThrow(userId);
-
-    Optional<CommunityPostLike> postLike =
-        communityPostLikeRepository.findByCommunityPostIdAndUserId(postId, userId);
-
-    boolean isLiked;
-    if (postLike.isPresent()) {
-      communityPostLikeRepository.delete(postLike.get());
-      communityPost.decrementLikeCount();
-      isLiked = false;
-    } else {
-      communityPostLikeRepository.save(
-          CommunityPostLike.builder().communityPost(communityPost).user(user).build());
-      communityPost.incrementLikeCount();
-      isLiked = true;
-
-      User receiver = communityPost.getUser();
-      // 알림 이벤트 발행
-      if (!communityPost.getUser().getId().equals(userId)) {
-        eventPublisher.publishEvent(new CommunityLikeEvent(receiver, user, communityPost));
+    for (int attempt = 0; attempt < MAX_RETRIES; attempt++) {
+      try {
+        return communityLikeToggleExecutor.togglePostLikeOnce(postId, userId);
+      } catch (ObjectOptimisticLockingFailureException e) {
+        if (attempt == MAX_RETRIES - 1) throw e;
+        try {
+          log.warn(
+              "Optimistic locking failure on comment like toggle, retrying... Attempt: {} of {}",
+              attempt + 1,
+              MAX_RETRIES);
+          Thread.sleep(30L * (attempt + 1));
+        } catch (InterruptedException ie) {
+          Thread.currentThread().interrupt();
+        }
       }
     }
-    return LikeToggleResponse.from(isLiked, communityPost.getLikeCount());
+    throw new CommunityException(CommunityErrorCode.RETRY_LIMIT_EXCEEDED);
   }
 
-  @Transactional
   public LikeToggleResponse postCommunityCommentLike(Long commentId, Long userId) {
-    Comment comment =
-        commentRepository
-            .findByIdForUpdate(commentId)
-            .orElseThrow(() -> new CommunityException(CommunityErrorCode.COMMENT_NOT_FOUND));
-    User user = getUserOrThrow(userId);
-
-    Optional<CommentLike> commentLike =
-        commentLikeRepository.findByCommentIdAndUserId(commentId, userId);
-
-    boolean isLiked;
-    if (commentLike.isPresent()) {
-      commentLikeRepository.delete(commentLike.get());
-      comment.decrementLikeCount();
-      isLiked = false;
-    } else {
-      commentLikeRepository.save(CommentLike.builder().comment(comment).user(user).build());
-      comment.incrementLikeCount();
-      isLiked = true;
-
-      User receiver = comment.getUser();
-      // 알림 이벤트 발행
-      if (!comment.getUser().getId().equals(userId)) {
-        eventPublisher.publishEvent(new CommentLikeEvent(receiver, user, comment));
+    for (int attempt = 0; attempt < MAX_RETRIES; attempt++) {
+      try {
+        return communityLikeToggleExecutor.toggleCommentLikeOnce(commentId, userId);
+      } catch (ObjectOptimisticLockingFailureException e) {
+        if (attempt == MAX_RETRIES - 1) throw e;
+        try {
+          log.warn(
+              "Optimistic locking failure on comment like toggle, retrying... Attempt: {} of {}",
+              attempt + 1,
+              MAX_RETRIES);
+          Thread.sleep(30L * (attempt + 1));
+        } catch (InterruptedException ie) {
+          Thread.currentThread().interrupt();
+        }
       }
     }
-    return LikeToggleResponse.from(isLiked, comment.getLikeCount());
+    throw new CommunityException(CommunityErrorCode.RETRY_LIMIT_EXCEEDED);
   }
 
   public CommunityPostInfoResponse getCommunityPost(Long postId, Long userId) {
     CommunityPost communityPost = getCommunityPostOrThrow(postId);
 
-    redisTempleCacheService.increaseViewCounts(postId, RedisKey.COMMUNITY_POST_VIEWS_KEY);
+    redisTemplateCacheService.increaseViewCounts(postId, RedisKey.COMMUNITY_POST_VIEWS_KEY);
 
     List<Comment> allComments = commentRepository.findAllByCommunityPostId(postId);
     List<String> allImages =
@@ -278,7 +254,7 @@ public class CommunityService {
     keyword = keyword.trim();
     // 최근 검색어 추가 로직
     if (userId != null) {
-      redisTempleCacheService.saveRecentSearch(userId, keyword);
+      redisTemplateCacheService.saveRecentSearch(userId, keyword);
     }
 
     // Elasticsearch에서 검색어로 커뮤니티 게시글 페이징해서 가져옴
@@ -309,7 +285,7 @@ public class CommunityService {
   }
 
   public List<StoreRecentSearchKeyword> getRecentSearchKeywords(Long userId) {
-    List<String> recentSearches = redisTempleCacheService.getRecentSearches(userId);
+    List<String> recentSearches = redisTemplateCacheService.getRecentSearches(userId);
 
     if (recentSearches.isEmpty()) {
       return List.of();
@@ -319,7 +295,7 @@ public class CommunityService {
 
   public void deleteRecentSearchKeyword(Long userId, String keyword) {
     keyword = keyword.trim();
-    redisTempleCacheService.deleteRecentSearches(userId, keyword);
+    redisTemplateCacheService.deleteRecentSearches(userId, keyword);
   }
 
   @Transactional

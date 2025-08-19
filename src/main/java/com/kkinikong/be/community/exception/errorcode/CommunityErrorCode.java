@@ -21,7 +21,8 @@ public enum CommunityErrorCode implements ErrorCode {
   NOT_TOP_COMMENT(HttpStatus.BAD_REQUEST, "최상위 댓글이 아닙니다."),
   COMMENT_NOT_OWNER(HttpStatus.FORBIDDEN, "댓글의 작성자가 아닙니다."),
   COMMENT_ALREADY_DELETED(HttpStatus.BAD_REQUEST, "이미 삭제된 댓글입니다."),
-  ;
+
+  RETRY_LIMIT_EXCEEDED(HttpStatus.BAD_REQUEST, "재시도 횟수를 초과했습니다. 잠시 후 다시 시도해주세요.");
   private final HttpStatus httpStatus;
   private final String message;
 }

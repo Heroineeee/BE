@@ -18,7 +18,7 @@ import com.kkinikong.be.store.repository.store.StoreRepository;
 @RequiredArgsConstructor
 public class ScheduledService {
 
-  private final RedisTempleCacheService redisTempleCacheService;
+  private final RedisTemplateCacheService redisTemplateCacheService;
   private final StoreRepository storeRepository;
   private final CommunityPostRepository communityPostRepository;
 
@@ -26,7 +26,7 @@ public class ScheduledService {
   @Transactional
   public void syncStoreViewCount() {
     Map<Object, Object> storesViewCounts =
-        redisTempleCacheService.getViewCounts(RedisKey.STORE_VIEWS_KEY);
+        redisTemplateCacheService.getViewCounts(RedisKey.STORE_VIEWS_KEY);
     if (storesViewCounts == null || storesViewCounts.isEmpty()) {
       return;
     }
@@ -38,14 +38,14 @@ public class ScheduledService {
           storeRepository.incrementViews(storeId, viewCount);
         });
 
-    redisTempleCacheService.clearViewCounts(RedisKey.STORE_VIEWS_KEY);
+    redisTemplateCacheService.clearViewCounts(RedisKey.STORE_VIEWS_KEY);
   }
 
   @Scheduled(cron = "0 10 * * * *") // 매시간 10분에 실행
   @Transactional
   public void syncCommunityPostViewCount() {
     Map<Object, Object> communityPostsViewCounts =
-        redisTempleCacheService.getViewCounts(RedisKey.COMMUNITY_POST_VIEWS_KEY);
+        redisTemplateCacheService.getViewCounts(RedisKey.COMMUNITY_POST_VIEWS_KEY);
     if (communityPostsViewCounts == null || communityPostsViewCounts.isEmpty()) {
       return;
     }
@@ -57,6 +57,6 @@ public class ScheduledService {
           communityPostRepository.incrementViews(storeId, viewCount);
         });
 
-    redisTempleCacheService.clearViewCounts(RedisKey.COMMUNITY_POST_VIEWS_KEY);
+    redisTemplateCacheService.clearViewCounts(RedisKey.COMMUNITY_POST_VIEWS_KEY);
   }
 }

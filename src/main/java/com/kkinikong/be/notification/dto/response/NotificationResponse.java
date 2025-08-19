@@ -1,6 +1,6 @@
 package com.kkinikong.be.notification.dto.response;
 
-import com.kkinikong.be.community.util.TimeUtil;
+import com.kkinikong.be.global.util.TimeUtil;
 import com.kkinikong.be.notification.domain.Notification;
 import com.kkinikong.be.notification.domain.type.NotificationType;
 

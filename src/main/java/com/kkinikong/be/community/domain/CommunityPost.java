@@ -14,6 +14,7 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
+import jakarta.persistence.Version;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -72,6 +73,8 @@ public class CommunityPost extends BaseEntity {
 
   @OneToMany(mappedBy = "communityPost", cascade = CascadeType.ALL, orphanRemoval = true)
   private List<Comment> commentList = new ArrayList<>();
+
+  @Version private Long version;
 
   @Builder
   public CommunityPost(String title, String content, User user, Category category) {
