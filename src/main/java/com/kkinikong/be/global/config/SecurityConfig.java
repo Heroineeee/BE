@@ -114,7 +114,8 @@ public class SecurityConfig {
             "http://localhost:8080",
             "http://localhost:5173",
             "https://kkinikong.store",
-            "https://kkinicong.vercel.app")); // 추후 배포 시 변경 필요
+            "https://kkinicong.vercel.app",
+            "https://kkinicong.co.kr"));
     configuration.setAllowedMethods(
         Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
     configuration.setAllowedHeaders(
