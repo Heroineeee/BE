@@ -29,7 +29,7 @@ public interface CommunityPostRepository
       ORDER BY COUNT(cpl.id) DESC, cp.viewCount DESC
       LIMIT 3
       """)
-  List<CommunityPost> findTop3ByLikesSince72Hours(@Param("since") LocalDateTime since);
+  List<CommunityPost> findTop3ByLikesSince7Days(@Param("since") LocalDateTime since);
 
   @EntityGraph(attributePaths = {"communityPostImageList"})
   Page<CommunityPost> findAllByCategory(Category category, Pageable pageable);
