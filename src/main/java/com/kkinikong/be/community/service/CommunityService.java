@@ -165,10 +165,10 @@ public class CommunityService {
 
   @Cacheable(value = "community-popular-posts", unless = "#result == null")
   public CommunityPostPopularWrappingResponse getPopularCommunityPosts() {
-    LocalDateTime since72Hours = LocalDateTime.now().minusHours(72);
+    LocalDateTime since7Days = LocalDateTime.now().minusDays(7);
 
     List<CommunityPostPopularResponse> list =
-        communityPostRepository.findTop3ByLikesSince72Hours(since72Hours).stream()
+        communityPostRepository.findTop3ByLikesSince7Days(since7Days).stream()
             .map(CommunityPostPopularResponse::from)
             .toList();
     return new CommunityPostPopularWrappingResponse(List.copyOf(list));
