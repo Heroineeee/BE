@@ -61,34 +61,34 @@ jobs:
             echo "🐳 최신 develop 이미지 pull"
             docker pull chaeeunkim/kkini-kong-be:develop
             
-            echo "🧲 docker-compose pull 로 의존 이미지 최신화"
-            docker-compose pull
+            echo "🧲 docker compose pull 로 의존 이미지 최신화"
+            docker compose pull
 
             if [ "$RUNNING" = "spring-blue" ]; then
               echo "✅ 현재 blue가 운영 중 -> green 배포 시작"
-              docker-compose stop spring-green || true
-              docker-compose rm -f spring-green || true
-              docker-compose up -d spring-green
+              docker compose stop spring-green || true
+              docker compose rm -f spring-green || true
+              docker compose up -d spring-green
 
               echo "🔧 nginx 설정을 green(8081)으로 변경"
               sudo sed -i 's/proxy_pass http:\/\/localhost:8080;/proxy_pass http:\/\/localhost:8081;/g' /etc/nginx/sites-available/default
               sudo nginx -s reload
 
               echo "🧹 기존 blue 컨테이너 중지"
-              docker-compose stop spring-blue || true
+              docker compose stop spring-blue || true
 
             else
               echo "✅ 현재 green이 운영 중 -> blue 배포 시작"
-              docker-compose stop spring-blue || true
-              docker-compose rm -f spring-blue || true
-              docker-compose up -d spring-blue
+              docker compose stop spring-blue || true
+              docker compose rm -f spring-blue || true
+              docker compose up -d spring-blue
 
               echo "🔧 nginx 설정을 blue(8080)으로 변경"
               sudo sed -i 's/proxy_pass http:\/\/localhost:8081;/proxy_pass http:\/\/localhost:8080;/g' /etc/nginx/sites-available/default
               sudo nginx -s reload
 
               echo "🧹 기존 green 컨테이너 중지"
-              docker-compose stop spring-green || true
+              docker compose stop spring-green || true
             fi
 
             echo "🩺 Redis 상태 확인 중..."
