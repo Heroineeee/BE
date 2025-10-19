@@ -26,6 +26,7 @@ public class Feedback extends BaseEntity {
   private String content;
 
   @Column(name = "type")
+  @Enumerated(EnumType.STRING)
   private FeedbackType type;
 
   @Builder
