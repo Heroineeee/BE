@@ -20,7 +20,12 @@ public class FeedbackService {
   @Transactional
   public void addFeedback(FeedbackRequest request) {
     Feedback feedback =
-        Feedback.builder().rating(request.rating()).content(request.content()).build();
+        Feedback.builder()
+            .rating(request.rating())
+            .content(request.content())
+            .type(request.type())
+            .build();
+
     feedbackRepository.save(feedback);
   }
 }
