@@ -7,7 +7,6 @@ import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -35,29 +34,16 @@ public class StoreUploadService {
     // CSV 파일을 파싱해서 Store 리스트로 변환
     List<Store> stores = parseCsv(file);
 
-    // name|address 조합 key 생성
-    List<String> storeKeys =
-        stores.stream()
-            .map(store -> generateStoreKey(store.getName(), store.getAddress()))
-            .collect(Collectors.toList());
+    // 파일의 첫 번째 데이터에서 지역 정보 추출
+    String targetRegion = stores.get(0).getRegion();
 
-    // 이미 존재하는 가맹점 key 조회
-    List<String> existingKeys = storeJdbcRepository.findExistingStoreKeys(storeKeys);
+    // db에서 해당 지역 데이터 전체 삭제
+    storeJdbcRepository.deleteByRegion(targetRegion);
 
-    // 중복 제외하고 새로운 Store만 추출
-    List<Store> newStores =
-        stores.stream()
-            .filter(
-                store ->
-                    !existingKeys.contains(generateStoreKey(store.getName(), store.getAddress())))
-            .collect(Collectors.toList());
+    // 최신 csv 데이터 전체 삽입
+    storeJdbcRepository.saveAllByJdbcTemplate(stores);
 
-    // 새로운 Store만 Batch Insert
-    if (!newStores.isEmpty()) {
-      storeJdbcRepository.saveAllByJdbcTemplate(newStores);
-    }
-
-    return new StoreUploadResponse(stores.size(), newStores.size());
+    return new StoreUploadResponse(stores.size(), stores.size());
   }
 
   /// CSV 파일을 읽어서 Store 객체 리스트로 변환

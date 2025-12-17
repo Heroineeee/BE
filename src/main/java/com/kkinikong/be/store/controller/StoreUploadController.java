@@ -31,8 +31,6 @@ public class StoreUploadController {
       @RequestPart("file") MultipartFile file) {
     StoreUploadResponse response = storeUploadService.upload(file);
     return ResponseEntity.ok(
-        ApiResponse.from(
-            String.format(
-                "CSV 파일 업로드 완료: 총 %d건 중 %d건 저장됨", response.totalCount(), response.saveCount())));
+        ApiResponse.from(String.format("CSV 파일 업로드 완료: 총 %d건 저장됨", response.saveCount())));
   }
 }

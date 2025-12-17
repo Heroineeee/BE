@@ -7,5 +7,5 @@ import com.kkinikong.be.store.domain.Store;
 public interface StoreJdbcRepository {
   void saveAllByJdbcTemplate(List<Store> stores);
 
-  List<String> findExistingStoreKeys(List<String> keys);
+  void deleteByRegion(String region);
 }

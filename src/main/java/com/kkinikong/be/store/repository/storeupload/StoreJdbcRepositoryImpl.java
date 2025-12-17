@@ -4,7 +4,6 @@ import java.time.LocalDate;
 import java.util.List;
 
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
@@ -52,20 +51,11 @@ public class StoreJdbcRepositoryImpl implements StoreJdbcRepository {
         });
   }
 
-  ///  이미 존재하는 가맹점 키를 조회 (name | address)
   @Override
-  public List<String> findExistingStoreKeys(List<String> keys) {
-    if (keys.isEmpty()) {
-      return List.of();
-    }
-
-    String sql =
-        """
-                         SELECT CONCAT(name, '|', address) AS store_key
-                         FROM stores
-                         WHERE CONCAT(name, '|', address) IN (:keys)
-                         """;
-    MapSqlParameterSource params = new MapSqlParameterSource("keys", keys);
-    return namedParameterJdbcTemplate.query(sql, params, (rs, rowNum) -> rs.getString("store_key"));
+  @Transactional
+  public void deleteByRegion(String region) {
+    // 해당 지역의 모든 가맹점 삭제
+    String sql = "DELETE FROM stores WHERE region = ?";
+    jdbcTemplate.update(sql, region);
   }
 }
