@@ -46,7 +46,7 @@ public class StoreUploadService {
     return new StoreUploadResponse(stores.size(), stores.size());
   }
 
-  /// CSV 파일을 읽어서 Store 객체 리스트로 변환
+  // CSV 파일을 읽어서 Store 객체 리스트로 변환
   private List<Store> parseCsv(MultipartFile file) {
     List<Store> stores = new ArrayList<>();
     try (BufferedReader reader =
@@ -67,7 +67,7 @@ public class StoreUploadService {
     return stores;
   }
 
-  /// CSV 한 줄을 Store 객체로 변환
+  // CSV 한 줄을 Store 객체로 변환
   private Store toStore(CSVRecord record) {
     return Store.builder()
         .name(record.get(0).trim())
@@ -80,17 +80,12 @@ public class StoreUploadService {
         .build();
   }
 
-  /// 주소에서 "시 구" 부분만 추출
+  // 주소에서 "시 구" 부분만 추출
   private String extractRegion(String address) {
     String[] parts = address.split(" ");
     if (parts.length < 2) {
       throw new StoreException(StoreErrorCode.INVALID_ADDRESS_FORMAT);
     }
     return parts[0] + " " + parts[1];
-  }
-
-  /// name + address 조합으로 store 고유 key 생성
-  private String generateStoreKey(String name, String address) {
-    return name.trim() + "|" + address.trim();
   }
 }
