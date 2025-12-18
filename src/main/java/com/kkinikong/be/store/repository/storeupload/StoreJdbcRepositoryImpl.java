@@ -1,6 +1,5 @@
 package com.kkinikong.be.store.repository.storeupload;
 
-import java.time.LocalDate;
 import java.util.List;
 
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -20,15 +19,20 @@ public class StoreJdbcRepositoryImpl implements StoreJdbcRepository {
 
   private static final int BATCH_SIZE = 1000;
 
-  /// 새로운 가맹점 리스트를 Batch Insert
   @Override
   @Transactional
-  public void saveAllByJdbcTemplate(List<Store> stores) {
+  public void upsertStores(List<Store> stores) {
     String sql =
         "INSERT INTO stores "
             + "(name, region, category, address, latitude, longitude, "
             + "rating_avg, scrap_count, review_count, view_count, updated_date, created_date, modified_date) "
-            + "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+            + "VALUES (?, ?, ?, ?, ?, ?, 0.0, 0, 0, 0, ?, NOW(), NOW()) "
+            + "ON DUPLICATE KEY UPDATE "
+            + "category = VALUES(category), "
+            + "latitude = VALUES(latitude), "
+            + "longitude = VALUES(longitude), "
+            + "updated_date = VALUES(updated_date), "
+            + "modified_date = NOW()";
 
     jdbcTemplate.batchUpdate(
         sql,
@@ -41,21 +45,23 @@ public class StoreJdbcRepositoryImpl implements StoreJdbcRepository {
           ps.setString(4, store.getAddress());
           ps.setDouble(5, store.getLatitude());
           ps.setDouble(6, store.getLongitude());
-          ps.setDouble(7, 0.0);
-          ps.setLong(8, 0L);
-          ps.setLong(9, 0L);
-          ps.setLong(10, 0L);
-          ps.setObject(11, store.getUpdatedDate());
-          ps.setObject(12, LocalDate.now());
-          ps.setObject(13, LocalDate.now());
+          ps.setObject(7, store.getUpdatedDate());
         });
   }
 
   @Override
   @Transactional
-  public void deleteByRegion(String region) {
-    // 해당 지역의 모든 가맹점 삭제
-    String sql = "DELETE FROM stores WHERE region = ?";
-    jdbcTemplate.update(sql, region);
+  public void deleteMissingStores(String region, List<String> currentStoreNames) {
+    if (currentStoreNames.isEmpty()) return;
+
+    // 해당 지역 데이터 중 이번 CSV 파일에 없는 가맹점만 삭제
+    String sql = "DELETE FROM stores WHERE region = :region AND name NOT IN (:names)";
+
+    var params =
+        new org.springframework.jdbc.core.namedparam.MapSqlParameterSource()
+            .addValue("region", region)
+            .addValue("names", currentStoreNames);
+
+    namedParameterJdbcTemplate.update(sql, params);
   }
 }

@@ -37,11 +37,14 @@ public class StoreUploadService {
     // 파일의 첫 번째 데이터에서 지역 정보 추출
     String targetRegion = stores.get(0).getRegion();
 
-    // db에서 해당 지역 데이터 전체 삭제
-    storeJdbcRepository.deleteByRegion(targetRegion);
+    // 기존 데이터는 유지하며 정보 갱신, 신규 데이터는 추가
+    storeJdbcRepository.upsertStores(stores);
 
-    // 최신 csv 데이터 전체 삽입
-    storeJdbcRepository.saveAllByJdbcTemplate(stores);
+    // 기존 파일에 존재하는 가맹점 이름 리스트 추출
+    List<String> currentStoreNames = stores.stream().map(Store::getName).toList();
+
+    // 새로운 파일에 없는 가맹점 삭제
+    storeJdbcRepository.deleteMissingStores(targetRegion, currentStoreNames);
 
     return new StoreUploadResponse(stores.size(), stores.size());
   }

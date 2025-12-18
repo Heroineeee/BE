@@ -5,7 +5,7 @@ import java.util.List;
 import com.kkinikong.be.store.domain.Store;
 
 public interface StoreJdbcRepository {
-  void saveAllByJdbcTemplate(List<Store> stores);
+  void upsertStores(List<Store> stores);
 
-  void deleteByRegion(String region);
+  void deleteMissingStores(String region, List<String> currentStoreNames);
 }
