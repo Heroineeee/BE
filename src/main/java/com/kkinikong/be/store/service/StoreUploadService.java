@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -31,6 +32,8 @@ public class StoreUploadService {
 
   @Transactional
   public StoreUploadResponse upload(MultipartFile file) {
+    LocalDateTime startTime = LocalDateTime.now().minusSeconds(5);
+
     // CSV 파일을 파싱해서 Store 리스트로 변환
     List<Store> stores = parseCsv(file);
 
@@ -40,11 +43,8 @@ public class StoreUploadService {
     // 기존 데이터는 유지하며 정보 갱신, 신규 데이터는 추가
     storeJdbcRepository.upsertStores(stores);
 
-    // 기존 파일에 존재하는 가맹점 이름 리스트 추출
-    List<String> currentStoreNames = stores.stream().map(Store::getName).toList();
-
     // 새로운 파일에 없는 가맹점 삭제
-    storeJdbcRepository.deleteMissingStores(targetRegion, currentStoreNames);
+    storeJdbcRepository.deleteMissingStores(targetRegion, startTime);
 
     return new StoreUploadResponse(stores.size(), stores.size());
   }

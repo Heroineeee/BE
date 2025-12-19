@@ -1,5 +1,6 @@
 package com.kkinikong.be.store.repository.storeupload;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -51,16 +52,13 @@ public class StoreJdbcRepositoryImpl implements StoreJdbcRepository {
 
   @Override
   @Transactional
-  public void deleteMissingStores(String region, List<String> currentStoreNames) {
-    if (currentStoreNames.isEmpty()) return;
-
-    // 해당 지역 데이터 중 이번 CSV 파일에 없는 가맹점만 삭제
-    String sql = "DELETE FROM stores WHERE region = :region AND name NOT IN (:names)";
+  public void deleteMissingStores(String region, LocalDateTime startTime) {
+    String sql = "DELETE FROM stores WHERE region = :region AND modified_date < :startTime";
 
     var params =
         new org.springframework.jdbc.core.namedparam.MapSqlParameterSource()
             .addValue("region", region)
-            .addValue("names", currentStoreNames);
+            .addValue("startTime", startTime);
 
     namedParameterJdbcTemplate.update(sql, params);
   }
