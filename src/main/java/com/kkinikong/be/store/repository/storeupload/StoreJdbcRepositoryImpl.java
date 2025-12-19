@@ -1,6 +1,5 @@
 package com.kkinikong.be.store.repository.storeupload;
 
-import java.time.LocalDateTime;
 import java.util.List;
 
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -26,14 +25,15 @@ public class StoreJdbcRepositoryImpl implements StoreJdbcRepository {
     String sql =
         "INSERT INTO stores "
             + "(name, region, category, address, latitude, longitude, "
-            + "rating_avg, scrap_count, review_count, view_count, updated_date, created_date, modified_date) "
-            + "VALUES (?, ?, ?, ?, ?, ?, 0.0, 0, 0, 0, ?, NOW(), NOW()) "
+            + "rating_avg, scrap_count, review_count, view_count, updated_date, created_date, modified_date, is_updated) "
+            + "VALUES (?, ?, ?, ?, ?, ?, 0.0, 0, 0, 0, ?, NOW(), NOW(), TRUE) "
             + "ON DUPLICATE KEY UPDATE "
             + "category = VALUES(category), "
             + "latitude = VALUES(latitude), "
             + "longitude = VALUES(longitude), "
             + "updated_date = VALUES(updated_date), "
-            + "modified_date = NOW()";
+            + "modified_date = NOW(),"
+            + "is_updated = TRUE";
 
     jdbcTemplate.batchUpdate(
         sql,
@@ -52,14 +52,18 @@ public class StoreJdbcRepositoryImpl implements StoreJdbcRepository {
 
   @Override
   @Transactional
-  public void deleteMissingStores(String region, LocalDateTime startTime) {
-    String sql = "DELETE FROM stores WHERE region = :region AND modified_date < :startTime";
+  public void deleteMissingStores(String region) {
+    // 이번 파일에 없었던 (여전히 FALSE인) 가맹점 삭제
+    String deleteSql = "DELETE FROM stores WHERE region = :region AND is_updated = FALSE";
+
+    // 다음 업로드를 위해 모든 가맹점을 다시 FALSE로 리셋
+    String resetSql = "UPDATE stores SET is_updated = FALSE WHERE region = :region";
 
     var params =
         new org.springframework.jdbc.core.namedparam.MapSqlParameterSource()
-            .addValue("region", region)
-            .addValue("startTime", startTime);
+            .addValue("region", region);
 
-    namedParameterJdbcTemplate.update(sql, params);
+    namedParameterJdbcTemplate.update(deleteSql, params);
+    namedParameterJdbcTemplate.update(resetSql, params);
   }
 }

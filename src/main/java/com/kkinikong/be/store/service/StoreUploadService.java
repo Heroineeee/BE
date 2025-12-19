@@ -5,15 +5,17 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVParser;
 import org.apache.commons.csv.CSVRecord;
@@ -23,30 +25,62 @@ import com.kkinikong.be.store.domain.type.Category;
 import com.kkinikong.be.store.dto.response.StoreUploadResponse;
 import com.kkinikong.be.store.exception.StoreException;
 import com.kkinikong.be.store.exception.errorcode.StoreErrorCode;
+import com.kkinikong.be.store.repository.store.StoreRepository;
 import com.kkinikong.be.store.repository.storeupload.StoreJdbcRepository;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class StoreUploadService {
   private final StoreJdbcRepository storeJdbcRepository;
+  private final StoreRepository storeRepository;
 
   @Transactional
   public StoreUploadResponse upload(MultipartFile file) {
-    LocalDateTime startTime = LocalDateTime.now().minusSeconds(5);
 
     // CSV 파일을 파싱해서 Store 리스트로 변환
-    List<Store> stores = parseCsv(file);
+    List<Store> newStores = parseCsv(file);
 
     // 파일의 첫 번째 데이터에서 지역 정보 추출
-    String targetRegion = stores.get(0).getRegion();
+    String targetRegion = newStores.get(0).getRegion();
+
+    // 기존 DB 데이터와 비교 로직
+    List<Store> existingStoresInDb = storeRepository.findByRegion(targetRegion);
+
+    // 중복 판단 기준인 (이름+주소)를 Key로 생성
+    Set<String> existingStoreKeys =
+        existingStoresInDb.stream()
+            .map(s -> s.getName() + "|" + s.getAddress())
+            .collect(Collectors.toSet());
+
+    Set<String> newStoreKeys =
+        newStores.stream()
+            .map(ns -> ns.getName() + "|" + ns.getAddress())
+            .collect(Collectors.toSet());
+
+    // 추가/삭제 개수 계산
+    long addedCount =
+        newStores.stream()
+            .filter(ns -> !existingStoreKeys.contains(ns.getName() + "|" + ns.getAddress()))
+            .count();
+
+    long deletedCount =
+        existingStoresInDb.stream()
+            .filter(es -> !newStoreKeys.contains(es.getName() + "|" + es.getAddress()))
+            .count();
+
+    // 로그 출력
+    log.info(">>> [{}] 지역 가맹점 업데이트 요약", targetRegion);
+    log.info(
+        ">>> 신규 추가: {}건 / 삭제(폐업): {}건 / 전체(유지포함): {}건", addedCount, deletedCount, newStores.size());
 
     // 기존 데이터는 유지하며 정보 갱신, 신규 데이터는 추가
-    storeJdbcRepository.upsertStores(stores);
+    storeJdbcRepository.upsertStores(newStores);
 
     // 새로운 파일에 없는 가맹점 삭제
-    storeJdbcRepository.deleteMissingStores(targetRegion, startTime);
+    storeJdbcRepository.deleteMissingStores(targetRegion);
 
-    return new StoreUploadResponse(stores.size(), stores.size());
+    return new StoreUploadResponse(newStores.size(), newStores.size());
   }
 
   // CSV 파일을 읽어서 Store 객체 리스트로 변환

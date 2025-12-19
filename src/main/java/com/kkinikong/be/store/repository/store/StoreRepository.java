@@ -1,5 +1,6 @@
 package com.kkinikong.be.store.repository.store;
 
+import java.util.List;
 import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -14,6 +15,8 @@ import com.kkinikong.be.store.domain.Store;
 @Repository
 public interface StoreRepository extends JpaRepository<Store, Long>, StoreRepositoryCustom {
   Optional<Store> findStoreById(Long id);
+
+  List<Store> findByRegion(String region);
 
   @Modifying(clearAutomatically = true)
   @Query("UPDATE Store s SET s.viewCount = s.viewCount + :count WHERE s.id = :storeId")
