@@ -15,7 +15,11 @@ import com.kkinikong.be.store.domain.type.Category;
 
 @Table(
     name = "stores",
-    indexes = {@Index(name = "idx_lat_lon", columnList = "latitude, longitude")})
+    indexes = {
+      @Index(name = "idx_lat_lon", columnList = "latitude, longitude"),
+      @Index(name = "idx_name_address", columnList = "name, address", unique = true),
+      @Index(name = "idx_region_is_updated", columnList = "region, is_updated")
+    })
 @Entity
 @Getter
 @NoArgsConstructor
@@ -59,6 +63,9 @@ public class Store extends BaseEntity {
 
   @Column(name = "updated_date", nullable = false)
   private LocalDate updatedDate;
+
+  @Column(name = "is_updated", nullable = false)
+  private boolean isUpdated = false;
 
   @Transient private Boolean isScrapped;
 

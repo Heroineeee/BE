@@ -1,10 +1,8 @@
 package com.kkinikong.be.store.repository.storeupload;
 
-import java.time.LocalDate;
 import java.util.List;
 
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
@@ -21,15 +19,21 @@ public class StoreJdbcRepositoryImpl implements StoreJdbcRepository {
 
   private static final int BATCH_SIZE = 1000;
 
-  /// 새로운 가맹점 리스트를 Batch Insert
   @Override
   @Transactional
-  public void saveAllByJdbcTemplate(List<Store> stores) {
+  public void upsertStores(List<Store> stores) {
     String sql =
         "INSERT INTO stores "
             + "(name, region, category, address, latitude, longitude, "
-            + "rating_avg, scrap_count, review_count, view_count, updated_date, created_date, modified_date) "
-            + "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+            + "rating_avg, scrap_count, review_count, view_count, updated_date, created_date, modified_date, is_updated) "
+            + "VALUES (?, ?, ?, ?, ?, ?, 0.0, 0, 0, 0, ?, NOW(), NOW(), TRUE) "
+            + "ON DUPLICATE KEY UPDATE "
+            + "category = VALUES(category), "
+            + "latitude = VALUES(latitude), "
+            + "longitude = VALUES(longitude), "
+            + "updated_date = VALUES(updated_date), "
+            + "modified_date = NOW(),"
+            + "is_updated = TRUE";
 
     jdbcTemplate.batchUpdate(
         sql,
@@ -42,30 +46,24 @@ public class StoreJdbcRepositoryImpl implements StoreJdbcRepository {
           ps.setString(4, store.getAddress());
           ps.setDouble(5, store.getLatitude());
           ps.setDouble(6, store.getLongitude());
-          ps.setDouble(7, 0.0);
-          ps.setLong(8, 0L);
-          ps.setLong(9, 0L);
-          ps.setLong(10, 0L);
-          ps.setObject(11, store.getUpdatedDate());
-          ps.setObject(12, LocalDate.now());
-          ps.setObject(13, LocalDate.now());
+          ps.setObject(7, store.getUpdatedDate());
         });
   }
 
-  ///  이미 존재하는 가맹점 키를 조회 (name | address)
   @Override
-  public List<String> findExistingStoreKeys(List<String> keys) {
-    if (keys.isEmpty()) {
-      return List.of();
-    }
+  @Transactional
+  public void deleteMissingStores(String region) {
+    // 이번 파일에 없었던 (여전히 FALSE인) 가맹점 삭제
+    String deleteSql = "DELETE FROM stores WHERE region = :region AND is_updated = FALSE";
 
-    String sql =
-        """
-                         SELECT CONCAT(name, '|', address) AS store_key
-                         FROM stores
-                         WHERE CONCAT(name, '|', address) IN (:keys)
-                         """;
-    MapSqlParameterSource params = new MapSqlParameterSource("keys", keys);
-    return namedParameterJdbcTemplate.query(sql, params, (rs, rowNum) -> rs.getString("store_key"));
+    // 다음 업로드를 위해 모든 가맹점을 다시 FALSE로 리셋
+    String resetSql = "UPDATE stores SET is_updated = FALSE WHERE region = :region";
+
+    var params =
+        new org.springframework.jdbc.core.namedparam.MapSqlParameterSource()
+            .addValue("region", region);
+
+    namedParameterJdbcTemplate.update(deleteSql, params);
+    namedParameterJdbcTemplate.update(resetSql, params);
   }
 }

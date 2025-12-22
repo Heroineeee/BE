@@ -7,13 +7,13 @@ import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVParser;
 import org.apache.commons.csv.CSVRecord;
@@ -25,6 +25,7 @@ import com.kkinikong.be.store.exception.StoreException;
 import com.kkinikong.be.store.exception.errorcode.StoreErrorCode;
 import com.kkinikong.be.store.repository.storeupload.StoreJdbcRepository;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class StoreUploadService {
@@ -32,35 +33,23 @@ public class StoreUploadService {
 
   @Transactional
   public StoreUploadResponse upload(MultipartFile file) {
+
     // CSV 파일을 파싱해서 Store 리스트로 변환
-    List<Store> stores = parseCsv(file);
+    List<Store> newStores = parseCsv(file);
 
-    // name|address 조합 key 생성
-    List<String> storeKeys =
-        stores.stream()
-            .map(store -> generateStoreKey(store.getName(), store.getAddress()))
-            .collect(Collectors.toList());
+    // 파일의 첫 번째 데이터에서 지역 정보 추출
+    String targetRegion = newStores.get(0).getRegion();
 
-    // 이미 존재하는 가맹점 key 조회
-    List<String> existingKeys = storeJdbcRepository.findExistingStoreKeys(storeKeys);
+    // 기존 데이터는 유지하며 정보 갱신, 신규 데이터는 추가
+    storeJdbcRepository.upsertStores(newStores);
 
-    // 중복 제외하고 새로운 Store만 추출
-    List<Store> newStores =
-        stores.stream()
-            .filter(
-                store ->
-                    !existingKeys.contains(generateStoreKey(store.getName(), store.getAddress())))
-            .collect(Collectors.toList());
+    // 새로운 파일에 없는 가맹점 삭제
+    storeJdbcRepository.deleteMissingStores(targetRegion);
 
-    // 새로운 Store만 Batch Insert
-    if (!newStores.isEmpty()) {
-      storeJdbcRepository.saveAllByJdbcTemplate(newStores);
-    }
-
-    return new StoreUploadResponse(stores.size(), newStores.size());
+    return new StoreUploadResponse(newStores.size(), newStores.size());
   }
 
-  /// CSV 파일을 읽어서 Store 객체 리스트로 변환
+  // CSV 파일을 읽어서 Store 객체 리스트로 변환
   private List<Store> parseCsv(MultipartFile file) {
     List<Store> stores = new ArrayList<>();
     try (BufferedReader reader =
@@ -81,7 +70,7 @@ public class StoreUploadService {
     return stores;
   }
 
-  /// CSV 한 줄을 Store 객체로 변환
+  // CSV 한 줄을 Store 객체로 변환
   private Store toStore(CSVRecord record) {
     return Store.builder()
         .name(record.get(0).trim())
@@ -94,17 +83,12 @@ public class StoreUploadService {
         .build();
   }
 
-  /// 주소에서 "시 구" 부분만 추출
+  // 주소에서 "시 구" 부분만 추출
   private String extractRegion(String address) {
     String[] parts = address.split(" ");
     if (parts.length < 2) {
       throw new StoreException(StoreErrorCode.INVALID_ADDRESS_FORMAT);
     }
     return parts[0] + " " + parts[1];
-  }
-
-  /// name + address 조합으로 store 고유 key 생성
-  private String generateStoreKey(String name, String address) {
-    return name.trim() + "|" + address.trim();
   }
 }
