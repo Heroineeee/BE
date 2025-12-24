@@ -22,4 +22,7 @@ public interface StoreRepositoryCustom {
       Long userId);
 
   List<Store> findTopViewedStores(Double latitude, Double longitude);
+
+  Page<Store> findStoresByIdsForMap(
+      List<Long> ids, String keyword, Category category, Pageable pageable, Long usedId);
 }

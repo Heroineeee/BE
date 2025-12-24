@@ -4,7 +4,13 @@ import java.util.List;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.geo.Distance;
+import org.springframework.data.geo.GeoResults;
+import org.springframework.data.geo.Point;
+import org.springframework.data.redis.connection.RedisGeoCommands;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.domain.geo.GeoReference;
+import org.springframework.data.redis.domain.geo.Metrics;
 import org.springframework.stereotype.Service;
 
 import lombok.extern.slf4j.Slf4j;
@@ -63,5 +69,36 @@ public class RedisTemplateCacheService {
   private static String generateRecentSearchKey(long userId) {
     String key = RedisKey.RECENT_SEARCHES_KEY.getKey() + ":" + userId;
     return key;
+  }
+
+  // 가맹점 위치 정보 단건 저장
+  public void saveStoreLocation(Long storeId, Double latitude, Double longitude) {
+    String key = RedisKey.STORE_LOCATIONS_KEY.getKey();
+    redisTemplate.opsForGeo().add(key, new Point(longitude, latitude), storeId.toString());
+  }
+
+  // 주변 가맹점 ID 리스트 조회
+  public List<Long> findNearbyStoreIds(Double latitude, Double longitude, Double radiusMeters) {
+    String key = RedisKey.STORE_LOCATIONS_KEY.getKey();
+
+    GeoResults<RedisGeoCommands.GeoLocation<Object>> results =
+        redisTemplate
+            .opsForGeo()
+            .search(
+                key,
+                GeoReference.fromCoordinate(longitude, latitude),
+                new Distance(radiusMeters, Metrics.METERS),
+                RedisGeoCommands.GeoSearchCommandArgs.newGeoSearchArgs().sortAscending());
+
+    if (results == null) return List.of();
+
+    return results.getContent().stream()
+        .map(res -> Long.parseLong(res.getContent().getName().toString()))
+        .toList();
+  }
+
+  // 가맹점 삭제 시 Geo 데이터도 삭제
+  public void removeStoreLocation(Long storeId) {
+    redisTemplate.opsForZSet().remove(RedisKey.STORE_LOCATIONS_KEY.getKey(), storeId.toString());
   }
 }
