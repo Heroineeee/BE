@@ -84,7 +84,14 @@ public class StoreRepositoryCustomImpl implements StoreRepositoryCustom {
       whereBuilder.and(buildKeywordCondition(keyword));
     }
 
-    OrderSpecifier<?>[] sortOrder = new OrderSpecifier[] {store.id.asc()};
+    String format =
+        "FIELD({0}, " + String.join(", ", ids.stream().map(String::valueOf).toList()) + ")";
+    OrderSpecifier<?> fieldOrder =
+        new OrderSpecifier<>(
+            com.querydsl.core.types.Order.ASC,
+            Expressions.numberTemplate(Integer.class, format, store.id));
+    OrderSpecifier<?>[] sortOrder = new OrderSpecifier[] {fieldOrder, store.id.asc()};
+
     List<Tuple> tuples = fetchStores(whereBuilder, sortOrder, pageable, userId);
     List<Store> storeList = convertTuplesToStores(tuples, userId);
     long total = fetchTotalCount(whereBuilder);
