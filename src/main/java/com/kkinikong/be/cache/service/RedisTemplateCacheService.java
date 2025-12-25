@@ -6,7 +6,6 @@ import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.geo.Distance;
 import org.springframework.data.geo.GeoResults;
-import org.springframework.data.geo.Point;
 import org.springframework.data.redis.connection.RedisGeoCommands;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.domain.geo.GeoReference;
@@ -16,6 +15,7 @@ import org.springframework.stereotype.Service;
 import lombok.extern.slf4j.Slf4j;
 
 import com.kkinikong.be.cache.type.RedisKey;
+import com.kkinikong.be.store.domain.Store;
 
 @Service
 @Slf4j
@@ -71,12 +71,6 @@ public class RedisTemplateCacheService {
     return key;
   }
 
-  // 가맹점 위치 정보 단건 저장
-  public void saveStoreLocation(Long storeId, Double latitude, Double longitude) {
-    String key = RedisKey.STORE_LOCATIONS_KEY.getKey();
-    redisTemplate.opsForGeo().add(key, new Point(longitude, latitude), storeId.toString());
-  }
-
   // 주변 가맹점 ID 리스트 조회
   public List<Long> findNearbyStoreIds(Double latitude, Double longitude, Double radiusMeters) {
     String key = RedisKey.STORE_LOCATIONS_KEY.getKey();
@@ -97,8 +91,37 @@ public class RedisTemplateCacheService {
         .toList();
   }
 
-  // 가맹점 삭제 시 Geo 데이터도 삭제
-  public void removeStoreLocation(Long storeId) {
-    redisTemplate.opsForZSet().remove(RedisKey.STORE_LOCATIONS_KEY.getKey(), storeId.toString());
+  // 여러 ID를 한 번에 삭제
+  public void removeStoreLocationsBulk(List<Long> storeIds) {
+    if (storeIds == null || storeIds.isEmpty()) return;
+
+    String key = RedisKey.STORE_LOCATIONS_KEY.getKey();
+    Object[] members = storeIds.stream().map(Object::toString).toArray();
+
+    redisTemplate.opsForZSet().remove(key, members);
+  }
+
+  // 여러 데이터를 한 번에 저장
+  public void saveStoreLocationsBulk(List<Store> stores) {
+    String key = RedisKey.STORE_LOCATIONS_KEY.getKey();
+
+    redisTemplate.executePipelined(
+        (org.springframework.data.redis.core.RedisCallback<Object>)
+            connection -> {
+              for (Store store : stores) {
+                if (store.getId() != null) {
+                  connection
+                      .geoCommands()
+                      .geoAdd(
+                          key.getBytes(),
+                          new org.springframework.data.redis.connection.RedisGeoCommands
+                              .GeoLocation<>(
+                              store.getId().toString().getBytes(),
+                              new org.springframework.data.geo.Point(
+                                  store.getLongitude(), store.getLatitude())));
+                }
+              }
+              return null;
+            });
   }
 }

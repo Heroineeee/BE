@@ -18,6 +18,9 @@ public interface StoreRepository extends JpaRepository<Store, Long>, StoreReposi
 
   List<Store> findByRegion(String region);
 
+  @Query("SELECT s.id FROM Store s WHERE s.region = :region")
+  List<Long> findIdsByRegion(@Param("region") String region);
+
   @Modifying(clearAutomatically = true)
   @Query("UPDATE Store s SET s.viewCount = s.viewCount + :count WHERE s.id = :storeId")
   void incrementViews(@Param("storeId") Long storeId, @Param("count") Long count);

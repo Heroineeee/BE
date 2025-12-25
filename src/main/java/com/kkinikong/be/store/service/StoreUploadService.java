@@ -18,11 +18,13 @@ import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVParser;
 import org.apache.commons.csv.CSVRecord;
 
+import com.kkinikong.be.cache.service.RedisTemplateCacheService;
 import com.kkinikong.be.store.domain.Store;
 import com.kkinikong.be.store.domain.type.Category;
 import com.kkinikong.be.store.dto.response.StoreUploadResponse;
 import com.kkinikong.be.store.exception.StoreException;
 import com.kkinikong.be.store.exception.errorcode.StoreErrorCode;
+import com.kkinikong.be.store.repository.store.StoreRepository;
 import com.kkinikong.be.store.repository.storeupload.StoreJdbcRepository;
 
 @Slf4j
@@ -30,6 +32,8 @@ import com.kkinikong.be.store.repository.storeupload.StoreJdbcRepository;
 @RequiredArgsConstructor
 public class StoreUploadService {
   private final StoreJdbcRepository storeJdbcRepository;
+  private final StoreRepository storeRepository;
+  private final RedisTemplateCacheService redisTemplateCacheService;
 
   @Transactional
   public StoreUploadResponse upload(MultipartFile file) {
@@ -40,11 +44,23 @@ public class StoreUploadService {
     // 파일의 첫 번째 데이터에서 지역 정보 추출
     String targetRegion = newStores.get(0).getRegion();
 
+    // 삭제될 기존 데이터의 ID 확보
+    List<Long> oldStoreIds = storeRepository.findIdsByRegion(targetRegion);
+
     // 기존 데이터는 유지하며 정보 갱신, 신규 데이터는 추가
     storeJdbcRepository.upsertStores(newStores);
 
     // 새로운 파일에 없는 가맹점 삭제
     storeJdbcRepository.deleteMissingStores(targetRegion);
+
+    // redis에 해당 지역의 기존 데이터 삭제
+    redisTemplateCacheService.removeStoreLocationsBulk(oldStoreIds);
+
+    // 최신화된 해당 지역 데이터 조회
+    List<Store> updatedStores = storeRepository.findByRegion(targetRegion);
+
+    // redis에 최신 데이터 저장
+    redisTemplateCacheService.saveStoreLocationsBulk(updatedStores);
 
     return new StoreUploadResponse(newStores.size(), newStores.size());
   }
