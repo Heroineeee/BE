@@ -20,6 +20,7 @@ public class ScheduledService {
 
   private final RedisTemplateCacheService redisTemplateCacheService;
   private final StoreRepository storeRepository;
+  private final StoreCacheService storeCacheService;
   private final CommunityPostRepository communityPostRepository;
 
   @Scheduled(cron = "0 0 * * * *") // 매시간 0분에 실행
@@ -58,5 +59,10 @@ public class ScheduledService {
         });
 
     redisTemplateCacheService.clearViewCounts(RedisKey.COMMUNITY_POST_VIEWS_KEY);
+  }
+
+  @Scheduled(cron = "0 0 3 * * *")
+  public void dailyLocationSync() {
+    storeCacheService.syncStoreLocations();
   }
 }

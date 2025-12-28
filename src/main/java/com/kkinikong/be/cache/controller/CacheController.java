@@ -3,6 +3,7 @@ package com.kkinikong.be.cache.controller;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -11,6 +12,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 
 import com.kkinikong.be.cache.service.CacheService;
+import com.kkinikong.be.cache.service.StoreCacheService;
 import com.kkinikong.be.global.response.ApiResponse;
 import com.kkinikong.be.user.utils.CustomUserDetails;
 
@@ -21,6 +23,7 @@ import com.kkinikong.be.user.utils.CustomUserDetails;
 public class CacheController {
 
   private final CacheService cacheService;
+  private final StoreCacheService storeCacheService;
 
   @Operation(summary = "가맹점 외부 링크 캐시 초기화", description = "카카오 api를 통해 받은 모든 가맹점 외부 링크 캐시를 삭제합니다")
   @DeleteMapping("/store-id")
@@ -34,5 +37,15 @@ public class CacheController {
   public ResponseEntity<ApiResponse<Object>> clearStoredOpeningHoursCache(
       @AuthenticationPrincipal CustomUserDetails userDetails) {
     return ResponseEntity.ok(ApiResponse.from(cacheService.clearStoredOpeningHoursCache()));
+  }
+
+  @Operation(
+      summary = "가맹점 위치 데이터 강제 동기화",
+      description = "MySQL의 모든 가맹점 위치 정보를 Redis Geo Index로 적재합니다.")
+  @PostMapping("/store-locations")
+  public ResponseEntity<ApiResponse<Object>> syncStoreLocations(
+      @AuthenticationPrincipal CustomUserDetails userDetails) {
+    ;
+    return ResponseEntity.ok(ApiResponse.from(storeCacheService.syncStoreLocations()));
   }
 }

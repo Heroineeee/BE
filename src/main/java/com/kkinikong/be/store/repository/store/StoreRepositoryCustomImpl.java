@@ -69,6 +69,36 @@ public class StoreRepositoryCustomImpl implements StoreRepositoryCustom {
     return queryFactory.selectFrom(store).where(whereBuilder).orderBy(orderBy).limit(8).fetch();
   }
 
+  @Override
+  public Page<Store> findStoresByIdsForMap(
+      List<Long> ids, String keyword, Category category, Pageable pageable, Long userId) {
+
+    BooleanBuilder whereBuilder = new BooleanBuilder();
+    whereBuilder.and(store.id.in(ids)); // redis에서 필터링해준 id 리스트 안에 포함된 데이터만 조회
+
+    if (category != null) {
+      whereBuilder.and(store.category.eq(category));
+    }
+
+    if (keyword != null && !keyword.isBlank()) {
+      whereBuilder.and(buildKeywordCondition(keyword));
+    }
+
+    String format =
+        "FIELD({0}, " + String.join(", ", ids.stream().map(String::valueOf).toList()) + ")";
+    OrderSpecifier<?> fieldOrder =
+        new OrderSpecifier<>(
+            com.querydsl.core.types.Order.ASC,
+            Expressions.numberTemplate(Integer.class, format, store.id));
+    OrderSpecifier<?>[] sortOrder = new OrderSpecifier[] {fieldOrder, store.id.asc()};
+
+    List<Tuple> tuples = fetchStores(whereBuilder, sortOrder, pageable, userId);
+    List<Store> storeList = convertTuplesToStores(tuples, userId);
+    long total = fetchTotalCount(whereBuilder);
+
+    return new PageImpl<>(storeList, pageable, total);
+  }
+
   // 키워드 검색 조건 생성
   private BooleanBuilder buildKeywordCondition(String keyword) {
     String normalizedKeyword = keyword.replaceAll("\\s+", "");

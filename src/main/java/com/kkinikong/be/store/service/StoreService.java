@@ -48,11 +48,12 @@ public class StoreService {
   private final UserRepository userRepository;
   private final StoreTagCountRepository storeTagCountRepository;
 
+  private static final double DEFAULT_RADIUS_METERS = 5000.0;
   private static final String NO_INFO = "NO_INFO";
   private static final double DEFAULT_LATITUDE = 37.545472;
   private static final double DEFAULT_LONGITUDE = 126.676902;
 
-  ///  카테고리와 정렬 조건 기반 가맹점 리스트 조회
+  //  카테고리와 정렬 조건 기반 가맹점 리스트 조회
   public PageResponse<StoreListItemResponse> getStoreList(
       Double latitude,
       Double longitude,
@@ -78,24 +79,29 @@ public class StoreService {
         storePage, store -> StoreListItemResponse.from(store, tagMap.get(store.getId())));
   }
 
-  /// 가맹점 지도 조회
+  // 가맹점 지도 조회
   public PageResponse<StoreMapListItemResponse> getStoreMapList(
       Double latitude,
       Double longitude,
-      Double radius,
+      Double radiusMeters,
       String keyword,
       Category category,
       int page,
       int size,
       Long userId) {
 
+    double radius = (radiusMeters != null) ? radiusMeters : DEFAULT_RADIUS_METERS;
+
     latitude = getOrDefault(latitude, StoreService.DEFAULT_LATITUDE);
     longitude = getOrDefault(longitude, StoreService.DEFAULT_LONGITUDE);
     Pageable pageable = PageRequest.of(page, size);
 
+    // redis에서 주변 가맹점 id만 가져오기
+    List<Long> nearbyIds =
+        redisTemplateCacheService.findNearbyStoreIds(latitude, longitude, radius);
+
     Page<Store> storePage =
-        storeRepository.findStoresUnified(
-            latitude, longitude, radius, keyword, category, StoreSort.DISTANCE, pageable, userId);
+        storeRepository.findStoresByIdsForMap(nearbyIds, keyword, category, pageable, userId);
     return PageResponse.from(storePage, StoreMapListItemResponse::from);
   }
 
