@@ -10,14 +10,12 @@ import lombok.RequiredArgsConstructor;
 import com.kkinikong.be.feedback.domain.Feedback;
 import com.kkinikong.be.feedback.dto.request.FeedbackRequest;
 import com.kkinikong.be.feedback.repository.FeedbackRepository;
-import com.kkinikong.be.user.repository.UserRepository;
 
 @Service
 @RequiredArgsConstructor
 public class FeedbackService {
 
   private final FeedbackRepository feedbackRepository;
-  private final UserRepository userRepository;
 
   @Transactional
   public void addFeedback(FeedbackRequest request) {
