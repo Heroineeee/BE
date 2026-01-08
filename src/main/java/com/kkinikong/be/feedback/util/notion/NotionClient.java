@@ -12,6 +12,7 @@ import org.springframework.web.reactive.function.client.WebClient;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
+import com.kkinikong.be.feedback.domain.type.FeedbackType;
 import com.kkinikong.be.feedback.event.payload.FeedbackCreatedEvent;
 
 @Slf4j
@@ -32,6 +33,15 @@ public class NotionClient {
     // 현재 날짜
     String today = LocalDate.now().toString();
 
+    // 유형
+    List<Map<String, String>> typeList = new java.util.ArrayList<>();
+    if (feedbackCreatedEvent.type() != null && !feedbackCreatedEvent.type().isBlank()) {
+      for (String t : feedbackCreatedEvent.type().split(",")) {
+        String trimmed = t.trim();
+        typeList.add(Map.of("name", FeedbackType.valueOf(trimmed).getLabel()));
+      }
+    }
+
     Map<String, Object> body =
         Map.of(
             "parent", Map.of("database_id", feedbackId),
@@ -41,11 +51,16 @@ public class NotionClient {
                         Map.of(
                             "title",
                             List.of(
-                                Map.of("text", Map.of("content", feedbackCreatedEvent.content())))),
+                                Map.of(
+                                    "text",
+                                    Map.of(
+                                        "content",
+                                        feedbackCreatedEvent.content() != null
+                                            ? feedbackCreatedEvent.content()
+                                            : "")))),
                     "별점", Map.of("number", feedbackCreatedEvent.rating()),
-                    "유형", Map.of("select", Map.of("name", feedbackCreatedEvent.type())),
+                    "유형", Map.of("multi_select", typeList),
                     "피드백 날짜", Map.of("date", Map.of("start", today))));
-
     webClient
         .post()
         .uri("https://api.notion.com/v1/pages")
