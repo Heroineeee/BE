@@ -21,7 +21,7 @@ public class ReportEventListener {
   @Async("externalApiExecutor")
   @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
   public void handleReportCreatedEvent(ReportCreatedEvent reportCreatedEvent) {
-    // discordClient.sendReportAlert(reportCreatedEvent);
+    discordClient.sendReportAlert(reportCreatedEvent);
     notionClient.sendReport(reportCreatedEvent);
   }
 }

@@ -51,6 +51,7 @@ springdoc:
 external-api:
   discord:
     feedback-url: ${DISCORD_FEEDBACK_WEBHOOK_URL}
+    report-url: ${DISCORD_REPORT_WEBHOOK_URL}
   notion:
     secret: ${NOTION_SECRET}
     database-id:

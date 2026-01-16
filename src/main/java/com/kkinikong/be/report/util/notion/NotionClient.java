@@ -35,7 +35,7 @@ public class NotionClient {
         Map.of("title", List.of(Map.of("text", Map.of("content", event.userNickname())))));
 
     props.put("신고자 ID", Map.of("number", event.userId()));
-    props.put("신고 유형", Map.of("select", Map.of("name", event.reportType().name())));
+    props.put("신고 유형", Map.of("select", Map.of("name", event.reportType().getLabel())));
     props.put("대상 ID", Map.of("number", event.targetId()));
     props.put("신고 사유", Map.of("select", Map.of("name", event.reason())));
     props.put(
