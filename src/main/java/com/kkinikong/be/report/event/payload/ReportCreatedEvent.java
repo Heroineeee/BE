@@ -7,15 +7,15 @@ public record ReportCreatedEvent(
     ReportType reportType,
     Long targetId,
     Long userId,
-    Long targetUserId,
+    String userNickname,
     String reason,
     String description) {
-  public static ReportCreatedEvent from(Report report, Long targetUserId) {
+  public static ReportCreatedEvent from(Report report) {
     return new ReportCreatedEvent(
         report.getReportType(),
         report.getTargetId(),
         report.getUser().getId(),
-        targetUserId,
+        report.getUser().getNickname(),
         report.getReason(),
         report.getDescription());
   }

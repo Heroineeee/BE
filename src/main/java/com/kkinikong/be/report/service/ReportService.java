@@ -69,7 +69,7 @@ public class ReportService {
             .build();
 
     reportRepository.save(report);
-    applicationEventPublisher.publishEvent(ReportCreatedEvent.from(report, null));
+    applicationEventPublisher.publishEvent(ReportCreatedEvent.from(report));
   }
 
   @Transactional
@@ -86,8 +86,7 @@ public class ReportService {
 
     Report report =
         saveReport(reviewId, ReportType.REVIEW, CommonReportReason, reportRequest, user);
-    applicationEventPublisher.publishEvent(
-        ReportCreatedEvent.from(report, review.getUser().getId()));
+    applicationEventPublisher.publishEvent(ReportCreatedEvent.from(report));
   }
 
   @Transactional
@@ -106,8 +105,7 @@ public class ReportService {
 
     Report report =
         saveReport(postId, ReportType.COMMUNITY_POST, CommonReportReason, reportRequest, user);
-    applicationEventPublisher.publishEvent(
-        ReportCreatedEvent.from(report, communityPost.getUser().getId()));
+    applicationEventPublisher.publishEvent(ReportCreatedEvent.from(report));
   }
 
   @Transactional
@@ -128,8 +126,7 @@ public class ReportService {
     Report report =
         saveReport(
             commentId, ReportType.COMMUNITY_COMMENT, CommonReportReason, reportRequest, user);
-    applicationEventPublisher.publishEvent(
-        ReportCreatedEvent.from(report, comment.getUser().getId()));
+    applicationEventPublisher.publishEvent(ReportCreatedEvent.from(report));
   }
 
   private Report saveReport(

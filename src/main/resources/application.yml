@@ -55,3 +55,4 @@ external-api:
     secret: ${NOTION_SECRET}
     database-id:
       feedback: ${NOTION_FEEDBACK_DATABASE_ID}
+      report: ${NOTION_REPORT_DATABASE_ID}
