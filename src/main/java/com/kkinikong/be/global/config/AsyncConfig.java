@@ -22,4 +22,15 @@ public class AsyncConfig implements AsyncConfigurer {
     executor.initialize();
     return executor;
   }
+
+  @Bean(name = "externalApiExecutor")
+  public Executor externalApiExecutor() {
+    ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
+    executor.setCorePoolSize(5);
+    executor.setMaxPoolSize(15);
+    executor.setQueueCapacity(50);
+    executor.setThreadNamePrefix("ExternalApiExecutor-");
+    executor.initialize();
+    return executor;
+  }
 }

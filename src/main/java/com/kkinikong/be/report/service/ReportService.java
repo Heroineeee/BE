@@ -2,6 +2,7 @@ package com.kkinikong.be.report.service;
 
 import java.time.LocalDateTime;
 
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -19,6 +20,7 @@ import com.kkinikong.be.report.domain.type.CommonReportReason;
 import com.kkinikong.be.report.domain.type.ReportType;
 import com.kkinikong.be.report.domain.type.StoreReportReason;
 import com.kkinikong.be.report.dto.request.ReportRequest;
+import com.kkinikong.be.report.event.payload.ReportCreatedEvent;
 import com.kkinikong.be.report.exception.ReportException;
 import com.kkinikong.be.report.exception.errorcode.ReportErrorCode;
 import com.kkinikong.be.report.respository.ReportRepository;
@@ -42,6 +44,7 @@ public class ReportService {
   private final ReviewRepository reviewRepository;
   private final CommunityPostRepository communityPostRepository;
   private final CommentRepository commentRepository;
+  private final ApplicationEventPublisher applicationEventPublisher;
 
   @Transactional
   public void reportStore(
@@ -66,6 +69,7 @@ public class ReportService {
             .build();
 
     reportRepository.save(report);
+    applicationEventPublisher.publishEvent(ReportCreatedEvent.from(report));
   }
 
   @Transactional
@@ -80,7 +84,9 @@ public class ReportService {
     checkSelfReport(review.getUser().getId(), userId);
     checkTargetExist(ReportType.REVIEW, reviewId, userId);
 
-    saveReport(reviewId, ReportType.REVIEW, CommonReportReason, reportRequest, user);
+    Report report =
+        saveReport(reviewId, ReportType.REVIEW, CommonReportReason, reportRequest, user);
+    applicationEventPublisher.publishEvent(ReportCreatedEvent.from(report));
   }
 
   @Transactional
@@ -97,7 +103,9 @@ public class ReportService {
 
     communityPost.incrementReportCount();
 
-    saveReport(postId, ReportType.COMMUNITY_POST, CommonReportReason, reportRequest, user);
+    Report report =
+        saveReport(postId, ReportType.COMMUNITY_POST, CommonReportReason, reportRequest, user);
+    applicationEventPublisher.publishEvent(ReportCreatedEvent.from(report));
   }
 
   @Transactional
@@ -115,10 +123,13 @@ public class ReportService {
 
     comment.incrementReportCount();
 
-    saveReport(commentId, ReportType.COMMUNITY_COMMENT, CommonReportReason, reportRequest, user);
+    Report report =
+        saveReport(
+            commentId, ReportType.COMMUNITY_COMMENT, CommonReportReason, reportRequest, user);
+    applicationEventPublisher.publishEvent(ReportCreatedEvent.from(report));
   }
 
-  private void saveReport(
+  private Report saveReport(
       Long targetId,
       ReportType reportType,
       CommonReportReason commonReportReason,
@@ -136,7 +147,7 @@ public class ReportService {
             .user(user)
             .build();
 
-    reportRepository.save(report);
+    return reportRepository.save(report);
   }
 
   private User findUserOrThrow(Long userId) {
