@@ -100,6 +100,10 @@ public class StoreService {
     List<Long> nearbyIds =
         redisTemplateCacheService.findNearbyStoreIds(latitude, longitude, radius);
 
+    if (nearbyIds == null || nearbyIds.isEmpty()) {
+      return PageResponse.from(Page.empty(pageable), StoreMapListItemResponse::from);
+    }
+
     Page<Store> storePage =
         storeRepository.findStoresByIdsForMap(nearbyIds, keyword, category, pageable, userId);
     return PageResponse.from(storePage, StoreMapListItemResponse::from);
