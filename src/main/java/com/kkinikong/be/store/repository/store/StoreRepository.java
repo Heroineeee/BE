@@ -24,4 +24,23 @@ public interface StoreRepository extends JpaRepository<Store, Long>, StoreReposi
   @Modifying(clearAutomatically = true)
   @Query("UPDATE Store s SET s.viewCount = s.viewCount + :count WHERE s.id = :storeId")
   void incrementViews(@Param("storeId") Long storeId, @Param("count") Long count);
+
+  @Query(
+      value =
+          """
+    SELECT COUNT(DISTINCT city_name) AS city_count
+    FROM (
+      SELECT
+        CASE
+          WHEN region LIKE '서울%' OR region LIKE '인천%' THEN NULL
+          WHEN region LIKE '%광역시%' THEN SUBSTRING_INDEX(TRIM(region), ' ', 1)
+          WHEN region LIKE '%시' THEN SUBSTRING_INDEX(TRIM(region), ' ', -1)
+          ELSE NULL
+        END AS city_name
+      FROM stores
+    ) t
+    WHERE city_name IS NOT NULL
+    """,
+      nativeQuery = true)
+  long getStoreRegionCount();
 }

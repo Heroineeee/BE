@@ -43,15 +43,27 @@ public class StoreController {
   }
 
   @Operation(
+      summary = "메인페이지 가맹점 지역 개수 조회",
+      description =
+          """
+                - 지역은 가맹점 region에서 추출하며, 서울, 인천 지역 제외한 가맹점 지역 개수를 조회합니다.
+                """)
+  @GetMapping("/region-count")
+  public ResponseEntity<ApiResponse<Object>> getStoreRegionCount() {
+    StoreRegionCountResponse response = storeService.getStoreRegionCount();
+    return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.from(response));
+  }
+
+  @Operation(
       summary = "가맹점 찾기 화면 리스트/검색 통합 조회",
       description =
           """
-             - keyword가 없으면: GPS 또는 디폴트 위치(인천 서구) 기준 전체 가맹점 조회
-             - keyword가 주소(00동, 00구 등)일 경우: 해당 위치 기준 반경 5km 가맹점 조회
-             - keyword가 음식명 등 일반 키워드일 경우: 현재 위치 기준 가맹점명/주소에 포함된 가맹점 조회
-             - category 필터 선택안하면 전체 가맹점 조회
-             - 정렬: 거리순(DISTANCE), 별점순(RATING), 리뷰순(REVIEW_COUNT), 조회수순(VIEW_COUNT)
-             """)
+                - keyword가 없으면: GPS 또는 디폴트 위치(인천 서구) 기준 전체 가맹점 조회
+                - keyword가 주소(00동, 00구 등)일 경우: 해당 위치 기준 반경 5km 가맹점 조회
+                - keyword가 음식명 등 일반 키워드일 경우: 현재 위치 기준 가맹점명/주소에 포함된 가맹점 조회
+                - category 필터 선택안하면 전체 가맹점 조회
+                - 정렬: 거리순(DISTANCE), 별점순(RATING), 리뷰순(REVIEW_COUNT), 조회수순(VIEW_COUNT)
+                """)
   @GetMapping("/list")
   public ResponseEntity<ApiResponse<Object>> getStoresList(
       @Parameter(description = "인천 서구의 임의의 위도 값", example = "37.545472")
@@ -76,12 +88,12 @@ public class StoreController {
       summary = "가맹점 지도 화면 리스트/검색 통합 조회",
       description =
           """
-            - keyword가 없으면: GPS 또는 디폴트 위치(인천 서구) 기준 전체 가맹점 조회
-            - keyword가 주소(00동, 00구 등)일 경우: 해당 위치 기준 반경 5km 가맹점 조회
-            - keyword가 음식명 등 일반 키워드일 경우: 현재 위치 기준 가맹점명/주소에 포함된 가맹점 조회
-            - category 필터 선택안하면 전체 가맹점 조회
-            - radius를 통해 반경을 조절할 수 있다.
-          """)
+                  - keyword가 없으면: GPS 또는 디폴트 위치(인천 서구) 기준 전체 가맹점 조회
+                  - keyword가 주소(00동, 00구 등)일 경우: 해당 위치 기준 반경 5km 가맹점 조회
+                  - keyword가 음식명 등 일반 키워드일 경우: 현재 위치 기준 가맹점명/주소에 포함된 가맹점 조회
+                  - category 필터 선택안하면 전체 가맹점 조회
+                  - radius를 통해 반경을 조절할 수 있다.
+                """)
   @GetMapping("/map")
   public ResponseEntity<ApiResponse<Object>> getStoreMapList(
       @Parameter(description = "인천 서구의 임의의 위도 값", example = "37.545472")
@@ -107,13 +119,13 @@ public class StoreController {
       summary = "가맹점 상세 정보 조회",
       description =
           """
-            - 가맹점 ID를 통해 가맹점 정보를 조회합니다.
-            - 가맹점 ID, 가맹점 카테고리, 가맹점 이름, 가맹점 주소, 영업시간, 스크랩 수, 업데이트 일자, 리뷰 수, 별점, 스크랩 여부를 포함합니다.
-            - 로그인 한 경우에는 스크랩 여부가 true/false로 반환되고 로그인 하지 않은 경우에는 null로 반환됩니다.
-            - 가맹점 영업시간 정보는 구글 API 호출을 통해 조회하고 캐싱되어 30일간 유지됩니다.
-            - 영업시간 정보가 없는 경우, 영업시간 리스트에서 휴무일인 경우에 null로 반환됩니다.
-            - 가맹점이 ID로 조회되지 않는 경우에는 STORE_NOT_FOUND 400 에러를 반환합니다.
-            """)
+                - 가맹점 ID를 통해 가맹점 정보를 조회합니다.
+                - 가맹점 ID, 가맹점 카테고리, 가맹점 이름, 가맹점 주소, 영업시간, 스크랩 수, 업데이트 일자, 리뷰 수, 별점, 스크랩 여부를 포함합니다.
+                - 로그인 한 경우에는 스크랩 여부가 true/false로 반환되고 로그인 하지 않은 경우에는 null로 반환됩니다.
+                - 가맹점 영업시간 정보는 구글 API 호출을 통해 조회하고 캐싱되어 30일간 유지됩니다.
+                - 영업시간 정보가 없는 경우, 영업시간 리스트에서 휴무일인 경우에 null로 반환됩니다.
+                - 가맹점이 ID로 조회되지 않는 경우에는 STORE_NOT_FOUND 400 에러를 반환합니다.
+                """)
   @GetMapping("/{storeId}")
   public ResponseEntity<ApiResponse<Object>> getStoreInfo(
       @PathVariable("storeId") Long storeId,
@@ -127,12 +139,12 @@ public class StoreController {
       summary = "가맹점 메뉴 보러가기 및 길찾기",
       description =
           """
-            - 가맹점 ID를 통해 가맹점 메뉴 보러가기 및 길찾기 링크를 조회합니다.
-            - 카카오 API를 통해 가맹점 ID를 조회하고, 해당 ID를 통해 메뉴 보러가기 및 길찾기 링크를 생성합니다.
-            - 카카오에 등록된 가맹점이 없는 경우에는 네이버 검색 링크로 대체합니다.
-            - 저장된 외부링크는 API 호출을 줄이기 위해 캐싱되어 30일간 유지됩니다.
-            - 가맹점이 ID로 조회되지 않는 경우에는 STORE_NOT_FOUND 400 에러를 반환합니다.
-            """)
+                - 가맹점 ID를 통해 가맹점 메뉴 보러가기 및 길찾기 링크를 조회합니다.
+                - 카카오 API를 통해 가맹점 ID를 조회하고, 해당 ID를 통해 메뉴 보러가기 및 길찾기 링크를 생성합니다.
+                - 카카오에 등록된 가맹점이 없는 경우에는 네이버 검색 링크로 대체합니다.
+                - 저장된 외부링크는 API 호출을 줄이기 위해 캐싱되어 30일간 유지됩니다.
+                - 가맹점이 ID로 조회되지 않는 경우에는 STORE_NOT_FOUND 400 에러를 반환합니다.
+                """)
   @GetMapping("/{storeId}/external-links")
   public ResponseEntity<ApiResponse<Object>> getStoreExternalLink(
       @PathVariable("storeId") Long storeId) {
