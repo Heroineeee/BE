@@ -121,21 +121,27 @@ public class StoreGoogleApiClient {
 
   private String convertTo24Hour(String time) {
     try {
-      boolean isAm = time.contains("오전");
-      boolean isPm = time.contains("오후");
+      time = time.trim();
 
-      time = time.replace("오전", "").replace("오후", "").trim();
+      boolean isAm = time.contains("오전") || time.toUpperCase().contains("AM");
+      boolean isPm = time.contains("오후") || time.toUpperCase().contains("PM");
+
+      // 토큰 제거 (오전/오후/AM/PM)
+      time =
+          time.replace("오전", "")
+              .replace("오후", "")
+              .replace("AM", "")
+              .replace("PM", "")
+              .replace("am", "")
+              .replace("pm", "")
+              .trim();
 
       String[] timeParts = time.split(":");
       int hour = Integer.parseInt(timeParts[0].trim());
       int minute = Integer.parseInt(timeParts[1].trim());
 
-      if (isPm && hour != 12) {
-        hour += 12;
-      }
-      if (isAm && hour == 12) {
-        hour = 0;
-      }
+      if (isPm && hour != 12) hour += 12;
+      if (isAm && hour == 12) hour = 0;
 
       return String.format("%02d:%02d", hour, minute);
     } catch (Exception e) {

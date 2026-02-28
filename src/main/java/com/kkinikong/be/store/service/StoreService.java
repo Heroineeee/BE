@@ -164,6 +164,11 @@ public class StoreService {
     return stores.stream().map(StoreCardResponse::from).toList();
   }
 
+  public StoreRegionCountResponse getStoreRegionCount() {
+    Long regionCounts = storeRepository.getStoreRegionCount();
+    return StoreRegionCountResponse.from(regionCounts);
+  }
+
   @Transactional
   public StoreScrapResponse addScrap(Long storeId, Long userId) {
     User user = getUserOrThrow(userId);
