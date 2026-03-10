@@ -17,8 +17,25 @@ services:
     networks:
         - kkini-kong-net
 
+  postgis: # 새로 추가할 PostgreSQL 서비스
+    image: postgis/postgis:15-3.3
+    container_name: kkini-kong-postgis
+    restart: always
+    ports:
+      - "55432:5432" # 로컬 포트는 55432로 설정 (충돌 방지)
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: ${DOCKER_DB_PASS} # 동일한 패스워드 사용 가능
+      POSTGRES_DB: kkinikong_pg
+      TZ: Asia/Seoul
+    volumes:
+      - pg_data:/var/lib/postgresql/data
+    networks:
+      - kkini-kong-net
+
 volumes:
   mysql_data:
+  pg_data:
 
 networks:
-    kkini-kong-net:
+  kkini-kong-net:
