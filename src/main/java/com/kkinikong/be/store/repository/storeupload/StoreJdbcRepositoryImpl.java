@@ -24,15 +24,16 @@ public class StoreJdbcRepositoryImpl implements StoreJdbcRepository {
   public void upsertStores(List<Store> stores) {
     String sql =
         "INSERT INTO stores "
-            + "(name, region, category, address, latitude, longitude, "
+            + "(name, region, category, address, latitude, longitude, location, "
             + "rating_avg, scrap_count, review_count, view_count, updated_date, created_date, modified_date, is_updated) "
-            + "VALUES (?, ?, ?, ?, ?, ?, 0.0, 0, 0, 0, ?, NOW(), NOW(), TRUE) "
-            + "ON DUPLICATE KEY UPDATE "
-            + "category = VALUES(category), "
-            + "latitude = VALUES(latitude), "
-            + "longitude = VALUES(longitude), "
-            + "updated_date = VALUES(updated_date), "
-            + "modified_date = NOW(),"
+            + "VALUES (?, ?, ?, ?, ?, ?, ST_MakePoint(?, ?), 0.0, 0, 0, 0, ?, NOW(), NOW(), TRUE) "
+            + "ON CONFLICT (name, address) DO UPDATE SET "
+            + "category = EXCLUDED.category, "
+            + "latitude = EXCLUDED.latitude, "
+            + "longitude = EXCLUDED.longitude, "
+            + "location = EXCLUDED.location, "
+            + "updated_date = EXCLUDED.updated_date, "
+            + "modified_date = NOW(), "
             + "is_updated = TRUE";
 
     jdbcTemplate.batchUpdate(
@@ -46,7 +47,9 @@ public class StoreJdbcRepositoryImpl implements StoreJdbcRepository {
           ps.setString(4, store.getAddress());
           ps.setDouble(5, store.getLatitude());
           ps.setDouble(6, store.getLongitude());
-          ps.setObject(7, store.getUpdatedDate());
+          ps.setDouble(7, store.getLongitude()); // ST_MakePoint(longitude, latitude)
+          ps.setDouble(8, store.getLatitude());
+          ps.setObject(9, store.getUpdatedDate());
         });
   }
 

@@ -33,8 +33,8 @@ public interface StoreRepository extends JpaRepository<Store, Long>, StoreReposi
       SELECT
         CASE
           WHEN region LIKE '서울%' OR region LIKE '인천%' THEN NULL
-          WHEN region LIKE '%광역시%' THEN SUBSTRING_INDEX(TRIM(region), ' ', 1)
-          WHEN region LIKE '%시' THEN SUBSTRING_INDEX(TRIM(region), ' ', -1)
+          WHEN region LIKE '%광역시%' THEN SPLIT_PART(TRIM(region), ' ', 1)
+          WHEN region LIKE '%시' THEN REVERSE(SPLIT_PART(REVERSE(TRIM(region)), ' ', 1))
           ELSE NULL
         END AS city_name
       FROM stores

@@ -10,7 +10,6 @@ import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.Tuple;
 import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.dsl.Expressions;
-import com.querydsl.core.types.dsl.NumberTemplate;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 
@@ -24,7 +23,6 @@ import com.kkinikong.be.store.domain.type.StoreSort;
 public class StoreRepositoryCustomImpl implements StoreRepositoryCustom {
 
   private static final double DEFAULT_RADIUS_METERS = 5000.0;
-  private static final double EARTH_RADIUS = 6371000.0;
   private final JPAQueryFactory queryFactory;
   private final QStore store = QStore.store;
   private final QStoreScrap storeScrap = QStoreScrap.storeScrap;
@@ -84,8 +82,8 @@ public class StoreRepositoryCustomImpl implements StoreRepositoryCustom {
       whereBuilder.and(buildKeywordCondition(keyword));
     }
 
-    String format =
-        "FIELD({0}, " + String.join(", ", ids.stream().map(String::valueOf).toList()) + ")";
+    String idsStr = String.join(", ", ids.stream().map(String::valueOf).toList());
+    String format = "array_position(ARRAY[" + idsStr + "]::bigint[], {0})";
     OrderSpecifier<?> fieldOrder =
         new OrderSpecifier<>(
             com.querydsl.core.types.Order.ASC,
@@ -145,40 +143,19 @@ public class StoreRepositoryCustomImpl implements StoreRepositoryCustom {
   private BooleanBuilder buildDistanceCondition(
       Double latitude, Double longitude, double radiusMeters) {
 
-    // Bounding Box 계산
-    BoundingBox box = calculateBoundingBox(latitude, longitude, radiusMeters);
-
     BooleanBuilder builder = new BooleanBuilder();
-    builder.and(store.latitude.between(box.minLat(), box.maxLat()));
-    builder.and(store.longitude.between(box.minLon(), box.maxLon()));
-
-    // 거리 필터 (Bounding Box로 좁혀진 후 정확한 원 필터링)
-    NumberTemplate<Double> distanceExpression =
+    builder.and(
         Expressions.numberTemplate(
-            Double.class,
-            "ST_Distance_Sphere(POINT({0}, {1}), POINT({2}, {3}))",
-            store.longitude,
-            store.latitude,
-            longitude,
-            latitude);
-    builder.and(distanceExpression.loe(radiusMeters));
+                Integer.class,
+                "function('st_dwithin_meters', {0}, {1}, {2}, {3})",
+                store.location,
+                longitude,
+                latitude,
+                radiusMeters)
+            .eq(1));
 
     return builder;
   }
-
-  private BoundingBox calculateBoundingBox(double lat, double lon, double radiusMeters) {
-    double deltaLat = Math.toDegrees(radiusMeters / EARTH_RADIUS);
-    double deltaLon = Math.toDegrees(radiusMeters / (EARTH_RADIUS * Math.cos(Math.toRadians(lat))));
-
-    double minLat = lat - deltaLat;
-    double maxLat = lat + deltaLat;
-    double minLon = lon - deltaLon;
-    double maxLon = lon + deltaLon;
-
-    return new BoundingBox(minLat, maxLat, minLon, maxLon);
-  }
-
-  private record BoundingBox(double minLat, double maxLat, double minLon, double maxLon) {}
 
   // 정렬 조건 선택
   private OrderSpecifier<?>[] getSortOrder(StoreSort sort, Double latitude, Double longitude) {
@@ -197,9 +174,8 @@ public class StoreRepositoryCustomImpl implements StoreRepositoryCustom {
     return new OrderSpecifier[] {
       Expressions.numberTemplate(
               Double.class,
-              "ST_Distance_Sphere(POINT({0}, {1}), POINT({2}, {3}))",
-              store.longitude,
-              store.latitude,
+              "function('st_distance_meters', {0}, {1}, {2})",
+              store.location,
               longitude.doubleValue(),
               latitude.doubleValue())
           .asc(),

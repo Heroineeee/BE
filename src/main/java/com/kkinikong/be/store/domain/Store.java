@@ -8,6 +8,7 @@ import jakarta.persistence.*;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.locationtech.jts.geom.Point;
 
 import com.kkinikong.be.global.entity.BaseEntity;
 import com.kkinikong.be.review.domain.Review;
@@ -66,6 +67,9 @@ public class Store extends BaseEntity {
 
   @Column(name = "is_updated", nullable = false)
   private boolean isUpdated = false;
+
+  @Column(name = "location", columnDefinition = "geometry(Point, 4326)")
+  private Point location;
 
   @Transient private Boolean isScrapped;
 
