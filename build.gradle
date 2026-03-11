@@ -37,10 +37,8 @@ dependencies {
 	compileOnly 'org.projectlombok:lombok'
 	annotationProcessor 'org.projectlombok:lombok'
 
-	// mysql
-	runtimeOnly 'com.microsoft.sqlserver:mssql-jdbc'
-	runtimeOnly 'com.mysql:mysql-connector-j:8.0.33'
-	runtimeOnly 'com.mysql:mysql-connector-j'
+	// postgresql
+	runtimeOnly 'org.postgresql:postgresql'
 
 	// test
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
