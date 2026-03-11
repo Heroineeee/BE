@@ -7,11 +7,14 @@ spring:
     active: ${SPRING_PROFILES_ACTIVE:local}
 
   datasource:
-    driver-class-name: com.mysql.cj.jdbc.Driver
+    driver-class-name: org.postgresql.Driver
 
   jpa:
     hibernate:
       ddl-auto: update
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
 
   jwt:
     secret: ${JWT_SECRET}
