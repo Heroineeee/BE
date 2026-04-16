@@ -38,4 +38,3 @@
 | Chaeeun | Erika |
 |:---------:|:-----:|
 | <img src="https://avatars.githubusercontent.com/u/96906242?v=4" width="100" height="100" style="border-radius: 50%;" /><br/><a href="https://github.com/chaen-ing" target="_blank"><img src="https://img.shields.io/badge/chaen--ing-181717?style=for-the-social&logo=github&logoColor=white"/></a> | <img src="https://avatars.githubusercontent.com/u/141746836?v=4" width="100" height="100" style="border-radius: 50%;" /><br/><a href="https://github.com/erika0915" target="_blank"><img src="https://img.shields.io/badge/erika0915-181717?style=for-the-social&logo=github&logoColor=white"/></a> |
-
