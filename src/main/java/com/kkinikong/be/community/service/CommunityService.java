@@ -5,13 +5,11 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -258,30 +256,35 @@ public class CommunityService {
     }
 
     // Elasticsearch에서 검색어로 커뮤니티 게시글 페이징해서 가져옴
-    Pageable pageable = PageRequest.of(page, size);
-    List<Long> communitySearchResponses =
-        openSearchService.searchCommunityPost(keyword, page, size);
+    // Pageable pageable = PageRequest.of(page, size);
+    // List<Long> communitySearchResponses =
+    //     openSearchService.searchCommunityPost(keyword, page, size);
+    //
+    // if (communitySearchResponses.isEmpty()) {
+    //   return new PageImpl<>(List.of(), pageable, 0);
+    // }
+    //
+    // Map<Long, CommunityPost> postMap =
+    //     communityPostRepository.findByIdIn(communitySearchResponses).stream()
+    //         .collect(Collectors.toMap(CommunityPost::getId, post -> post));
+    //
+    // // 순서 유지: 검색 결과에 있는 ID 순서대로 매핑
+    // List<CommunityPostListResponse> results =
+    //     communitySearchResponses.stream()
+    //         .map(
+    //             id ->
+    //                 Optional.ofNullable(postMap.get(id))
+    //                     .map(CommunityPostListResponse::from)
+    //                     .orElse(null))
+    //         .filter(Objects::nonNull)
+    //         .toList();
+    //
+    // return new PageImpl<>(results, pageable, communitySearchResponses.size());
 
-    if (communitySearchResponses.isEmpty()) {
-      return new PageImpl<>(List.of(), pageable, 0);
-    }
-
-    Map<Long, CommunityPost> postMap =
-        communityPostRepository.findByIdIn(communitySearchResponses).stream()
-            .collect(Collectors.toMap(CommunityPost::getId, post -> post));
-
-    // 순서 유지: 검색 결과에 있는 ID 순서대로 매핑
-    List<CommunityPostListResponse> results =
-        communitySearchResponses.stream()
-            .map(
-                id ->
-                    Optional.ofNullable(postMap.get(id))
-                        .map(CommunityPostListResponse::from)
-                        .orElse(null))
-            .filter(Objects::nonNull)
-            .toList();
-
-    return new PageImpl<>(results, pageable, communitySearchResponses.size());
+    Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdDate"));
+    return communityPostRepository
+        .findByTitleContainingOrContentContaining(keyword, keyword, pageable)
+        .map(CommunityPostListResponse::from);
   }
 
   public List<StoreRecentSearchKeyword> getRecentSearchKeywords(Long userId) {
