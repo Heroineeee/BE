@@ -37,6 +37,10 @@ public interface CommunityPostRepository
   @EntityGraph(attributePaths = {"communityPostImageList"})
   Page<CommunityPost> findAll(Pageable pageable);
 
+  @EntityGraph(attributePaths = {"communityPostImageList"})
+  Page<CommunityPost> findByTitleContainingOrContentContaining(
+      String titleKeyword, String contentKeyword, Pageable pageable);
+
   Page<CommunityPost> findAllByUserIdOrderByCreatedDateDesc(Long userId, Pageable pageable);
 
   @Modifying(clearAutomatically = true)
